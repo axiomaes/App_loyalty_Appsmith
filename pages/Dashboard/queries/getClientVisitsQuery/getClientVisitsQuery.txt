@@ -1,0 +1,105 @@
+-- Detecta si es VIP por el tag del cliente
+WITH is_vip AS (
+  SELECT
+    c.id AS customer_id,
+    (c.tag ILIKE '%VIP%') AS vip
+  FROM "Customer" c
+  WHERE c.id = {{ appsmith.store.selCustomerId }}::uuid
+  LIMIT 1
+),
+vip_counts AS (
+  -- Para VIP: 4 casillas por mes, sin recompensas
+  SELECT
+    i.customer_id,
+    4               AS total_slots,
+    date_trunc('month', now())       AS month_start,
+    date_trunc('month', now()) + interval '1 month' AS next_month_start,
+    COUNT(v.id)     AS visits_this_month
+  FROM is_vip i
+  LEFT JOIN "Visit" v
+    ON v."customerId" = i.customer_id
+   AND v."visitedAt" >= date_trunc('month', now())
+   AND v."visitedAt"  < date_trunc('month', now()) + interval '1 month'
+  GROUP BY 1,2,3,4
+),
+last_free AS (
+  -- Para no VIP: reinicio en la última FREE canjeada
+  SELECT
+    r."customerId"    AS customer_id,
+    COALESCE(MAX(r."redeemedAt"), '1970-01-01'::timestamptz) AS since
+  FROM "Reward" r
+  WHERE r."customerId" = {{ appsmith.store.selCustomerId }}::uuid
+    AND r.kind = 'free'
+    AND r.status = 'REDEEMED'
+  GROUP BY 1
+),
+normal_counts AS (
+  SELECT
+    c.id AS customer_id,
+    10   AS total_slots,
+    (SELECT since FROM last_free lf WHERE lf.customer_id = c.id) AS cycle_start,
+    (
+      SELECT COUNT(1)
+      FROM "Visit" v
+      WHERE v."customerId" = c.id
+        AND v."visitedAt" > COALESCE((SELECT since FROM last_free lf WHERE lf.customer_id = c.id),
+                                     '1970-01-01'::timestamptz)
+    ) AS visits_since
+  FROM "Customer" c
+  WHERE c.id = {{ appsmith.store.selCustomerId }}::uuid
+  LIMIT 1
+),
+rewards_state AS (
+  -- ¿Ya hay recompensas emitidas en el ciclo actual? (pendientes o canjeadas)
+  SELECT
+    c.id AS customer_id,
+    -- punto de inicio del ciclo
+    COALESCE((SELECT since FROM last_free lf WHERE lf.customer_id = c.id),
+             '1970-01-01'::timestamptz) AS since,
+    -- "50%" emitida en el ciclo
+    EXISTS (
+      SELECT 1 FROM "Reward" r
+      WHERE r."customerId" = c.id
+        AND r.kind = 'half'
+        AND r."issuedAt" > COALESCE((SELECT since FROM last_free lf WHERE lf.customer_id = c.id),
+                                    '1970-01-01'::timestamptz)
+    ) AS half_issued,
+    -- "Gratis" emitida en el ciclo
+    EXISTS (
+      SELECT 1 FROM "Reward" r
+      WHERE r."customerId" = c.id
+        AND r.kind = 'free'
+        AND r."issuedAt" > COALESCE((SELECT since FROM last_free lf WHERE lf.customer_id = c.id),
+                                    '1970-01-01'::timestamptz)
+    ) AS free_issued
+  FROM "Customer" c
+  WHERE c.id = {{ appsmith.store.selCustomerId }}::uuid
+  LIMIT 1
+)
+SELECT
+  -- planName informativo
+  CASE WHEN (SELECT vip FROM is_vip) THEN 'VIP' ELSE 'Default' END AS "planName",
+
+  -- totalSlots + currentVisits según VIP/normal
+  CASE WHEN (SELECT vip FROM is_vip)
+       THEN (SELECT total_slots FROM vip_counts)
+       ELSE (SELECT total_slots FROM normal_counts)
+  END AS "totalSlots",
+
+  CASE WHEN (SELECT vip FROM is_vip)
+       THEN (SELECT visits_this_month FROM vip_counts)
+       ELSE (SELECT visits_since FROM normal_counts)
+  END AS "currentVisits",
+
+  -- fecha de ciclo para normal (para VIP puedes devolver el inicio de mes)
+  CASE WHEN (SELECT vip FROM is_vip)
+       THEN date_trunc('month', now())
+       ELSE (SELECT cycle_start FROM normal_counts)
+  END AS "cycleStart",
+
+  -- flags de recompensas (solo relevantes en normal)
+  CASE WHEN (SELECT vip FROM is_vip) THEN FALSE ELSE (SELECT half_issued FROM rewards_state) END AS "halfIssued",
+  CASE WHEN (SELECT vip FROM is_vip) THEN FALSE ELSE (SELECT free_issued FROM rewards_state) END AS "freeIssued",
+
+  -- es VIP?
+  (SELECT vip FROM is_vip) AS "isVip";

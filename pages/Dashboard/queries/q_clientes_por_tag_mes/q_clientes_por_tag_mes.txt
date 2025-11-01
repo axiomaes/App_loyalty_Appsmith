@@ -1,0 +1,21 @@
+SELECT
+  CASE
+    WHEN c."tag" = 'BONO_FAMILIA' THEN 'Bono Familia'
+    WHEN c."tag" = 'BONO_VIP_A'   THEN 'Bono VIP A'
+    WHEN c."tag" = 'BONO_VIP_B'   THEN 'Bono VIP B'
+    WHEN c."tag" = 'BONO_VIP_C'   THEN 'Bono VIP C'
+    WHEN c."tag" = 'BONO_TARJETA' THEN 'Bono Tarjeta'
+    ELSE c."tag"::text
+  END AS bono,
+  COUNT(*) AS clientes
+FROM "Customer" c
+WHERE c."businessId" = {{ appsmith.store.businessId }}
+  AND c."tag" IN (
+    'BONO_FAMILIA',
+    'BONO_VIP_A',
+    'BONO_VIP_B',
+    'BONO_VIP_C',
+    'BONO_TARJETA'
+  )
+GROUP BY 1
+ORDER BY clientes DESC;

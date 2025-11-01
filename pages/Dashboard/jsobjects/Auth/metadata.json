@@ -1,0 +1,20 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_026774b9-4b7b-4547-9c2d-ec29cedcc1c2",
+  "id": "Dashboard_Auth",
+  "unpublishedCollection": {
+    "name": "Auth",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "ROLES",
+        "value": "[\"SUPERADMIN\", \"ADMIN\", \"OWNER\", \"STAFF\", \"BARBER\"]"
+      },
+      {
+        "name": "DEFAULT_ROLE",
+        "value": "\"STAFF\""
+      }
+    ]
+  }
+}

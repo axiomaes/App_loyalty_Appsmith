@@ -1,0 +1,53 @@
+-- q_vip_backfill_bonds_tarjeta
+WITH p AS (
+  SELECT {{ appsmith.store.businessId }}::uuid AS bid
+),
+vip_no_bond AS (
+  SELECT c.id AS customer_id, COALESCE(c.tag,'') AS tag
+  FROM "Customer" c
+  WHERE c."businessId" = (SELECT bid FROM p)
+    AND c."deletedAt" IS NULL
+    AND c.tag ILIKE '%VIP%'
+    AND NOT EXISTS (SELECT 1 FROM "Bond" b WHERE b."customerId" = c.id)
+),
+plans AS (
+  SELECT bp.id, bp.code, bp.name, bp."isActive"
+  FROM "BondPlan" bp
+  WHERE bp."businessId" = (SELECT bid FROM p)
+    AND bp."isActive" = TRUE
+),
+plan_tarjeta AS (
+  SELECT id AS tarjeta_plan_id
+  FROM plans
+  WHERE code = 'BONO_TARJETA'
+  LIMIT 1
+),
+proposed AS (
+  SELECT
+    v.customer_id,
+    -- directo por tag si es BONO_VIP_A/B/C
+    (SELECT p.id FROM plans p WHERE p.code = v.tag LIMIT 1) AS plan_by_tag,
+    -- por defecto: BONO_TARJETA para tag VIP genérico
+    (SELECT tarjeta_plan_id FROM plan_tarjeta)              AS tarjeta_plan_id
+  FROM vip_no_bond v
+),
+to_insert AS (
+  SELECT
+    pr.customer_id,
+    COALESCE(pr.plan_by_tag, pr.tarjeta_plan_id) AS plan_id
+  FROM proposed pr
+  WHERE COALESCE(pr.plan_by_tag, pr.tarjeta_plan_id) IS NOT NULL
+)
+INSERT INTO "Bond"(id, "customerId", "planId", "startedAt", status, notes)
+SELECT
+  uuid_generate_v4(),
+  ti.customer_id,
+  ti.plan_id,
+  now(),
+  'ACTIVE',
+  'Backfill auto: VIP sin bond (preferencia BONO_TARJETA)'
+FROM to_insert ti
+WHERE NOT EXISTS (
+  SELECT 1 FROM "Bond" b WHERE b."customerId" = ti.customer_id
+)
+RETURNING id AS bond_id, "customerId", "planId", "startedAt", status;

@@ -1,0 +1,13 @@
+-- q_kpi_bonos_activos
+WITH p AS (
+  SELECT to_char(now(), 'YYYY-MM') AS period
+)
+SELECT COUNT(DISTINCT b."customerId")::int AS bonos_activos
+FROM "Bond" b
+JOIN "Customer" c ON c.id = b."customerId"
+LEFT JOIN "BondPayment" bp
+       ON bp."bondId" = b.id
+      AND bp.period   = (SELECT period FROM p)
+WHERE c."businessId" = {{ Auth.businessId() }}
+  AND b.status <> 'CANCELLED'
+  AND bp.id IS NOT NULL;

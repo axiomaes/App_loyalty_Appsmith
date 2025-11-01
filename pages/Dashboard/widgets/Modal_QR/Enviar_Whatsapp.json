@@ -1,0 +1,54 @@
+{
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 44,
+  "boxShadow": "none",
+  "buttonColor": "#22c55e",
+  "buttonStyle": "PRIMARY_BUTTON",
+  "buttonVariant": "PRIMARY",
+  "disabledWhenInvalid": false,
+  "dynamicBindingPathList": [
+    {
+      "key": "borderRadius"
+    }
+  ],
+  "dynamicPropertyPathList": [
+    {
+      "key": "onClick"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onClick"
+    }
+  ],
+  "iconAlign": "left",
+  "iconName": "send-message",
+  "isDefaultClickDisabled": true,
+  "isDisabled": false,
+  "isLoading": false,
+  "isVisible": true,
+  "key": "y2m6uufb7q",
+  "leftColumn": 33,
+  "minWidth": 120,
+  "mobileBottomRow": 22,
+  "mobileLeftColumn": 47,
+  "mobileRightColumn": 63,
+  "mobileTopRow": 18,
+  "needsErrorInfo": false,
+  "onClick": "{{\n  (async () => {\n    const link = appsmith.store.qrWaLink;\n    if (!link) { showAlert(\"Este cliente no tiene teléfono válido.\", \"warning\"); return; }\n    navigateTo(link, {}, \"NEW_WINDOW\");\n  })()\n}}\n",
+  "parentId": "181cr8gy1u",
+  "placement": "CENTER",
+  "recaptchaType": "V3",
+  "renderMode": "CANVAS",
+  "resetFormOnClick": false,
+  "responsiveBehavior": "hug",
+  "rightColumn": 59,
+  "text": "Enviar WhatsApp",
+  "tooltip": "Enviar por WhatsApp",
+  "topRow": 40,
+  "type": "BUTTON_WIDGET",
+  "version": 1,
+  "widgetId": "sgwyztcwq3",
+  "widgetName": "Enviar_Whatsapp"
+}

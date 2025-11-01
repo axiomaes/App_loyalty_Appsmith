@@ -1,0 +1,20 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_edc9966e-7342-45dd-83f0-d66ef4ad8d7d",
+  "id": "Dashboard_Logica_Mensual_bonos",
+  "unpublishedCollection": {
+    "name": "Logica_Mensual_bonos",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "PERIOD_FMT",
+        "value": "\"YYYY-MM\""
+      },
+      {
+        "name": "DATE_FMT",
+        "value": "\"YYYY-MM-DD\""
+      }
+    ]
+  }
+}

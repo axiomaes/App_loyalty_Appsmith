@@ -1,0 +1,41 @@
+{
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 33,
+  "boxShadow": "none",
+  "defaultImage": "\n",
+  "dynamicBindingPathList": [
+    {
+      "key": "borderRadius"
+    }
+  ],
+  "dynamicTriggerPathList": [],
+  "enableDownload": false,
+  "enableRotation": false,
+  "flexVerticalAlignment": "start",
+  "image": "",
+  "imageShape": "RECTANGLE",
+  "isLoading": false,
+  "isVisible": true,
+  "key": "0e7nwqnxbu",
+  "leftColumn": 1,
+  "maxZoomLevel": 1,
+  "mobileBottomRow": 22,
+  "mobileLeftColumn": 9,
+  "mobileRightColumn": 21,
+  "mobileTopRow": 10,
+  "needsErrorInfo": false,
+  "objectFit": "cover",
+  "originalBottomRow": 33,
+  "originalTopRow": 10,
+  "parentColumnSpace": 4.9329681396484375,
+  "parentId": "e4f8pwagjy",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "rightColumn": 62,
+  "topRow": 10,
+  "type": "IMAGE_WIDGET",
+  "version": 1,
+  "widgetId": "kf9lcyeifa",
+  "widgetName": "Image2"
+}

@@ -1,0 +1,76 @@
+-- q_bond_assign_upsert
+-- Params:
+--   {{ appsmith.store.businessId }} :: uuid  (implícito en v.bid)
+--   {{ this.params.customerId }}    :: uuid
+--   {{ this.params.planId }}        :: uuid
+
+WITH v AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid AS bid,
+    {{ this.params.customerId }}::uuid     AS cid,
+    {{ this.params.planId }}::uuid         AS pid
+),
+
+-- Cliente válido (del mismo negocio y no eliminado)
+cust AS (
+  SELECT c.id
+  FROM public."Customer" c
+  JOIN v ON c.id = v.cid AND c."businessId" = v.bid
+  WHERE c."deletedAt" IS NULL
+),
+
+-- Plan válido (del mismo negocio y activo)
+plan AS (
+  SELECT bp.id
+  FROM public."BondPlan" bp
+  JOIN v ON bp.id = v.pid AND bp."businessId" = v.bid
+  WHERE COALESCE(bp."isActive", TRUE) = TRUE
+),
+
+-- Bond existente del cliente (si lo hay)
+existing AS (
+  SELECT b.id, b."customerId", b."planId"
+  FROM public."Bond" b
+  JOIN cust c ON c.id = b."customerId"
+  LIMIT 1
+),
+
+-- UPDATE solo si hay bond y el plan cambia y el nuevo plan es válido
+upd AS (
+  UPDATE public."Bond" b
+  SET "planId" = p.id,
+      "updatedAt" = NOW()
+  FROM plan p, existing e
+  WHERE b.id = e.id
+    AND e."planId" <> p.id
+  RETURNING b."id", b."customerId", b."planId", 'updated'::text AS op
+),
+
+-- INSERT solo si no existía bond y cliente/plan son válidos
+ins AS (
+  INSERT INTO public."Bond" ("id", "customerId", "planId", "startedAt", "createdAt", "updatedAt")
+  SELECT uuid_generate_v4(), c.id, p.id, NOW(), NOW(), NOW()
+  FROM cust c, plan p
+  WHERE NOT EXISTS (SELECT 1 FROM existing)
+  RETURNING "id", "customerId", "planId", 'inserted'::text AS op
+),
+
+-- Fila resultante preferente: updated > inserted > existente (noop)
+picked AS (
+  SELECT * FROM upd
+  UNION ALL
+  SELECT * FROM ins
+  UNION ALL
+  SELECT e.id, e."customerId", e."planId", 'noop'::text AS op
+  FROM existing e
+  LIMIT 1
+)
+
+SELECT
+  (SELECT CASE WHEN EXISTS(SELECT 1 FROM cust) THEN 1 ELSE 0 END) AS has_customer,
+  (SELECT CASE WHEN EXISTS(SELECT 1 FROM plan) THEN 1 ELSE 0 END) AS has_plan,
+  p.id,
+  p."customerId",
+  p."planId",
+  p.op
+FROM picked p;

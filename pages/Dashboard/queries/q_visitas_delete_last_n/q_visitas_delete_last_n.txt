@@ -1,0 +1,20 @@
+WITH p AS (
+  SELECT
+    {{ this.params.customerId }}::uuid                                        AS cid,
+    {{ this.params.businessId || appsmith.store.businessId }}::uuid           AS bid,
+    GREATEST({{ this.params.n || 1 }}::int, 0)                                AS n
+),
+recent AS (
+  SELECT v.id
+  FROM "Visit" v
+  JOIN "Customer" c ON c.id = v."customerId"
+  JOIN p ON TRUE
+  WHERE v."customerId" = p.cid
+    AND c."businessId" = p.bid
+  ORDER BY v."visitedAt" DESC, v.id DESC   -- más recientes primero
+  LIMIT (SELECT n FROM p)
+)
+DELETE FROM "Visit" v
+USING recent r
+WHERE v.id = r.id
+RETURNING v.*;

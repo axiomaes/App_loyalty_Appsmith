@@ -1,0 +1,11 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_672fbd3b-9aa5-49d0-9b93-39a3e1e797f8",
+  "id": "Dashboard_CustomerDetailHandler",
+  "unpublishedCollection": {
+    "name": "CustomerDetailHandler",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": []
+  }
+}

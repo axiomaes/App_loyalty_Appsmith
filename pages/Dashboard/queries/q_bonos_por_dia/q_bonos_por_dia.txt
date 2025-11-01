@@ -1,0 +1,16 @@
+WITH p AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid AS bid,
+    {{ Filters.fromISO() }}::date         AS d1,
+    {{ Filters.toISO() }}::date           AS d2
+)
+SELECT
+  r."issuedAt"::date AS dia,
+  COUNT(*)::int      AS bonos_emitidos
+FROM "Reward" r
+JOIN "Customer" c ON c.id = r."customerId"
+JOIN p ON TRUE
+WHERE c."businessId" = p.bid
+  AND r."issuedAt"::date BETWEEN p.d1 AND p.d2   -- inclusivo
+GROUP BY 1
+ORDER BY 1;

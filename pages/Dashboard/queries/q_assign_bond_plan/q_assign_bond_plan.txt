@@ -1,0 +1,61 @@
+WITH v AS (
+  SELECT
+    {{ this.params.customerId }}::uuid AS cid,   -- cliente destino
+    {{ this.params.planId     }}::uuid AS plan_id
+),
+
+-- Verifica que el plan exista y sea del mismo negocio que el cliente
+plan_ok AS (
+  SELECT 1 AS ok
+  FROM "BondPlan" bp
+  JOIN "Customer" c ON c.id = {{ this.params.customerId }}::uuid
+  WHERE bp.id = {{ this.params.planId }}::uuid
+    AND bp."businessId" = c."businessId"
+),
+
+-- Intento de UPDATE (si ya existe bond del cliente)
+upd AS (
+  UPDATE "Bond" b
+     SET "planId"    = v.plan_id,
+         status      = 'ACTIVE',
+         "updatedAt" = now()
+  FROM v, plan_ok
+  WHERE b."customerId" = v.cid
+  RETURNING b.id, b."customerId", b."planId", b.status, b."startedAt", b."createdAt", b."updatedAt"
+),
+
+-- Si no existía, INSERT
+ins AS (
+  INSERT INTO "Bond"(id, "customerId", "planId", "startedAt", status)
+  SELECT uuid_generate_v4(), v.cid, v.plan_id, now(), 'ACTIVE'
+  FROM v, plan_ok
+  WHERE NOT EXISTS (SELECT 1 FROM upd)
+  RETURNING id, "customerId", "planId", status, "startedAt", "createdAt", "updatedAt"
+),
+
+-- Respuesta estándar si se actualiza o inserta
+result AS (
+  SELECT TRUE AS plan_exists, TRUE AS updated, FALSE AS inserted,
+         id, "customerId", "planId", status, "startedAt", "createdAt", "updatedAt"
+  FROM upd
+  UNION ALL
+  SELECT TRUE, FALSE, TRUE,
+         id, "customerId", "planId", status, "startedAt", "createdAt", "updatedAt"
+  FROM ins
+),
+
+-- Fallback explícito: plan inexistente o de otro negocio → fila con flags en falso
+fallback AS (
+  SELECT FALSE AS plan_exists, FALSE AS updated, FALSE AS inserted,
+         NULL::uuid AS id, v.cid AS "customerId", v.plan_id AS "planId",
+         NULL::text AS status, NULL::timestamptz AS "startedAt",
+         NULL::timestamptz AS "createdAt", NULL::timestamptz AS "updatedAt"
+  FROM v
+  WHERE NOT EXISTS (SELECT 1 FROM plan_ok)
+)
+
+-- Entrega resultado si hubo acción; si no, entrega fallback
+SELECT * FROM result
+UNION ALL
+SELECT * FROM fallback
+;

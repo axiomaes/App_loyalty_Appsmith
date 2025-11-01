@@ -1,0 +1,79 @@
+{
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 19,
+  "boxShadow": "none",
+  "buttonVariant": "PRIMARY",
+  "childStylesheet": {
+    "button": {
+      "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+    }
+  },
+  "dynamicBindingPathList": [
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "groupButtons.groupButton2.buttonColor"
+    },
+    {
+      "key": "isDisabled"
+    }
+  ],
+  "dynamicPropertyPathList": [
+    {
+      "key": "isDisabled"
+    },
+    {
+      "key": "groupButtons.groupButton2.onClick"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "groupButtons.groupButton2.onClick"
+    }
+  ],
+  "groupButtons": {
+    "groupButton2": {
+      "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+      "buttonType": "SIMPLE",
+      "disabledWhenInvalid": false,
+      "iconName": "add",
+      "id": "groupButton2",
+      "index": 0,
+      "isDisabled": false,
+      "isVisible": true,
+      "label": "Registrar",
+      "menuItems": {},
+      "onClick": "{{ VisitAdd.manual() }}\n",
+      "placement": "CENTER",
+      "widgetId": ""
+    }
+  },
+  "isCanvas": false,
+  "isDisabled": "{{ !(Roles.isOwner() || Roles.isAdmin() || Roles.isSuper()) }}\n",
+  "isLoading": false,
+  "isVisible": true,
+  "key": "fmc1w9z8w8",
+  "leftColumn": 33,
+  "minWidth": 450,
+  "mobileBottomRow": 29,
+  "mobileLeftColumn": 31,
+  "mobileRightColumn": 55,
+  "mobileTopRow": 25,
+  "needsErrorInfo": false,
+  "orientation": "horizontal",
+  "originalBottomRow": 27,
+  "originalTopRow": 23,
+  "parentColumnSpace": 9.5906982421875,
+  "parentId": "ocx6f0zolu",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 57,
+  "topRow": 15,
+  "type": "BUTTON_GROUP_WIDGET",
+  "version": 1,
+  "widgetId": "9i8udgd6bq",
+  "widgetName": "Registra_visita"
+}

@@ -1,0 +1,10 @@
+SELECT
+  COALESCE(SUM(p."priceCents"), 0)::numeric / 100.0 AS importe
+FROM "Bond" b
+JOIN "BondPlan" p ON p.id = b."planId"
+JOIN "Customer" c ON c.id = b."customerId"
+WHERE b."startedAt"::date BETWEEN {{ Filters.fromISO() }}::date AND {{ Filters.toISO() }}::date
+  AND (
+    {{ Auth.businessId() ? 1 : 0 }} = 0
+    OR c."businessId" = {{ Auth.businessId() }}::uuid
+  );

@@ -1,0 +1,11 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_ad6f3f72-ccd9-4186-a872-5e13b5be3080",
+  "id": "Dashboard_Kiosk",
+  "unpublishedCollection": {
+    "name": "Kiosk",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": []
+  }
+}

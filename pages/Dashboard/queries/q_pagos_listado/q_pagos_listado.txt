@@ -1,0 +1,34 @@
+-- q_pagos_listado (robusto ante fechas vacías)
+
+WITH v AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid AS bid,
+    NULLIF({{ this.params.startDate || '' }}, '')::date AS d1,
+    NULLIF({{ this.params.endDate   || '' }}, '')::date AS d2
+)
+SELECT
+  bp.id                              AS payment_id,
+  c.id                               AS customer_id,
+  c.name                             AS customer_name,
+  bp2.name                           AS plan_name,
+  b.id                               AS bond_id,
+  bp.period                          AS period,
+  bp.method                          AS method,
+  bp.notes                           AS notes,
+  bp."amountCents"::int              AS amount_cents,
+  ROUND(bp."amountCents"/100.0, 2)   AS amount_eur,
+  bp."paidAt"                        AS paid_at,
+  to_char(bp."paidAt",'YYYY-MM-DD')  AS paid_date,
+  to_char(bp."paidAt",'HH24:MI')     AS paid_time
+FROM "BondPayment" bp
+JOIN "Bond"      b   ON b.id = bp."bondId"
+JOIN "Customer"  c   ON c.id = b."customerId"
+JOIN "BondPlan"  bp2 ON bp2.id = b."planId"
+JOIN v ON TRUE
+WHERE
+  c."businessId" = v.bid
+  AND c."deletedAt" IS NULL
+  AND bp2."businessId" = v.bid
+  AND (v.d1 IS NULL OR bp."paidAt"::date >= v.d1)
+  AND (v.d2 IS NULL OR bp."paidAt"::date <= v.d2)
+ORDER BY bp."paidAt" DESC;

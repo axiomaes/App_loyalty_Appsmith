@@ -1,0 +1,40 @@
+WITH p AS (
+  SELECT
+    {{ this.params.bid || appsmith.store.businessId }}::uuid AS bid,
+    {{ this.params.startDate || moment(DateIni.selectedDate || new Date()).format('YYYY-MM-DD') }}::date AS d1,
+    {{ this.params.endDate   || moment(DateFin.selectedDate   || DateIni.selectedDate || new Date()).format('YYYY-MM-DD') }}::date AS d2
+),
+
+vis AS (
+  SELECT COUNT(*)::int AS visits
+  FROM compat.visits v
+  JOIN p ON TRUE
+  JOIN "Customer" c ON c.id = v."customerId"
+  WHERE c."businessId" = p.bid
+    AND v."visitedAt"::date BETWEEN p.d1 AND p.d2
+),
+
+nc AS (
+  SELECT COUNT(*)::int AS new_customers
+  FROM compat.customers c
+  JOIN p ON TRUE
+  WHERE c."businessId" = p.bid
+    AND c."deletedAt" IS NULL
+    AND c."createdAt"::date BETWEEN p.d1 AND p.d2
+),
+
+bp AS (
+  SELECT
+    COUNT(*)::int                         AS bond_payments,
+    COALESCE(SUM(bp."amountCents"), 0)::bigint AS cents
+  FROM compat.bond_payment bp
+  JOIN p ON TRUE
+  WHERE bp."businessId" = p.bid
+    AND bp."paidAt"::date BETWEEN p.d1 AND p.d2
+)
+
+SELECT
+  (SELECT visits        FROM vis) AS visits,
+  (SELECT new_customers FROM nc ) AS new_customers,
+  (SELECT bond_payments FROM bp ) AS bond_payments,
+  (SELECT cents         FROM bp ) AS amount_cents;

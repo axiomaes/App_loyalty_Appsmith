@@ -1,0 +1,59 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 36,
+  "boxShadow": "none",
+  "defaultOptionValue": "Bono Tarjeta",
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    },
+    {
+      "key": "borderRadius"
+    }
+  ],
+  "dynamicHeight": "FIXED",
+  "dynamicPropertyPathList": [
+    {
+      "key": "sourceData"
+    }
+  ],
+  "dynamicTriggerPathList": [],
+  "isDisabled": false,
+  "isFilterable": true,
+  "isLoading": false,
+  "isRequired": false,
+  "isVisible": true,
+  "key": "9gmon4cwts",
+  "labelAlignment": "left",
+  "labelPosition": "Top",
+  "labelText": "Tipo de Bono",
+  "labelTextSize": "0.875rem",
+  "labelWidth": 5,
+  "leftColumn": 3,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "minWidth": 450,
+  "mobileBottomRow": 36,
+  "mobileLeftColumn": 3,
+  "mobileRightColumn": 23,
+  "mobileTopRow": 29,
+  "needsErrorInfo": false,
+  "optionLabel": "name",
+  "optionValue": "code",
+  "parentColumnSpace": 9.4375,
+  "parentId": "bk2jsvo9si",
+  "parentRowSpace": 10,
+  "placeholderText": "Select option",
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 23,
+  "serverSideFiltering": false,
+  "sourceData": "[\n  {\n    \"name\": \"VIP\",\n    \"code\": \"VIP\"\n  },\n  {\n    \"name\": \"Bono Familia\",\n    \"code\": \"BONO_FAMILIA\"\n  },\n  {\n    \"name\": \"Esporádico\",\n    \"code\": \"ESPORADICO\"\n  },\n  {\n    \"name\": \"Bono VIP A\",\n    \"code\": \"BONO_VIP_A\"\n  },\n  {\n    \"name\": \"Bono VIP B\",\n    \"code\": \"BONO_VIP_B\"\n  },\n  {\n    \"name\": \"Bono VIP C\",\n    \"code\": \"BONO_VIP_C\"\n  },\n  {\n    \"name\": \"Bono Tarjeta\",\n    \"code\": \"BONO_TARJETA\"\n  }\n]\n",
+  "topRow": 29,
+  "type": "SELECT_WIDGET",
+  "version": 1,
+  "widgetId": "xnabr55azw",
+  "widgetName": "SelectTag"
+}

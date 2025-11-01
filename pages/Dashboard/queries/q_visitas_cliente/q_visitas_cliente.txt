@@ -1,0 +1,10 @@
+SELECT
+  v.id,                                  -- id ya es UUID
+  v."visitedAt"::date                    AS fecha,
+  to_char(v."visitedAt", 'HH24:MI')      AS hora,
+  COALESCE(v.notes, '')                  AS notes
+FROM "Visit" v
+JOIN "Customer" c ON c.id = v."customerId"
+WHERE c.id = {{ appsmith.URL.queryParams.id }}::uuid
+  AND c."businessId" = {{ appsmith.store.businessId }}::uuid
+ORDER BY v."visitedAt" DESC;

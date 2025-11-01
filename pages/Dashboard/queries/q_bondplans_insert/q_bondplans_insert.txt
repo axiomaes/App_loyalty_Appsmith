@@ -1,0 +1,28 @@
+WITH v AS (SELECT {{ appsmith.store.businessId }}::uuid AS bid),
+ins AS (
+  INSERT INTO "BondPlan" (
+    id, "businessId", code, name, "priceCents",
+    "durationDays", "graceStartDay", "graceEndDay", "isActive"
+  )
+  VALUES (
+    gen_random_uuid(),                       -- o uuid_generate_v4()
+    (SELECT bid FROM v),
+    {{ this.params.code }},
+    {{ this.params.name }},
+    {{ this.params.priceCents }}::int,
+    {{ this.params.durationDays }}::int,
+    {{ this.params.graceStartDay }}::int,
+    {{ this.params.graceEndDay }}::int,
+    {{ this.params.isActive }}::boolean
+  )
+  ON CONFLICT ("businessId","code") DO UPDATE
+  SET name            = EXCLUDED.name,
+      "priceCents"    = EXCLUDED."priceCents",
+      "durationDays"  = EXCLUDED."durationDays",
+      "graceStartDay" = EXCLUDED."graceStartDay",
+      "graceEndDay"   = EXCLUDED."graceEndDay",
+      "isActive"      = EXCLUDED."isActive"
+  RETURNING (xmax = 0) AS inserted
+)
+SELECT CASE WHEN inserted THEN 'inserted' ELSE 'updated' END AS op
+FROM ins;

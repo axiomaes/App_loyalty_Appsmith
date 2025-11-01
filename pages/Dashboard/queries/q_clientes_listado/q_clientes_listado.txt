@@ -1,0 +1,112 @@
+SELECT
+  c.id,
+  c.name,
+  c.email,
+  c.phone,
+  COALESCE(c.tag, 'NONE')                     AS tag,
+  c."createdAt",
+  c."updatedAt",
+  c.birthday,
+  c.notes,
+
+  vagg.ultima_visita,
+  COALESCE(vagg.total_visitas, 0)             AS total_visitas,
+  COALESCE(vrecent.hay_visita_90d, FALSE)     AS hay_visita_90d,
+  COALESCE(rpend.hay_reward_pendiente, FALSE) AS hay_reward_pendiente,
+
+  COALESCE(bstat.tiene_bono_activo, FALSE)    AS tiene_bono_activo,
+
+  -- ✅ estado real del cliente (no del bono)
+  (c."deletedAt" IS NULL)                     AS cliente_activo,
+
+  -- ====== Semáforo VIP (si aplica) ======
+  vip.vip_status,
+  vip.vip_days_left,
+  vip.vip_expires_at
+
+FROM "Customer" c
+
+/* agregados de visitas del cliente */
+LEFT JOIN LATERAL (
+  SELECT
+    MAX(v."visitedAt")         AS ultima_visita,
+    COUNT(*)::int              AS total_visitas
+  FROM "Visit" v
+  WHERE v."customerId" = c.id
+) vagg ON TRUE
+
+/* flag: visitó en últimos 90 días */
+LEFT JOIN LATERAL (
+  SELECT EXISTS (
+    SELECT 1
+    FROM "Visit" v
+    WHERE v."customerId" = c.id
+      AND v."visitedAt" >= now() - interval '90 days'
+  )::bool AS hay_visita_90d
+) vrecent ON TRUE
+
+/* flag: tiene recompensa pendiente */
+LEFT JOIN LATERAL (
+  SELECT EXISTS (
+    SELECT 1
+    FROM "Reward" r
+    WHERE r."customerId" = c.id
+      AND r.status = 'PENDING'
+  )::bool AS hay_reward_pendiente
+) rpend ON TRUE
+
+/* flag: tiene bono vinculado a un BondPlan activo */
+LEFT JOIN LATERAL (
+  SELECT EXISTS (
+    SELECT 1
+    FROM "Bond" b
+    JOIN "BondPlan" bp
+      ON bp.id = b."planId"
+     AND bp."businessId" = c."businessId"
+    WHERE b."customerId" = c.id
+      AND bp."isActive" = TRUE
+      -- si quieres exigir bono en estado activo:
+      -- AND b.status IN ('ACTIVE','OPEN')
+  )::bool AS tiene_bono_activo
+) bstat ON TRUE
+
+/* Semáforo VIP basado en el bono más reciente (solo si el tag indica VIP) */
+LEFT JOIN LATERAL (
+  SELECT
+    b.id AS vip_bond_id,
+    -- fecha de vencimiento del bono (por duración; default 30)
+    (b."startedAt"
+      + (COALESCE(NULLIF(bp."durationDays", 0), 30) || ' days')::interval
+    ) AS vip_expires_at,
+    -- días restantes (no negativos)
+    GREATEST(
+      0,
+      CEIL(EXTRACT(EPOCH FROM (
+        (b."startedAt" + (COALESCE(NULLIF(bp."durationDays", 0), 30) || ' days')::interval) - now()
+      )) / 86400)
+    )::int AS vip_days_left,
+    -- estado
+    CASE
+      WHEN b.status NOT IN ('ACTIVE','OPEN')
+        THEN 'EXPIRED'
+      WHEN (b."startedAt" + (COALESCE(NULLIF(bp."durationDays", 0), 30) || ' days')::interval) < now()
+        THEN 'EXPIRED'
+      WHEN (b."startedAt" + (COALESCE(NULLIF(bp."durationDays", 0), 30) || ' days')::interval) < now() + interval '3 days'
+        THEN 'EXPIRING'
+      ELSE 'ACTIVE'
+    END AS vip_status
+  FROM "Bond" b
+  JOIN "BondPlan" bp
+    ON bp.id = b."planId"
+   AND bp."businessId" = c."businessId"
+  WHERE
+    c.tag ILIKE '%VIP%'          -- solo clientes VIP/BONO_VIP_*
+    AND b."customerId" = c.id
+    AND bp."isActive" = TRUE
+  ORDER BY b."startedAt" DESC
+  LIMIT 1
+) vip ON TRUE
+
+WHERE c."businessId" = {{ appsmith.store.businessId }}::uuid
+  AND c."deletedAt" IS NULL   -- solo clientes NO eliminados
+ORDER BY c."createdAt" DESC;

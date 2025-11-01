@@ -1,0 +1,109 @@
+WITH p AS (
+  SELECT {{ appsmith.store.businessId }}::uuid AS bid
+),
+-- normalizador básico de móvil
+cust AS (
+  SELECT
+    c.*,
+    REGEXP_REPLACE(c.phone, '\D', '', 'g') AS phone_norm
+  FROM "Customer" c
+  WHERE c."businessId" = (SELECT bid FROM p)
+),
+dup_phones AS (
+  SELECT phone_norm
+  FROM cust
+  WHERE phone_norm IS NOT NULL AND phone_norm <> ''
+  GROUP BY phone_norm
+  HAVING COUNT(*) > 1
+),
+vip_tag AS (
+  SELECT id
+  FROM cust
+  WHERE COALESCE(tag,'') ILIKE '%VIP%'
+),
+cust_bond AS (
+  SELECT DISTINCT b."customerId" AS customer_id, b.id AS bond_id, b."planId" AS plan_id, b.status
+  FROM "Bond" b
+  JOIN cust c ON c.id = b."customerId"
+),
+bond_plan AS (
+  SELECT bp.*
+  FROM "BondPlan" bp
+)
+-- Incidencias, una por fila
+SELECT
+  'CLIENTE_ELIMINADO'::text            AS issue,
+  c.id                                 AS customer_id,
+  c.name                               AS customer_name,
+  c.tag,
+  c."createdAt",
+  'deletedAt no es NULL'               AS details
+FROM cust c
+WHERE c."deletedAt" IS NOT NULL
+
+UNION ALL
+SELECT
+  'TAG_NULO_O_VACIO',
+  c.id, c.name, c.tag, c."createdAt",
+  'tag es NULL o ""'
+FROM cust c
+WHERE c.tag IS NULL OR c.tag = ''
+
+UNION ALL
+SELECT
+  'TELEFONO_DUPLICADO',
+  c.id, c.name, c.tag, c."createdAt",
+  'phone_norm duplicado dentro del negocio'
+FROM cust c
+WHERE c.phone_norm IN (SELECT phone_norm FROM dup_phones)
+
+UNION ALL
+SELECT
+  'VIP_SIN_BONO',
+  c.id, c.name, c.tag, c."createdAt",
+  'Cliente con tag VIP pero sin registro en Bond'
+FROM cust c
+JOIN vip_tag v ON v.id = c.id
+LEFT JOIN cust_bond cb ON cb.customer_id = c.id
+WHERE cb.customer_id IS NULL
+
+UNION ALL
+SELECT
+  'BONO_CON_PLAN_INACTIVO',
+  c.id, c.name, c.tag, c."createdAt",
+  'Bond vinculado a BondPlan.isActive = false'
+FROM cust c
+JOIN cust_bond cb ON cb.customer_id = c.id
+JOIN bond_plan bp ON bp.id = cb.plan_id
+WHERE COALESCE(bp."isActive", TRUE) = FALSE
+
+UNION ALL
+SELECT
+  'BONO_STATUS_NO_ACTIVO',
+  c.id, c.name, c.tag, c."createdAt",
+  'Bond.status ∉ (ACTIVE, OPEN)'
+FROM cust c
+JOIN cust_bond cb ON cb.customer_id = c.id
+WHERE COALESCE(cb.status,'') NOT IN ('ACTIVE','OPEN')
+
+UNION ALL
+SELECT
+  'BONDPLAN_OTRO_NEGOCIO',
+  c.id, c.name, c.tag, c."createdAt",
+  'BondPlan.businessId ≠ Customer.businessId'
+FROM cust c
+JOIN cust_bond cb ON cb.customer_id = c.id
+JOIN bond_plan bp ON bp.id = cb.plan_id
+WHERE bp."businessId" <> c."businessId"
+
+UNION ALL
+SELECT
+  'VISITA_OTRO_NEGOCIO',
+  c.id, c.name, c.tag, c."createdAt",
+  'Visit vinculado a cliente de este negocio, pero (sanity check) businessId del cliente ≠ bid (no debería salir)'
+FROM "Visit" v
+JOIN "Customer" c ON c.id = v."customerId"
+WHERE c."businessId" <> (SELECT bid FROM p)
+-- esta rama no debería devolver nada; queda como "trip-wire"
+;
+

@@ -1,0 +1,9 @@
+SELECT
+  u.id,
+  u.email,
+  u.role
+FROM "User" u
+WHERE
+  u."businessId" = {{ appsmith.store.businessId }}
+  AND u.email NOT ILIKE '%@axioma-creativa.es'
+ORDER BY u.role, u.email;

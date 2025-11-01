@@ -1,0 +1,52 @@
+-- Requiere:
+--  this.params.customerId  (uuid)
+-- Asume tablas: "Bond" (con customerId) y "BondPayment" (con bondId)
+-- Cambia nombres si difieren en tu esquema.
+
+WITH vars AS (
+  SELECT
+    {{ this.params.customerId }}::uuid       AS cid,
+    date_trunc('month', now())               AS mstart,
+    to_char(now(), 'YYYY-MM')                AS period,
+    4                                         AS allowance  -- 4 atenciones / mes
+),
+bond AS (
+  SELECT b.id
+  FROM "Bond" b
+  WHERE b."customerId" = (SELECT cid FROM vars)
+  LIMIT 1
+),
+paid AS (
+  SELECT bp.*
+  FROM "BondPayment" bp
+  JOIN bond ON bp."bondId" = bond.id
+  WHERE bp.period = (SELECT period FROM vars)
+  ORDER BY bp."paidAt" DESC
+  LIMIT 1
+),
+visits AS (
+  SELECT count(*)::int AS used
+  FROM "Visit" v
+  WHERE v."customerId" = (SELECT cid FROM vars)
+    AND v."visitedAt" >= (SELECT mstart FROM vars)
+    AND v."visitedAt" <  (SELECT mstart FROM vars) + interval '1 month'
+),
+res AS (
+  SELECT
+    (paid.id IS NOT NULL)                    AS active,           -- pagado en el mes
+    (SELECT period FROM vars)                AS period,
+    (SELECT used FROM visits)                AS used,
+    GREATEST(0, (SELECT allowance FROM vars) - (SELECT used FROM visits)) AS remaining,
+    paid."paidAt",
+    paid."amountCents",
+    paid."method",
+    paid."notes"
+  FROM paid
+  FULL JOIN visits ON TRUE
+)
+SELECT COALESCE(active, false) AS active,
+       period,
+       COALESCE(used, 0)       AS used,
+       COALESCE(remaining, 4)  AS remaining,
+       "paidAt","amountCents","method","notes"
+FROM res;

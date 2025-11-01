@@ -1,0 +1,25 @@
+WITH v AS (
+  SELECT
+    {{ this.params.customerId }}::uuid                                          AS cid,
+    COALESCE(NULLIF(TRIM({{ this.params.period || '' }}::text), ''),
+             to_char(now(), 'YYYY-MM'))                                         AS per
+),
+b AS (
+  SELECT b."id" AS bond_id
+  FROM "Bond" b
+  WHERE b."customerId" = (SELECT cid FROM v)
+  ORDER BY b."updatedAt" DESC
+  LIMIT 1
+),
+hit AS (
+  SELECT 1 AS ok
+  FROM "BondPayment" bp
+  WHERE bp."bondId" = (SELECT bond_id FROM b)
+    AND bp.period    = (SELECT per FROM v)
+  LIMIT 1
+)
+SELECT
+  (SELECT bond_id FROM b) IS NOT NULL     AS has_bond,
+  (SELECT COALESCE(MAX(ok), 0) FROM hit)  = 1 AS paid,
+  (SELECT per FROM v)                     AS period,
+  (SELECT bond_id FROM b)                 AS bond_id;

@@ -1,0 +1,28 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_b09d9197-3956-4a11-9729-afa9cc7617cf",
+  "id": "Dashboard_Lang",
+  "unpublishedCollection": {
+    "name": "Lang",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "DEFAULT",
+        "value": "\"es\""
+      },
+      {
+        "name": "FALLBACKS",
+        "value": "[\"es\", \"en\"]"
+      },
+      {
+        "name": "NS",
+        "value": "\"common\""
+      },
+      {
+        "name": "dict",
+        "value": "{\n  es: {\n    common: {\n      dashboard: \"Tablero\",\n      customers: \"Clientes\",\n      visits: \"Visitas\",\n      create: \"Crear\",\n      cancel: \"Cancelar\",\n      name: \"Nombre\",\n      phone: \"Teléfono\",\n      email: \"Correo\",\n      item: \"elemento\",\n      item_plural: \"elementos\"\n    }\n  },\n  en: {\n    common: {\n      dashboard: \"Dashboard\",\n      customers: \"Customers\",\n      visits: \"Visits\",\n      create: \"Create\",\n      cancel: \"Cancel\",\n      name: \"Name\",\n      phone: \"Phone\",\n      email: \"Email\",\n      item: \"item\",\n      item_plural: \"items\"\n    }\n  }\n}"
+      }
+    ]
+  }
+}

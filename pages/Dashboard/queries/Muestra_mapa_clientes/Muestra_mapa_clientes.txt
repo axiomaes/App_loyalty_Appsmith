@@ -1,0 +1,43 @@
+WITH audit AS (
+  -- pega aquí la misma consulta de arriba SIN el punto y coma final
+  WITH p AS (
+    SELECT {{ appsmith.store.businessId }}::uuid AS bid
+  ),
+  cust AS (
+    SELECT c.*, REGEXP_REPLACE(c.phone, '\D', '', 'g') AS phone_norm
+    FROM "Customer" c
+    WHERE c."businessId" = (SELECT bid FROM p)
+  ),
+  dup_phones AS (
+    SELECT phone_norm FROM cust
+    WHERE phone_norm IS NOT NULL AND phone_norm <> ''
+    GROUP BY phone_norm HAVING COUNT(*) > 1
+  ),
+  vip_tag AS (SELECT id FROM cust WHERE COALESCE(tag,'') ILIKE '%VIP%'),
+  cust_bond AS (
+    SELECT DISTINCT b."customerId" AS customer_id, b.id AS bond_id, b."planId" AS plan_id, b.status
+    FROM "Bond" b JOIN cust c ON c.id = b."customerId"
+  ),
+  bond_plan AS (SELECT bp.* FROM "BondPlan" bp)
+  SELECT 'CLIENTE_ELIMINADO' AS issue FROM cust c WHERE c."deletedAt" IS NOT NULL
+  UNION ALL
+  SELECT 'TAG_NULO_O_VACIO' FROM cust c WHERE c.tag IS NULL OR c.tag = ''
+  UNION ALL
+  SELECT 'TELEFONO_DUPLICADO' FROM cust c WHERE c.phone_norm IN (SELECT phone_norm FROM dup_phones)
+  UNION ALL
+  SELECT 'VIP_SIN_BONO' FROM cust c JOIN vip_tag v ON v.id = c.id
+           LEFT JOIN cust_bond cb ON cb.customer_id = c.id WHERE cb.customer_id IS NULL
+  UNION ALL
+  SELECT 'BONO_CON_PLAN_INACTIVO' FROM cust c JOIN cust_bond cb ON cb.customer_id = c.id
+           JOIN bond_plan bp ON bp.id = cb.plan_id WHERE COALESCE(bp."isActive", TRUE) = FALSE
+  UNION ALL
+  SELECT 'BONO_STATUS_NO_ACTIVO' FROM cust c JOIN cust_bond cb ON cb.customer_id = c.id
+           WHERE COALESCE(cb.status,'') NOT IN ('ACTIVE','OPEN')
+  UNION ALL
+  SELECT 'BONDPLAN_OTRO_NEGOCIO' FROM cust c JOIN cust_bond cb ON cb.customer_id = c.id
+           JOIN bond_plan bp ON bp.id = cb.plan_id WHERE bp."businessId" <> c."businessId"
+)
+SELECT issue, COUNT(*)::int AS total
+FROM audit
+GROUP BY issue
+ORDER BY total DESC, issue;

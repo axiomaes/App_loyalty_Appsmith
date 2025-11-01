@@ -1,0 +1,51 @@
+-- q_clientes_vip_list
+WITH vars AS (
+  SELECT
+    {{ Auth.businessId() }}::text AS bid,
+    date_trunc('month', now())    AS mstart,
+    to_char(now(), 'YYYY-MM')     AS period
+),
+
+-- Clientes VIP (A/B/C) del negocio actual, no borrados
+c AS (
+  SELECT c.id, c.name, c.phone, c.email, c.tag
+  FROM "Customer" c
+  WHERE c."deletedAt" IS NULL
+    AND c."businessId" = (SELECT bid FROM vars)
+    AND c.tag IN ('BONO_VIP_A','BONO_VIP_B','BONO_VIP_C')
+),
+
+-- Visitas del mes por cliente
+vm AS (
+  SELECT v."customerId" AS cid, count(*)::int AS used
+  FROM "Visit" v
+  WHERE v."visitedAt" >= (SELECT mstart FROM vars)
+    AND v."visitedAt" <  (SELECT mstart FROM vars) + interval '1 month'
+  GROUP BY v."customerId"
+)
+
+SELECT
+  c.id,
+  c.name,
+  c.phone,
+  c.email,
+  c.tag,
+  -- Estado del bono VIP del mes: pagado (activo) o no
+  COALESCE(bp.id IS NOT NULL, false)              AS vip_active,
+  -- Métricas del mes
+  COALESCE(vm.used, 0)                            AS used_this_month,
+  GREATEST(0, 4 - COALESCE(vm.used, 0))           AS remaining_this_month,
+  -- Info del último pago del mes (si existe)
+  bp."paidAt"                                     AS last_paid_at,
+  bp."amountCents",
+  bp."method",
+  bp."notes"
+FROM c
+LEFT JOIN "Bond" b
+  ON b."customerId" = c.id
+LEFT JOIN "BondPayment" bp
+  ON bp."bondId" = b.id
+ AND bp.period = (SELECT period FROM vars)
+LEFT JOIN vm
+  ON vm.cid = c.id
+ORDER BY c.name;

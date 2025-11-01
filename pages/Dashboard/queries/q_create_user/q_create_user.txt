@@ -1,0 +1,38 @@
+WITH v AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid                    AS bid,
+    lower(trim({{ this.params.email }}::text))               AS email_norm,
+    {{ this.params.new_pass }}::text                         AS pass_raw,
+    upper(trim(COALESCE({{ this.params.role }}::text, 'BARBER'))) AS role_raw
+),
+chk AS (
+  SELECT
+    -- email simple, suficiente para gating inicial
+    (email_norm ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$') AS ok_email,
+    (length(pass_raw) >= 8)                     AS ok_pass,
+    -- role permitido
+    (role_raw IN ('BARBER','ADMIN','OWNER','SUPERADMIN')) AS ok_role
+  FROM v
+),
+go AS (
+  SELECT 1 FROM chk WHERE ok_email AND ok_pass AND ok_role
+),
+ins AS (
+  INSERT INTO "User" ("businessId", email, "password", role)
+  SELECT bid, email_norm, crypt(pass_raw, gen_salt('bf')), role_raw
+  FROM v, go
+  -- Usa el índice funcional de lower(email)
+  ON CONFLICT ON CONSTRAINT ux_user_email_lower DO NOTHING
+  RETURNING id, email, role
+)
+SELECT
+  (SELECT ok_email FROM chk)                             AS ok_email,
+  (SELECT ok_pass  FROM chk)                             AS ok_pass,
+  (SELECT ok_role  FROM chk)                             AS ok_role,
+  EXISTS (SELECT 1 FROM ins)                             AS inserted,
+  -- ¿el email (insensible a mayúsculas) ya existía?
+  EXISTS (
+    SELECT 1 FROM "User" u
+    WHERE lower(u.email) = (SELECT email_norm FROM v)
+  )                                                      AS duplicate_email,
+  (SELECT to_jsonb(ins.*) FROM ins)                      AS row;

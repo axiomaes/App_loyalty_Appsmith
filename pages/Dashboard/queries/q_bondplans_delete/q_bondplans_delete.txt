@@ -1,0 +1,27 @@
+WITH v AS (SELECT {{ appsmith.store.businessId }}::uuid AS bid),
+target AS (
+  SELECT bp.id
+  FROM "BondPlan" bp, v
+  WHERE bp.id = {{ this.params.id }}::uuid
+    AND bp."businessId" = v.bid
+),
+in_use AS (
+  SELECT EXISTS (
+    SELECT 1 FROM "Bond" b JOIN target t ON b."bondPlanId" = t.id LIMIT 1
+  ) OR EXISTS (
+    SELECT 1 FROM "BondPayment" p JOIN target t ON p."bondPlanId" = t.id LIMIT 1
+  ) AS busy
+),
+del AS (
+  DELETE FROM "BondPlan" bp
+  USING target t, in_use u
+  WHERE bp.id = t.id
+    AND u.busy = FALSE
+  RETURNING 1
+)
+SELECT
+  CASE
+    WHEN (SELECT busy FROM in_use) THEN 'in_use'
+    WHEN EXISTS (SELECT 1 FROM del) THEN 'deleted'
+    ELSE 'not_found'
+  END AS status;

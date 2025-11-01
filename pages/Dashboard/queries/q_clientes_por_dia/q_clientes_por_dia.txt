@@ -1,0 +1,10 @@
+SELECT
+  c."createdAt"::date AS dia,
+  COUNT(*)::int AS clientes
+FROM "Customer" c
+WHERE c."deletedAt" IS NULL
+  AND c."createdAt"::date BETWEEN {{ Filters.fromISO() }} AND {{ Filters.toISO() }}
+  AND c."businessId" = {{ appsmith.store.businessId }}   -- negocio actual
+GROUP BY dia
+ORDER BY dia;
+

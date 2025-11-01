@@ -1,0 +1,6 @@
+SELECT b."id", b."customerId", b."planId", b."startedAt", b."lastPaidPeriod",
+       b."status", b."notes", b."createdAt", b."updatedAt"
+FROM public."Bond" b
+WHERE b."customerId" = :customerId
+ORDER BY b."updatedAt" DESC
+LIMIT 1;

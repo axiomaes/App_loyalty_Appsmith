@@ -1,0 +1,36 @@
+WITH p AS (
+  SELECT ({{ (Auth.businessId && Auth.businessId()) || appsmith.store.businessId }})::uuid AS bid
+),
+inp AS (
+  SELECT
+    {{ this.params.id ?? '' }}::text           AS id_txt,
+    {{ this.params.name ?? '' }}::text         AS name_txt,
+    {{ this.params.phone ?? '' }}::text        AS phone_txt,
+    {{ this.params.email ?? '' }}::text        AS email_txt,
+    {{ this.params.notes ?? '' }}::text        AS notes_txt,
+    {{ this.params.birthday ?? '' }}::text     AS birthday_txt,
+    UPPER(TRIM({{ this.params.tag ?? '' }}::text)) AS tag_txt   -- 🧠 Forzamos mayúsculas limpias
+)
+UPDATE "Customer" c
+SET
+  name        = NULLIF(TRIM(i.name_txt), ''),
+  phone       = CASE
+                  WHEN NULLIF(i.phone_txt,'') IS NOT NULL
+                  THEN '+34' || RIGHT(REGEXP_REPLACE(i.phone_txt, '[^0-9]', '', 'g'), 9)
+                  ELSE NULL
+                END,
+  email       = NULLIF(i.email_txt, ''),
+  notes       = NULLIF(i.notes_txt, ''),
+  birthday    = CASE
+                  WHEN NULLIF(i.birthday_txt,'') IS NULL THEN NULL
+                  WHEN i.birthday_txt ~ '^\d{4}-\d{2}-\d{2}$'
+                       THEN (i.birthday_txt::date)::timestamp
+                  ELSE (i.birthday_txt::timestamp)
+                END,
+  tag         = COALESCE(NULLIF(i.tag_txt, ''), 'NONE'),   -- usa 'NONE' si vacío
+  "updatedAt" = now()
+FROM p, inp i
+WHERE c.id = (i.id_txt)::uuid
+  AND c."businessId" = p.bid
+RETURNING
+  c.id, c."businessId", c.name, c.phone, c.email, c.notes, c.birthday, c.tag, c."createdAt", c."updatedAt";

@@ -1,0 +1,16 @@
+WITH p AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid AS bid,
+    {{ Filters.fromISO() }}::date         AS d1,
+    {{ Filters.toISO() }}::date           AS d2
+)
+SELECT
+  COALESCE(r.status, 'PENDING') AS type,
+  COUNT(*)::int                 AS total
+FROM "Reward" r
+JOIN "Customer" c ON c.id = r."customerId"
+JOIN p ON TRUE
+WHERE c."businessId" = p.bid
+  AND r."issuedAt"::date BETWEEN p.d1 AND p.d2
+GROUP BY 1
+ORDER BY total DESC;

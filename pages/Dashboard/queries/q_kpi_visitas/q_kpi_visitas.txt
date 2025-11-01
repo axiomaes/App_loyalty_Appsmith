@@ -1,0 +1,9 @@
+SELECT
+  COUNT(*)::int AS visitas
+FROM "Visit" v
+JOIN "Customer" c ON c.id = v."customerId"
+WHERE v."visitedAt"::date BETWEEN {{ Filters.fromISO() }}::date AND {{ Filters.toISO() }}::date
+  AND (
+    {{ Auth.businessId() ? 1 : 0 }} = 0
+    OR c."businessId" = {{ Auth.businessId() }}::uuid
+  );

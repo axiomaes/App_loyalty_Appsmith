@@ -1,0 +1,35 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_3119e408-a6ec-4cce-a04f-3864cce3c4b5",
+  "id": "Dashboard_q_vip_pay_autocreate",
+  "pluginId": "postgres-plugin",
+  "pluginType": "DB",
+  "unpublishedAction": {
+    "actionConfiguration": {
+      "body": "WITH v AS (\n  SELECT\n    {{ this.params.customerId }}::uuid                                           AS cid,\n    /* periodo 'YYYY-MM' (por defecto, mes actual) */\n    COALESCE({{ this.params.period || null }}, to_char(now(),'YYYY-MM'))::text  AS period,\n    {{ this.params.amountCents }}::int                                           AS amount_cents,\n    {{ this.params.method || null }}::text                                       AS method,\n    {{ this.params.notes  || null }}::text                                       AS notes,\n    /* selección manual opcional de plan */\n    {{ this.params.planId   || null }}::uuid                                     AS plan_id_param,\n    NULLIF(TRIM({{ this.params.planCode || '' }}::text),'')                      AS plan_code_param\n),\n\ncust AS (\n  SELECT c.id AS cid, c.\"businessId\" AS bid, c.tag::text AS tag\n  FROM \"Customer\" c JOIN v ON c.id = v.cid\n),\n\nis_vip AS (\n  SELECT (tag ILIKE '%VIP%') AS is_vip FROM cust\n),\n\n/* --- CANDIDATO DE PLAN (prioridad: planId -> planCode -> por tag VIP) --- */\nplan_from_id AS (\n  SELECT bp.id, bp.\"businessId\", bp.code, bp.name\n  FROM \"BondPlan\" bp\n  JOIN v ON v.plan_id_param IS NOT NULL AND bp.id = v.plan_id_param\n),\n\nplan_from_code AS (\n  SELECT bp.id, bp.\"businessId\", bp.code, bp.name\n  FROM \"BondPlan\" bp\n  JOIN v ON v.plan_code_param IS NOT NULL AND LOWER(bp.code) = LOWER(v.plan_code_param)\n),\n\nplan_from_tag AS (\n  SELECT bp.id, bp.\"businessId\", bp.code, bp.name\n  FROM \"BondPlan\" bp, cust, is_vip\n  WHERE is_vip.is_vip\n    AND bp.\"businessId\" = cust.bid\n    AND (bp.code = 'VIP' OR bp.name ILIKE '%VIP%')\n  ORDER BY bp.\"isActive\" DESC, bp.code\n  LIMIT 1\n),\n\nplan_pref AS (\n  SELECT * FROM plan_from_id\n  UNION ALL\n  SELECT * FROM plan_from_code\n  UNION ALL\n  SELECT * FROM plan_from_tag\n),\n/* quedate con el 1º válido del mismo negocio del cliente */\nplan_ok AS (\n  SELECT DISTINCT ON (1)\n    pf.id AS plan_id, pf.\"businessId\" AS bid, pf.code AS plan_code, pf.name AS plan_name\n  FROM plan_pref pf\n  JOIN cust c ON c.bid = pf.\"businessId\"\n  ORDER BY 1\n),\n\n/* --- BOND existente del cliente (si hay varios, toma uno determinístico) --- */\nbond_old AS (\n  SELECT b.id, b.\"customerId\", b.\"planId\", b.status\n  FROM \"Bond\" b\n  JOIN cust c ON c.cid = b.\"customerId\"\n  ORDER BY (b.status = 'ACTIVE') DESC, b.\"createdAt\" DESC, b.id\n  LIMIT 1\n),\n\n/* --- Asegura que exista un Bond y con el plan esperado --- */\nbond_create AS (\n  INSERT INTO \"Bond\"(id, \"customerId\", \"planId\", \"startedAt\", status)\n  SELECT uuid_generate_v4(), c.cid, p.plan_id, now(), 'ACTIVE'\n  FROM cust c\n  JOIN plan_ok p ON TRUE\n  WHERE NOT EXISTS (SELECT 1 FROM bond_old)\n  RETURNING id, \"customerId\", \"planId\", status\n),\n\nbond_switch AS (\n  /* cambia plan si ya existe bond y el plan difiere */\n  UPDATE \"Bond\" b\n     SET \"planId\" = p.plan_id,\n         status   = 'ACTIVE',\n         \"updatedAt\" = now()\n  FROM bond_old o, plan_ok p\n  WHERE b.id = o.id\n    AND p.plan_id IS NOT NULL\n    AND o.\"planId\" IS DISTINCT FROM p.plan_id\n  RETURNING b.id, b.\"customerId\", b.\"planId\", b.status\n),\n\nbond_final AS (\n  /* bond vigente tras crear o switch; si nada de eso pasó, es el viejo */\n  SELECT * FROM bond_create\n  UNION ALL\n  SELECT * FROM bond_switch\n  UNION ALL\n  SELECT * FROM bond_old\n  LIMIT 1\n),\n\n/* --- UPSERT de pago del periodo --- */\npay_upd AS (\n  UPDATE \"BondPayment\" bp\n     SET \"amountCents\" = v.amount_cents,\n         \"paidAt\"      = now(),\n         method        = v.method,\n         notes         = v.notes\n  FROM v, bond_final bf\n  WHERE bp.\"bondId\" = bf.id\n    AND bp.period   = v.period\n  RETURNING 1 AS updated\n),\n\npay_ins AS (\n  INSERT INTO \"BondPayment\"(id, \"bondId\", period, \"amountCents\", \"paidAt\", method, notes)\n  SELECT uuid_generate_v4(), bf.id, v.period, v.amount_cents, now(), v.method, v.notes\n  FROM v, bond_final bf\n  WHERE NOT EXISTS (SELECT 1 FROM pay_upd)\n  RETURNING 1 AS inserted\n),\n\n/* Si hubo movimiento de pago, marcamos bond ACTIVE por si acaso */\nbond_mark AS (\n  UPDATE \"Bond\" b\n     SET status = 'ACTIVE'\n  FROM bond_final bf\n  WHERE b.id = bf.id\n    AND (EXISTS (SELECT 1 FROM pay_upd) OR EXISTS (SELECT 1 FROM pay_ins))\n  RETURNING 1 AS marked\n)\n\nSELECT\n  (SELECT is_vip FROM is_vip)                         AS is_vip,\n  (SELECT COUNT(*) > 0 FROM bond_old)                 AS has_bond_before,\n  (SELECT COUNT(*) > 0 FROM bond_create)              AS created_bond,\n  (SELECT COUNT(*) > 0 FROM bond_switch)              AS switched_plan,\n  (SELECT COUNT(*) > 0 FROM pay_ins)                  AS inserted_payment,\n  (SELECT COUNT(*) > 0 FROM pay_upd)                  AS updated_payment,\n  (SELECT COUNT(*) > 0 FROM bond_mark)                AS bond_marked_active,\n  /* info del bond y plan resultante (si existe) */\n  (SELECT bf.id FROM bond_final bf)                   AS bond_id,\n  (SELECT bf.\"planId\" FROM bond_final bf)             AS bond_plan_id,\n  (SELECT plan_code FROM plan_ok)                     AS plan_code,\n  (SELECT plan_name FROM plan_ok)                     AS plan_name;\n",
+      "encodeParamsToggle": true,
+      "paginationType": "NONE",
+      "pluginSpecifiedTemplates": [
+        {
+          "value": true
+        }
+      ],
+      "timeoutInMillisecond": 10000
+    },
+    "confirmBeforeExecute": false,
+    "datasource": {
+      "id": "AxiomaDB",
+      "isAutoGenerated": false,
+      "name": "AxiomaDB",
+      "pluginId": "postgres-plugin"
+    },
+    "dynamicBindingPathList": [
+      {
+        "key": "body"
+      }
+    ],
+    "name": "q_vip_pay_autocreate",
+    "pageId": "Dashboard",
+    "runBehaviour": "MANUAL",
+    "userSetOnLoad": false
+  }
+}

@@ -1,0 +1,5 @@
+-- q_kpi_total_clientes
+SELECT COUNT(*)::int AS total_clientes
+FROM "Customer" c
+WHERE c."deletedAt" IS NULL
+  AND c."businessId" = {{ appsmith.store.businessId }}::uuid;

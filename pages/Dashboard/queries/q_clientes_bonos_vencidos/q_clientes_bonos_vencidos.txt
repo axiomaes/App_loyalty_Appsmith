@@ -1,0 +1,37 @@
+WITH p AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid AS bid,
+    {{ DateIni.selectedDate }}::date      AS d1,
+    {{ DateFin.selectedDate }}::date      AS d2
+),
+fechas AS (
+  SELECT
+    b.*,
+    bp.name AS plan_name,
+    bp."durationDays",
+    bp."graceEndDay",
+    -- vence cuando pasa la duración + fin de gracia
+    (b."startedAt"::date
+      + ((bp."durationDays" + COALESCE(bp."graceEndDay",0)) || ' days')::interval
+    )::date AS vence_con_gracia
+  FROM "Bond" b
+  JOIN "BondPlan" bp ON bp.id = b."planId"
+)
+SELECT 
+  f.id                                           AS "ID Bono",
+  c.name                                         AS "Cliente",
+  f.plan_name                                    AS "Plan",
+  f."durationDays"                               AS "Duración",
+  f."startedAt"                                  AS "Fecha de Inicio",
+  f.vence_con_gracia                             AS "Fecha de Vencimiento",
+  GREATEST(0, (current_date - f.vence_con_gracia))::int AS "Días Vencido",
+  f.status                                       AS "Estado"
+FROM fechas f
+JOIN "Customer" c ON c.id = f."customerId"
+JOIN p ON TRUE
+WHERE c."businessId" = p.bid
+  AND f.plan_name ILIKE '%VIP%'
+  AND f."durationDays" = 30
+  AND f."startedAt"::date BETWEEN p.d1 AND p.d2
+  AND current_date > f.vence_con_gracia
+ORDER BY f."startedAt" DESC;

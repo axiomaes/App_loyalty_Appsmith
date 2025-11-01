@@ -1,0 +1,65 @@
+WITH v AS (
+  SELECT
+    {{ this.params.customerId }}::uuid                                          AS cid,
+    COALESCE({{ this.params.period || null }}, to_char(now(),'YYYY-MM'))::text  AS period,
+    {{ this.params.amountCents }}::int                                          AS amount_cents,
+    {{ this.params.method || null }}::text                                      AS method,
+    {{ this.params.notes  || null }}::text                                      AS notes
+),
+
+cust AS (
+  SELECT c.id AS cid, c.tag::text AS tag
+  FROM "Customer" c
+  JOIN v ON c.id = v.cid
+),
+
+vip_check AS (
+  SELECT (tag ILIKE '%VIP%') AS is_vip FROM cust
+),
+
+bond AS (
+  SELECT b.id
+  FROM "Bond" b
+  JOIN v ON b."customerId" = v.cid
+  LIMIT 1
+),
+
+-- Actualiza pago si ya existe en el mismo periodo
+upd AS (
+  UPDATE "BondPayment" bp
+  SET
+    "amountCents" = v.amount_cents,
+    "paidAt"      = now(),
+    method        = v.method,
+    notes         = v.notes
+  FROM v, bond b
+  WHERE bp."bondId" = b.id
+    AND bp.period   = v.period
+  RETURNING 1 AS updated
+),
+
+-- Inserta pago nuevo si no existía
+ins AS (
+  INSERT INTO "BondPayment"(id, "bondId", period, "amountCents", "paidAt", method, notes)
+  SELECT uuid_generate_v4(), b.id, v.period, v.amount_cents, now(), v.method, v.notes
+  FROM v, bond b
+  WHERE NOT EXISTS (SELECT 1 FROM upd)
+  RETURNING 1 AS inserted
+),
+
+-- Marca bono como activo si hubo movimiento
+mark_active AS (
+  UPDATE "Bond" bo
+  SET status = 'ACTIVE'
+  FROM bond b
+  WHERE bo.id = b.id
+    AND (EXISTS (SELECT 1 FROM upd) OR EXISTS (SELECT 1 FROM ins))
+  RETURNING 1 AS marked
+)
+
+SELECT
+  (SELECT NOT is_vip FROM vip_check)              AS not_vip,
+  (SELECT id IS NOT NULL FROM bond)               AS has_bond,
+  COALESCE((SELECT updated  FROM upd), 0)         AS updated,
+  COALESCE((SELECT inserted FROM ins), 0)         AS inserted,
+  COALESCE((SELECT marked   FROM mark_active), 0) AS bond_marked_active;

@@ -1,0 +1,10 @@
+SELECT
+  v."visitedAt"::date AS dia,
+  b.name              AS negocio,
+  COUNT(*)::int       AS atenciones
+FROM "Visit" v
+JOIN "Customer" c ON c.id = v."customerId"
+JOIN "Business" b ON b.id = c."businessId"
+WHERE v."visitedAt"::date >= (now() - interval '14 days')::date
+GROUP BY dia, b.name
+ORDER BY dia DESC, negocio;

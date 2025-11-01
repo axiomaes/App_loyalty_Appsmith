@@ -1,0 +1,9 @@
+SELECT
+  COUNT(*)::int AS bonos_emitidos
+FROM "Reward" r
+JOIN "Customer" c ON c.id = r."customerId"
+WHERE r."issuedAt"::date BETWEEN {{ Filters.fromISO() }}::date AND {{ Filters.toISO() }}::date
+  AND (
+    {{ Auth.businessId() ? 1 : 0 }} = 0
+    OR c."businessId" = {{ Auth.businessId() }}::uuid
+  );

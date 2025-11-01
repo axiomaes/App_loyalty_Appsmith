@@ -1,0 +1,5 @@
+SELECT c.id, c.name, c.phone AS old_phone,
+       '+34' || right(regexp_replace(c.phone, '[^0-9]', '', 'g'), 9) AS new_phone
+FROM "Customer" c
+WHERE c.phone IS NOT NULL;
+

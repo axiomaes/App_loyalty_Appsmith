@@ -1,0 +1,35 @@
+WITH p AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid AS bid,
+    {{ this.params.customerId }}::uuid    AS cid
+),
+upd AS (
+  UPDATE "Customer" c
+     SET "deletedAt" = NOW(),
+         "updatedAt" = NOW()
+  FROM p
+  WHERE c.id = p.cid
+    AND c."businessId" = p.bid
+    AND c."deletedAt" IS NULL
+  RETURNING c.*
+),
+stats AS (
+  SELECT
+    (SELECT COUNT(*) FROM "Visit"       v WHERE v."customerId" = p.cid) AS visits,
+    (SELECT COUNT(*) FROM "Appointment" a WHERE a."customerId" = p.cid) AS appointments,
+    (SELECT COUNT(*) FROM "Message"     m WHERE m."customerId" = p.cid) AS messages,
+    (SELECT COUNT(*) FROM "Reward"      r WHERE r."customerId" = p.cid) AS rewards,
+    (SELECT COUNT(*) FROM "Bond"        b WHERE b."customerId" = p.cid) AS bonds,
+    (SELECT COUNT(*) FROM "TagChangeLog"t WHERE t."customerId" = p.cid) AS tag_logs
+  FROM p
+)
+SELECT
+  (SELECT COUNT(*) FROM upd) = 1                         AS updated,
+  (SELECT TO_JSONB(u.*) FROM upd u)                      AS row,
+  (SELECT JSON_BUILD_OBJECT(
+            'visits', s.visits,
+            'appointments', s.appointments,
+            'messages', s.messages,
+            'rewards', s.rewards,
+            'bonds', s.bonds,
+            'tag_logs', s.tag_logs) FROM stats s)        AS related_counts;

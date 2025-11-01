@@ -1,0 +1,5 @@
+-- Temporal: evita error hasta implementar la lógica real
+SELECT true AS ok,
+       {{ this.params.customerId }}::uuid  AS customer_id,
+       {{ this.params.toVip }}::bool       AS to_vip,
+       {{ this.params.plan }}::text        AS plan;

@@ -1,0 +1,1 @@
+{{ JS_BizConfig.load() }}

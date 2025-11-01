@@ -1,0 +1,50 @@
+WITH input AS (
+  SELECT
+    {{ this.params.customerId }}::uuid        AS customer_id,
+    NULLIF(TRIM({{ this.params.notes || '' }}::text), '') AS notes,
+    ({{ this.params.isAdminLike ? 'true' : 'false' }})::boolean AS is_admin_like,
+    now()::timestamptz AS now_ts
+),
+
+-- Última visita registrada del cliente
+last_visit AS (
+  SELECT MAX(v."visitedAt") AS last_at
+  FROM "Visit" v
+  WHERE v."customerId" = (SELECT customer_id FROM input)
+),
+
+-- Política: permitir si:
+--  1) Es admin-like, o
+--  2) Nunca visitó antes, o
+--  3) Pasaron al menos 48h desde la última
+policy AS (
+  SELECT
+    i.customer_id,
+    i.notes,
+    i.is_admin_like,
+    i.now_ts,
+    l.last_at,
+    (i.is_admin_like OR l.last_at IS NULL OR i.now_ts - l.last_at >= INTERVAL '48 hours') AS allowed
+  FROM input i
+  LEFT JOIN last_visit l ON TRUE
+),
+
+-- Inserta visita solo si está permitida
+ins AS (
+  INSERT INTO "Visit"(id, "customerId", "visitedAt", notes)
+  SELECT
+    uuid_generate_v4(),
+    p.customer_id,
+    p.now_ts,
+    p.notes
+  FROM policy p
+  WHERE p.allowed
+  RETURNING *
+)
+
+-- Resultado para Appsmith
+SELECT
+  (SELECT allowed FROM policy)             AS allowed,
+  (SELECT last_at FROM policy)             AS last_visit,
+  (SELECT COUNT(*) > 0 FROM ins)           AS inserted,
+  (SELECT to_jsonb(ins.*) FROM ins)        AS row;

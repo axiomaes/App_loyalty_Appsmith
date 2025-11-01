@@ -1,0 +1,11 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_2fc99580-daf2-4543-93ce-c1d2b16d8127",
+  "id": "Dashboard_VIP",
+  "unpublishedCollection": {
+    "name": "VIP",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": []
+  }
+}

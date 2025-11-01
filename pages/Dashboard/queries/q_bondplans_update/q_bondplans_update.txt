@@ -1,0 +1,16 @@
+WITH v AS (SELECT {{ appsmith.store.businessId }}::uuid AS bid),
+upd AS (
+  UPDATE "BondPlan" bp
+  SET code            = {{ this.params.code }},
+      name            = {{ this.params.name }},
+      "priceCents"    = {{ this.params.priceCents }}::int,
+      "durationDays"  = {{ this.params.durationDays }}::int,
+      "graceStartDay" = {{ this.params.graceStartDay }}::int,
+      "graceEndDay"   = {{ this.params.graceEndDay }}::int,
+      "isActive"      = {{ this.params.isActive }}::boolean
+  FROM v
+  WHERE bp.id = {{ this.params.id }}::uuid
+    AND bp."businessId" = v.bid
+  RETURNING 1
+)
+SELECT 'updated' AS op FROM upd;

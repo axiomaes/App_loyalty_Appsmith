@@ -1,0 +1,62 @@
+{
+  "backgroundColor": "#FFFFFF",
+  "borderColor": "#E0DEDE",
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "borderWidth": "1",
+  "bottomRow": 30,
+  "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+  "defaultModel": "{{ { items: JS_Loyalty.punchModel(), size: 36, gap: 6 } }}\n",
+  "dynamicBindingPathList": [
+    {
+      "key": "theme"
+    },
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "boxShadow"
+    },
+    {
+      "key": "defaultModel"
+    }
+  ],
+  "dynamicHeight": "FIXED",
+  "dynamicPropertyPathList": [],
+  "dynamicTriggerPathList": [],
+  "events": [],
+  "isCanvas": false,
+  "isLoading": false,
+  "isSearchWildcard": true,
+  "isVisible": true,
+  "key": "y5yvfe3lbm",
+  "leftColumn": 5,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 37,
+  "mobileLeftColumn": 13,
+  "mobileRightColumn": 36,
+  "mobileTopRow": 7,
+  "needsErrorInfo": false,
+  "parentColumnSpace": 13.12890625,
+  "parentId": "ftodivyr28",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "rightColumn": 59,
+  "shouldScrollContents": true,
+  "srcDoc": {
+    "css": ":root {\n  --chip-size:40px;\n  --gap:8px;\n  --radius:12px;\n  --filled-bg:#3b82f6;\n  --filled-fg:#fff;\n  --empty-bg:#eee;\n  --empty-fg:#666;\n}\n\n#strip {\n  display: flex;\n  gap: var(--gap);\n  width: 100%;\n  align-items: center;\n  overflow-x: auto;\n  padding: 6px 2px;\n}\n\n.chip {\n  min-width: var(--chip-size);\n  width: var(--chip-size);\n  height: var(--chip-size);\n  border-radius: var(--radius);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-weight: 600;\n  user-select: none;\n  background: var(--empty-bg);\n  color: var(--empty-fg);\n  box-shadow: inset 0 0 0 1px #ddd;\n}\n\n.chip.filled {\n  background: var(--filled-bg);\n  color: var(--filled-fg);\n  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15), 0 1px 2px rgba(0, 0, 0, 0.12);\n}",
+    "html": "<!-- no need to write html, head, body tags, it is handled by the widget -->\n<div id=\"strip\" aria-label=\"Tarjeta de visitas\"></div>\n\n",
+    "js": "function render(data) {\n  const root = document.getElementById(\"strip\");\n  if (!root) return;\n  const items = Array.isArray(data?.items) ? data.items : [];\n  const size = Number(data?.size ?? 40);\n  const gap = Number(data?.gap ?? 8);\n  const radius = Number(data?.radius ?? 12);\n  const filledBg = data?.filledColor ?? \"#3b82f6\";\n  const filledFg = data?.filledTextColor ?? \"#ffffff\";\n  const emptyBg = data?.emptyColor ?? \"#eeeeee\";\n  const emptyFg = data?.emptyTextColor ?? \"#666666\";\n  root.style.setProperty(\"--chip-size\", `${size}px`);\n  root.style.setProperty(\"--gap\", `${gap}px`);\n  root.style.setProperty(\"--radius\", `${radius}px`);\n  root.style.setProperty(\"--filled-bg\", filledBg);\n  root.style.setProperty(\"--filled-fg\", filledFg);\n  root.style.setProperty(\"--empty-bg\", emptyBg);\n  root.style.setProperty(\"--empty-fg\", emptyFg);\n  root.innerHTML = items.map(p => `<div class=\"chip ${p.filled ? \"filled\" : \"\"}\" title=\"${p.n}\">${p.n}</div>`).join(\"\");\n}\nappsmith.onReady(() => {\n  // primera pintura\n  render(appsmith.data);\n\n  // \"reactividad\" simple: repinta cuando cambie Data\n  let last = \"\";\n  function tick() {\n    try {\n      const cur = JSON.stringify(appsmith.data);\n      if (cur !== last) {\n        last = cur;\n        render(appsmith.data);\n      }\n    } catch {}\n    setTimeout(tick, 120); // 8–10 fps es suficiente\n  }\n  tick();\n  return {\n    dynamicHeight: false\n  };\n});"
+  },
+  "theme": "{{appsmith.theme}}",
+  "topRow": 3,
+  "type": "CUSTOM_WIDGET",
+  "uncompiledSrcDoc": {
+    "css": ":root{\n  --chip-size:40px; --gap:8px; --radius:12px;\n  --filled-bg:#3b82f6; --filled-fg:#fff;\n  --empty-bg:#eee;     --empty-fg:#666;\n}\n#strip{display:flex;gap:var(--gap);width:100%;\n  align-items:center;overflow-x:auto;padding:6px 2px;}\n.chip{min-width:var(--chip-size);width:var(--chip-size);height:var(--chip-size);\n  border-radius:var(--radius);display:flex;align-items:center;justify-content:center;\n  font-weight:600;user-select:none;background:var(--empty-bg);color:var(--empty-fg);\n  box-shadow:inset 0 0 0 1px #ddd;}\n.chip.filled{background:var(--filled-bg);color:var(--filled-fg);\n  box-shadow:inset 0 0 0 2px rgba(255,255,255,.15),0 1px 2px rgba(0,0,0,.12);}\n",
+    "html": "<!-- no need to write html, head, body tags, it is handled by the widget -->\n<div id=\"strip\" aria-label=\"Tarjeta de visitas\"></div>\n\n",
+    "js": "function render(data) {\n  const root = document.getElementById(\"strip\");\n  if (!root) return;\n\n  const items = Array.isArray(data?.items) ? data.items : [];\n  const size  = Number(data?.size ?? 40);\n  const gap   = Number(data?.gap ?? 8);\n  const radius = Number(data?.radius ?? 12);\n\n  const filledBg = data?.filledColor      ?? \"#3b82f6\";\n  const filledFg = data?.filledTextColor  ?? \"#ffffff\";\n  const emptyBg  = data?.emptyColor       ?? \"#eeeeee\";\n  const emptyFg  = data?.emptyTextColor   ?? \"#666666\";\n\n  root.style.setProperty(\"--chip-size\", `${size}px`);\n  root.style.setProperty(\"--gap\", `${gap}px`);\n  root.style.setProperty(\"--radius\", `${radius}px`);\n  root.style.setProperty(\"--filled-bg\", filledBg);\n  root.style.setProperty(\"--filled-fg\", filledFg);\n  root.style.setProperty(\"--empty-bg\", emptyBg);\n  root.style.setProperty(\"--empty-fg\", emptyFg);\n\n  root.innerHTML = items\n    .map(p => `<div class=\"chip ${p.filled ? \"filled\" : \"\"}\" title=\"${p.n}\">${p.n}</div>`)\n    .join(\"\");\n}\n\nappsmith.onReady(() => {\n  // primera pintura\n  render(appsmith.data);\n\n  // \"reactividad\" simple: repinta cuando cambie Data\n  let last = \"\";\n  function tick() {\n    try {\n      const cur = JSON.stringify(appsmith.data);\n      if (cur !== last) { last = cur; render(appsmith.data); }\n    } catch {}\n    setTimeout(tick, 120); // 8–10 fps es suficiente\n  }\n  tick();\n\n  return { dynamicHeight: false };\n});\n"
+  },
+  "version": 1,
+  "widgetId": "8no5o5kbf7",
+  "widgetName": "Custom1"
+}

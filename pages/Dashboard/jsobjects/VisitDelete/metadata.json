@@ -1,0 +1,11 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_0cf27ccf-f7f0-4818-bb8b-529d84925f06",
+  "id": "Dashboard_VisitDelete",
+  "unpublishedCollection": {
+    "name": "VisitDelete",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": []
+  }
+}

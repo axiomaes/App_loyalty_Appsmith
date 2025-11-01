@@ -1,0 +1,20 @@
+WITH last_free AS (
+  SELECT COALESCE(MAX(r."redeemedAt"), '1970-01-01'::timestamptz) AS since
+  FROM "Reward" r
+  WHERE r."customerId" = {{ appsmith.store.selCustomerId }}::uuid
+    AND r.kind = 'free'
+    AND r.status = 'REDEEMED'
+)
+SELECT
+  'Default'          AS "planName",
+  10                 AS "totalSlots",
+  (
+    SELECT COUNT(1)
+    FROM "Visit" v, last_free lf
+    WHERE v."customerId" = {{ appsmith.store.selCustomerId }}::uuid
+      AND v."visitedAt" > lf.since
+  )                  AS "currentVisits",
+  (SELECT since FROM last_free) AS "cycleStart",
+  FALSE AS "halfIssued",
+  FALSE AS "freeIssued",
+  FALSE AS "isVip";

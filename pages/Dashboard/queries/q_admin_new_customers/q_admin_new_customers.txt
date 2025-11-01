@@ -1,0 +1,17 @@
+WITH p AS (
+  SELECT
+    {{ this.params.bid || appsmith.store.businessId }}::uuid      AS bid,
+    {{ this.params.start }}::timestamptz                           AS d1,
+    {{ this.params.end   }}::timestamptz                           AS d2
+)
+SELECT
+  date_trunc('day', c."createdAt")::date AS dia,
+  COUNT(*)::int                           AS nuevos
+FROM compat.customers c
+JOIN p ON TRUE
+WHERE c."businessId" = p.bid
+  AND c."deletedAt" IS NULL
+  AND c."createdAt" >= p.d1
+  AND c."createdAt" <  p.d2        -- ventana [d1, d2)
+GROUP BY 1
+ORDER BY 1;

@@ -1,0 +1,11 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_956ed931-3ce5-4097-b0d2-a002c51ffbc3",
+  "id": "Login_CambiarPassword",
+  "unpublishedCollection": {
+    "name": "CambiarPassword",
+    "pageId": "Login",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": []
+  }
+}

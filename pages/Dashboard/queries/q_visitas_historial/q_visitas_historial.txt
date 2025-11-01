@@ -1,0 +1,16 @@
+WITH p AS (
+  SELECT
+    {{ this.params.customerId }}::uuid AS cid,
+    COALESCE({{ this.params.limit }}, 100)::int  AS lim,
+    COALESCE({{ this.params.offset }}, 0)::int   AS off
+)
+SELECT
+  v.id,
+  v."visitedAt" AS fecha,
+  COALESCE(v.notes, '') AS notes
+FROM "Visit" v
+JOIN p ON TRUE
+WHERE v."customerId" = p.cid
+ORDER BY v."visitedAt" DESC
+LIMIT  (SELECT lim FROM p)
+OFFSET (SELECT off FROM p);

@@ -1,0 +1,2 @@
+SELECT token
+FROM public.upsert_customer_qr_token({{ this.params.id }});

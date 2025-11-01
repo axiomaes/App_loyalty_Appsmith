@@ -1,0 +1,186 @@
+{
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 24,
+  "boxShadow": "none",
+  "buttonVariant": "PRIMARY",
+  "childStylesheet": {
+    "button": {
+      "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+    }
+  },
+  "dynamicBindingPathList": [
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "groupButtons.groupButton1.isVisible"
+    },
+    {
+      "key": "groupButtons.groupButton42z77z8qof.isVisible"
+    }
+  ],
+  "dynamicPropertyPathList": [
+    {
+      "key": "groupButtons.groupButton1.isVisible"
+    },
+    {
+      "key": "groupButtons.groupButton1.onClick"
+    },
+    {
+      "key": "groupButtons.groupButtonlrj6oqet34.onClick"
+    },
+    {
+      "key": "groupButtons.groupButton42z77z8qof.isVisible"
+    },
+    {
+      "key": "groupButtons.groupButton42z77z8qof.onClick"
+    },
+    {
+      "key": "groupButtons.groupButton3.onClick"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "groupButtons.groupButton1.onClick"
+    },
+    {
+      "key": "groupButtons.groupButton3.onClick"
+    },
+    {
+      "key": "groupButtons.groupButtonlrj6oqet34.onClick"
+    },
+    {
+      "key": "groupButtons.groupButton42z77z8qof.onClick"
+    }
+  ],
+  "groupButtons": {
+    "groupButton1": {
+      "buttonColor": "#eab308",
+      "buttonType": "SIMPLE",
+      "disabledWhenInvalid": false,
+      "iconName": "edit",
+      "id": "groupButton1",
+      "index": 0,
+      "isDisabled": false,
+      "isVisible": "{{ Auth.isOneOf('OWNER','ADMIN','SUPERADMIN') }}\n",
+      "label": "Edicion",
+      "menuItems": {},
+      "onClick": "{{\n  (async () => {\n    // Asegura que tenemos el cliente cargado\n    const id = appsmith.store.selCustomerId;\n    let detalle = appsmith.store.clienteDetalle;\n\n    if (!detalle && id) {\n      const det = await q_cliente_detalle.run({ id });\n      detalle = det?.[0] || null;\n    }\n    if (!detalle) { showAlert(\"No hay cliente seleccionado.\", \"warning\"); return; }\n\n    // Pasa el objeto al modal de edición\n    await storeValue(\"editingCustomer\", JSON.parse(JSON.stringify(detalle))); // copia segura\n\n    // (opcional) si tu formulario usa reset para tomar los defaults\n    // resetWidget(Form_editar_cliente.name, true);\n\n    // Cambia de modal: primero cerrar, luego abrir\n    await closeModal(Modal_datos_clientes.name);\n    await showModal(Modal_editar_cliente.name);\n  })()\n}}\n",
+      "placement": "CENTER",
+      "widgetId": ""
+    },
+    "groupButton3": {
+      "buttonColor": "#fde047",
+      "buttonType": "SIMPLE",
+      "disabledWhenInvalid": false,
+      "iconName": "barcode",
+      "id": "groupButton3",
+      "index": 1,
+      "isDisabled": false,
+      "isVisible": true,
+      "label": "QR",
+      "menuItems": {
+        "menuItem1": {
+          "backgroundColor": "#FFFFFF",
+          "disabledWhenInvalid": false,
+          "id": "menuItem1",
+          "index": 0,
+          "isDisabled": false,
+          "isVisible": true,
+          "label": "First Option",
+          "onClick": "",
+          "widgetId": ""
+        },
+        "menuItem2": {
+          "backgroundColor": "#FFFFFF",
+          "disabledWhenInvalid": false,
+          "id": "menuItem2",
+          "index": 1,
+          "isDisabled": false,
+          "isVisible": true,
+          "label": "Second Option",
+          "onClick": "",
+          "widgetId": ""
+        },
+        "menuItem3": {
+          "backgroundColor": "#DD4B34",
+          "disabledWhenInvalid": false,
+          "iconAlign": "right",
+          "iconColor": "#FFFFFF",
+          "iconName": "trash",
+          "id": "menuItem3",
+          "index": 2,
+          "isDisabled": false,
+          "isVisible": true,
+          "label": "Delete",
+          "onClick": "",
+          "textColor": "#FFFFFF",
+          "widgetId": ""
+        }
+      },
+      "onClick": "{{\n  (async () => {\n    const det = appsmith.store.clienteDetalle;\n    if (!det?.id) { showAlert(\"No hay cliente.\", \"warning\"); return; }\n\n    // 1) Garantiza TOKEN (y úsalo en el fallback)\n    const r = await q_customer_token_upsert.run({ id: det.id });\n    const token = r?.[0]?.token;\n    if (!token) { showAlert(\"No se pudo obtener token.\", \"error\"); return; }\n\n    const size = 280;\n\n    // 2) URL fallback (siempre válida): QR con la URL del kiosko por TOKEN\n    const kioskUrl = `https://kiosk.tudominio.com/scan?t=${encodeURIComponent(token)}`;\n    const fallback = `https://quickchart.io/qr?text=${encodeURIComponent(kioskUrl)}&size=${size}`;\n\n    // 3) URL principal: PNG servido por tu API (puede fallar por 404/CORS)\n    const primary =\n      \"https://axioma-api.loyalty.axioma-creativa.es/public/customers/\" +\n      encodeURIComponent(det.id) +\n      `/qr.png?size=${size}&_=${Date.now()}`;\n\n    // 4) Muestra YA el fallback (el usuario siempre ve un QR)\n    await storeValue(\"qrFallbackUrl\", fallback);\n    await storeValue(\"qrImg\", fallback);\n\n    // 5) Abre el modal\n    await closeModal(Modal_datos_clientes.name);\n    await showModal(Modal_QR.name);\n\n    // 6) Intenta cambiar al PNG oficial (si carga bien, el onError no se dispara)\n    //    si falla, el onError del Image volverá a poner el fallback\n    await storeValue(\"qrImg\", primary);\n  })()\n}}\n",
+      "placement": "CENTER",
+      "widgetId": ""
+    },
+    "groupButton42z77z8qof": {
+      "buttonColor": "#f3e8ff",
+      "buttonType": "SIMPLE",
+      "iconName": "bookmark",
+      "id": "groupButton42z77z8qof",
+      "index": 3,
+      "isDisabled": false,
+      "isSeparator": false,
+      "isVisible": "{{   (appsmith.store.editingCustomer?.tag \n    ?? q_cliente_detalle.data?.[0]?.tag \n    ?? \"\")\n  .toLowerCase()\n  .includes(\"vip\")\n}}\n",
+      "itemType": "BUTTON",
+      "label": "Vip",
+      "menuItems": {},
+      "onClick": "{{\n  (async () => {\n    const row =\n      appsmith.store.editingCustomer\n      ?? q_cliente_detalle.data?.[0]\n      ?? null;\n\n    if (!row?.id) { showAlert(\"Selecciona un cliente primero.\", \"warning\"); return; }\n\n    await storeValue('vipRow', row);\n    await storeValue('vipCustomerId', row.id);\n\n    // Precarga estado (si tu JS VIP lo tiene)\n    if (typeof VIP?.loadStatus === \"function\") {\n      await VIP.loadStatus(row.id);\n    }\n\n    showModal(Modal_pago_vip.name);\n  })()\n}}\n",
+      "placement": "CENTER",
+      "variant": "filled",
+      "widgetId": "dd28buo0z8"
+    },
+    "groupButtonlrj6oqet34": {
+      "buttonColor": "#86efac",
+      "buttonType": "SIMPLE",
+      "iconName": "automatic-updates",
+      "id": "groupButtonlrj6oqet34",
+      "index": 2,
+      "isDisabled": false,
+      "isSeparator": false,
+      "isVisible": true,
+      "itemType": "BUTTON",
+      "label": "Visita",
+      "menuItems": {},
+      "onClick": "{{\n  (async () => {\n    resetWidget('SelReason', true);\n    // si tienes pestañas, asegúrate que abra en \"Manual\" por defecto\n    showModal(Modal_add_visit.name);\n  })()\n}}\n",
+      "placement": "CENTER",
+      "variant": "filled",
+      "widgetId": "e2hrifp4w5"
+    }
+  },
+  "isCanvas": false,
+  "isLoading": false,
+  "isVisible": true,
+  "key": "tyaakiqkv2",
+  "leftColumn": 1,
+  "minWidth": 450,
+  "mobileBottomRow": 29,
+  "mobileLeftColumn": 34,
+  "mobileRightColumn": 58,
+  "mobileTopRow": 25,
+  "needsErrorInfo": false,
+  "orientation": "horizontal",
+  "originalBottomRow": 24,
+  "originalTopRow": 20,
+  "parentColumnSpace": 7.16644287109375,
+  "parentId": "6sxqqdiu8e",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 62,
+  "topRow": 20,
+  "type": "BUTTON_GROUP_WIDGET",
+  "version": 1,
+  "widgetId": "mfdfs3ywcj",
+  "widgetName": "But_cliente"
+}

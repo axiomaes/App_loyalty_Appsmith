@@ -1,0 +1,10 @@
+SELECT
+  date_trunc('day', bp."paidAt")::date                      AS dia,
+  COUNT(*)::int                                             AS pagos,
+  COALESCE(SUM(bp."amountCents")/100.0, 0)::numeric(12,2)   AS importe_eur
+FROM compat.bond_payment bp
+WHERE bp."businessId" = {{ this.params.bid }}::uuid
+  AND bp."paidAt"      >= {{ this.params.t1 }}::timestamptz
+  AND bp."paidAt"      <  {{ this.params.t2 }}::timestamptz  -- ventana [t1, t2)
+GROUP BY 1
+ORDER BY 1;

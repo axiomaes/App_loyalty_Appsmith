@@ -1,0 +1,11 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_35cbf9c5-25a8-4dca-9ee9-3a10cc0d6be3",
+  "id": "Dashboard_VisitAdd",
+  "unpublishedCollection": {
+    "name": "VisitAdd",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": []
+  }
+}

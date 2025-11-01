@@ -1,0 +1,6 @@
+SELECT customerId
+FROM "CustomerQrToken"
+WHERE "businessId" = {{ appsmith.store.businessId }}::uuid
+  AND token = {{ this.params.token }}::text
+  AND active = true
+LIMIT 1;

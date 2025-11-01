@@ -1,0 +1,16 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_7bfda842-250d-462e-a9e7-07977b06628d",
+  "id": "Dashboard_BondPlans",
+  "unpublishedCollection": {
+    "name": "BondPlans",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "_editingId",
+        "value": "null"
+      }
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+SELECT
+  COUNT(*)::int AS clientes_nuevos
+FROM "Customer" c
+WHERE c."deletedAt" IS NULL
+  AND c."createdAt"::date BETWEEN
+      COALESCE({{ Filters.fromISO() }}::date, current_date - interval '30 days') AND
+      COALESCE({{ Filters.toISO() }}::date, current_date)
+  AND c."businessId" = {{ appsmith.store.businessId }}::uuid;

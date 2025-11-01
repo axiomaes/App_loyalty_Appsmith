@@ -1,0 +1,20 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_dd540509-a4a4-413b-978b-a9fedf195ef0",
+  "id": "Dashboard_JS_ClientePanel",
+  "unpublishedCollection": {
+    "name": "JS_ClientePanel",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "_lastId",
+        "value": "null"
+      },
+      {
+        "name": "_busy",
+        "value": "false"
+      }
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+SELECT
+  v."visitedAt"::date AS dia,
+  COUNT(*)::int       AS atenciones
+FROM "Visit" v
+JOIN "Customer" c ON c.id = v."customerId"
+WHERE c."businessId" = {{ appsmith.store.businessId }}::uuid
+  AND v."visitedAt"::date >= (now() - interval '14 days')::date
+GROUP BY 1
+ORDER BY 1 DESC;

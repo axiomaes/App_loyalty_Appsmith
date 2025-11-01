@@ -1,0 +1,57 @@
+{
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 33,
+  "boxShadow": "none",
+  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+  "buttonStyle": "PRIMARY_BUTTON",
+  "buttonVariant": "PRIMARY",
+  "disabledWhenInvalid": false,
+  "dynamicBindingPathList": [
+    {
+      "key": "buttonColor"
+    },
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "isDisabled"
+    }
+  ],
+  "dynamicPropertyPathList": [
+    {
+      "key": "isDisabled"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onClick"
+    }
+  ],
+  "isDefaultClickDisabled": true,
+  "isDisabled": "{{\n  !(\n    // 1) Email válido (sin espacios)\n    /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test((InputEmailCambio.text || '').trim())\n    // 2) Contraseña actual no vacía\n    && (InputPassActual.text || '').length >= 1\n    // 3) Nueva contraseña con mínimo 8 caracteres (en ambos campos)\n    && (InputPassNueva.text || '').length >= 8\n    && (InputPassNueva2.text || '').length >= 8\n    // 4) Las nuevas coinciden\n    && (InputPassNueva.text === InputPassNueva2.text)\n    // 5) La nueva es distinta a la actual\n    && (InputPassNueva.text !== InputPassActual.text)\n  )\n}}\n",
+  "isLoading": false,
+  "isVisible": true,
+  "key": "tjafdjergi",
+  "leftColumn": 47,
+  "minWidth": 120,
+  "mobileBottomRow": 22,
+  "mobileLeftColumn": 47,
+  "mobileRightColumn": 63,
+  "mobileTopRow": 18,
+  "needsErrorInfo": false,
+  "onClick": "{{CambiarPasswordEmail.run();}}",
+  "parentId": "xxz8069eif",
+  "placement": "CENTER",
+  "recaptchaType": "V3",
+  "renderMode": "CANVAS",
+  "resetFormOnClick": false,
+  "responsiveBehavior": "hug",
+  "rightColumn": 63,
+  "text": "Confirmar",
+  "topRow": 29,
+  "type": "BUTTON_WIDGET",
+  "version": 1,
+  "widgetId": "qiq2go31o4",
+  "widgetName": "Button2"
+}

@@ -1,0 +1,12 @@
+SELECT
+  id,
+  code,
+  name,
+  "durationDays",
+  "graceStartDay",
+  "graceEndDay",
+  "isActive",
+  FLOOR("priceCents" / 100.0)::int AS price_eur   -- euros sin decimales
+FROM "BondPlan"
+WHERE "businessId" = {{ appsmith.store.businessId }}::uuid
+ORDER BY name;

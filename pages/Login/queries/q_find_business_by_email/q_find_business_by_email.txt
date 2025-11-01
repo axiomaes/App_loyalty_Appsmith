@@ -1,0 +1,11 @@
+SELECT
+  u.id           AS user_id,
+  u.email        AS user_email,
+  u.role         AS user_role,
+  u."businessId" AS business_id,
+  b.name         AS business_name
+FROM "User" u
+LEFT JOIN "Business" b ON b.id = u."businessId"
+WHERE lower(regexp_replace(trim(u.email), '[\u00A0\\s]+', '', 'g'))
+    = lower(regexp_replace(trim({{ InputCorreo.text || '' }}), '[\u00A0\\s]+', '', 'g'))
+LIMIT 1;

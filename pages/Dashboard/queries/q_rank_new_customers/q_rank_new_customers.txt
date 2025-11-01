@@ -1,0 +1,16 @@
+SELECT
+  b.id,
+  b.name,
+  COUNT(c.id)::int AS new_customers
+FROM "Business" b
+LEFT JOIN "Customer" c
+  ON c."businessId" = b.id
+ AND c."deletedAt" IS NULL
+ AND c."createdAt"::date BETWEEN {{ Filters.fromISO() }}::date AND {{ Filters.toISO() }}::date
+WHERE
+  (
+    {{ Auth.businessId() ? 1 : 0 }} = 0
+    OR b.id = {{ Auth.businessId() }}::uuid
+  )
+GROUP BY b.id, b.name
+ORDER BY new_customers DESC, b.name;

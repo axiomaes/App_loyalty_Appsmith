@@ -1,0 +1,76 @@
+{
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 6,
+  "boxShadow": "none",
+  "buttonVariant": "PRIMARY",
+  "childStylesheet": {
+    "button": {
+      "buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+    }
+  },
+  "dynamicBindingPathList": [
+    {
+      "key": "borderRadius"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "groupButtons.groupButton1.onClick"
+    }
+  ],
+  "groupButtons": {
+    "groupButton1": {
+      "buttonColor": "#3b82f6",
+      "buttonType": "SIMPLE",
+      "disabledWhenInvalid": false,
+      "iconName": "insert",
+      "id": "groupButton1",
+      "index": 0,
+      "isDisabled": false,
+      "isVisible": true,
+      "label": "Crear Cliente",
+      "menuItems": {},
+      "onClick": "{{showModal(Modal_crear_cliente.name);}}",
+      "placement": "CENTER",
+      "widgetId": ""
+    },
+    "groupButton2": {
+      "buttonColor": "#fef9c3",
+      "buttonType": "SIMPLE",
+      "disabledWhenInvalid": false,
+      "iconName": "barcode",
+      "id": "groupButton2",
+      "index": 1,
+      "isDisabled": false,
+      "isVisible": true,
+      "label": "Leer QR",
+      "menuItems": {},
+      "placement": "CENTER",
+      "widgetId": ""
+    }
+  },
+  "isCanvas": false,
+  "isLoading": false,
+  "isVisible": true,
+  "key": "jvvp1yd7lr",
+  "leftColumn": 16,
+  "minWidth": 450,
+  "mobileBottomRow": 6,
+  "mobileLeftColumn": 15,
+  "mobileRightColumn": 39,
+  "mobileTopRow": 2,
+  "needsErrorInfo": false,
+  "orientation": "horizontal",
+  "parentColumnSpace": 15.795974731445312,
+  "parentId": "yltlsc749h",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 46,
+  "topRow": 2,
+  "type": "BUTTON_GROUP_WIDGET",
+  "version": 1,
+  "widgetId": "lsr3n6gfsl",
+  "widgetName": "ButtonGroup2"
+}

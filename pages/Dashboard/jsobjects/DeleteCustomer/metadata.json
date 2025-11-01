@@ -1,0 +1,28 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_bc058d5c-d24d-4c63-9e72-b0ed2708a7dd",
+  "id": "Dashboard_DeleteCustomer",
+  "unpublishedCollection": {
+    "name": "DeleteCustomer",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "qLogical",
+        "value": "q_delete_customer"
+      },
+      {
+        "name": "tableQuery",
+        "value": "q_clientes_listado"
+      },
+      {
+        "name": "visitsQuery",
+        "value": "q_visitas_historial"
+      },
+      {
+        "name": "detailQuery",
+        "value": "q_cliente_detalle"
+      }
+    ]
+  }
+}

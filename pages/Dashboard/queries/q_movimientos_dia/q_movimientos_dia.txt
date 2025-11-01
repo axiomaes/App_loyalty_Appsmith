@@ -1,0 +1,82 @@
+WITH p AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid AS bid,
+    {{ moment(DateDia.selectedDate || new Date()).format('YYYY-MM-DD') }}::date AS d
+),
+
+-- 🔹 Visitas del día
+vis AS (
+  SELECT
+    v."visitedAt"                   AS at,
+    'VISITA'                        AS kind,
+    c.id                            AS "customerId",
+    c.name                          AS "customerName",
+    NULL::text                      AS details,
+    NULL::int                       AS amount_cents
+  FROM "Visit" v
+  JOIN "Customer" c ON c.id = v."customerId"
+  JOIN p ON TRUE
+  WHERE c."businessId" = p.bid
+    AND c."deletedAt" IS NULL
+    AND v."visitedAt"::date = p.d
+),
+
+-- 🔹 Nuevos clientes del día
+nc AS (
+  SELECT
+    c."createdAt"                   AS at,
+    'NUEVO CLIENTE'                 AS kind,
+    c.id                            AS "customerId",
+    c.name                          AS "customerName",
+    NULL::text                      AS details,
+    NULL::int                       AS amount_cents
+  FROM "Customer" c
+  JOIN p ON TRUE
+  WHERE c."businessId" = p.bid
+    AND c."deletedAt" IS NULL
+    AND c."createdAt"::date = p.d
+),
+
+-- 🔹 Pagos de bonos del día
+bp AS (
+  SELECT
+    bp."paidAt"                     AS at,
+    'PAGO BONO'                     AS kind,
+    c.id                            AS "customerId",
+    c.name                          AS "customerName",
+    ('Pago de bono ' || b.id)::text AS details,
+    COALESCE(bp."amountCents", 0)::int AS amount_cents
+  FROM "BondPayment" bp
+  JOIN "Bond" b     ON b."id" = bp."bondId"
+  JOIN "Customer" c ON c.id   = b."customerId"
+  JOIN p ON TRUE
+  WHERE c."businessId" = p.bid
+    AND c."deletedAt" IS NULL
+    AND bp."paidAt"::date = p.d
+)
+
+-- 🔹 Consolidado
+SELECT
+  at,
+  to_char(at, 'YYYY-MM-DD')                 AS fecha,   -- opcional
+  to_char(at, 'HH24:MI')                    AS hora,    -- ⏰ hora visible
+  kind,
+  "customerId",
+  "customerName",
+  details,
+  amount_cents,
+  ROUND(COALESCE(amount_cents,0)/100.0, 2)::numeric(12,2) AS amount_eur
+FROM (
+  SELECT * FROM vis
+  UNION ALL
+  SELECT * FROM nc
+  UNION ALL
+  SELECT * FROM bp
+) t
+ORDER BY
+  -- si la UI dice ASC, activa esta rama
+  CASE WHEN {{ (appsmith.store.mov_sort_dir || 'DESC') === 'ASC' }} THEN at END ASC,
+  -- si la UI dice DESC (por defecto), activa esta rama
+  CASE WHEN {{ (appsmith.store.mov_sort_dir || 'DESC') !== 'ASC' }} THEN at END DESC,
+  "customerName";
+

@@ -1,0 +1,50 @@
+WITH v AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid AS bid,
+    trim({{ this.params.code }}::text)    AS code,
+    trim({{ this.params.name }}::text)    AS name,
+    {{ this.params.priceCents }}::int     AS price_cents,
+    {{ this.params.durationDays }}::int   AS duration_days,
+    {{ this.params.graceStartDay }}::int  AS g_start,
+    {{ this.params.graceEndDay }}::int    AS g_end,
+    {{ this.params.isActive }}::boolean   AS is_active
+),
+
+chk AS (
+  SELECT
+    (code <> '')                   AS ok_code,
+    (name <> '')                   AS ok_name,
+    (price_cents >= 0)             AS ok_price,
+    (duration_days > 0)            AS ok_dur,
+    (g_start BETWEEN 1 AND 31)     AS ok_gs,
+    (g_end   BETWEEN 1 AND 31)     AS ok_ge,
+    (g_start <= g_end)             AS ok_range
+  FROM v
+),
+
+go AS (
+  SELECT 1
+  FROM chk
+  WHERE ok_code AND ok_name AND ok_price AND ok_dur AND ok_gs AND ok_ge AND ok_range
+)
+
+INSERT INTO "BondPlan"(
+  id, "businessId", code, name,
+  "priceCents", "durationDays", "graceStartDay", "graceEndDay", "isActive"
+)
+SELECT
+  uuid_generate_v4(),  -- id nuevo si inserta
+  v.bid, v.code, v.name,
+  v.price_cents, v.duration_days, v.g_start, v.g_end, v.is_active
+FROM v, go
+ON CONFLICT ("businessId","code") DO UPDATE SET
+  name            = EXCLUDED.name,
+  "priceCents"    = EXCLUDED."priceCents",
+  "durationDays"  = EXCLUDED."durationDays",
+  "graceStartDay" = EXCLUDED."graceStartDay",
+  "graceEndDay"   = EXCLUDED."graceEndDay",
+  "isActive"      = EXCLUDED."isActive"
+RETURNING
+  id, "businessId", code, name,
+  "priceCents", "durationDays", "graceStartDay", "graceEndDay", "isActive",
+  CASE WHEN xmax = 0 THEN 'inserted' ELSE 'updated' END AS op;

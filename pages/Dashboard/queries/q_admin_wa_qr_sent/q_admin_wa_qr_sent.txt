@@ -1,0 +1,19 @@
+WITH p AS (
+  SELECT
+    {{ this.params.bid   || appsmith.store.businessId }}::uuid    AS bid,
+    {{ this.params.start }}::timestamptz                           AS d1,
+    {{ this.params.end   }}::timestamptz                           AS d2
+)
+SELECT
+  date_trunc('day', m."sentAt")::date AS dia,
+  COUNT(*)::int                       AS enviados
+FROM "Message" m
+JOIN p ON TRUE
+WHERE m."businessId" = p.bid
+  AND m.channel      = 'WHATSAPP'
+  AND m."templateId" = 'CUSTOMER_QR'
+  AND m."sentAt" IS NOT NULL
+  AND m."sentAt" >= p.d1
+  AND m."sentAt" <  p.d2          -- ventana [d1, d2)
+GROUP BY 1
+ORDER BY 1;

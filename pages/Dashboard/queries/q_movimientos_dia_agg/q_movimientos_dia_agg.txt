@@ -1,0 +1,37 @@
+WITH p AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid                                   AS bid,
+    {{ moment(DateDia.selectedDate || new Date()).format('YYYY-MM-DD') }}::date AS d
+)
+-- tres filas agregadas (una por tipo)
+SELECT 'VISITAS'::text AS kind,
+       COUNT(*)::int   AS count,
+       0::int          AS cents
+FROM "Visit" v
+JOIN "Customer" c ON c.id = v."customerId"
+JOIN p ON TRUE
+WHERE c."businessId" = p.bid
+  AND c."deletedAt" IS NULL
+  AND v."visitedAt"::date = p.d
+
+UNION ALL
+SELECT 'NUEVO CLIENTE',
+       COUNT(*)::int,
+       0::int
+FROM "Customer" c
+JOIN p ON TRUE
+WHERE c."businessId" = p.bid
+  AND c."deletedAt" IS NULL
+  AND c."createdAt"::date = p.d
+
+UNION ALL
+SELECT 'PAGO BONO',
+       COUNT(*)::int,
+       COALESCE(SUM(bp."amountCents"),0)::int
+FROM "BondPayment" bp
+JOIN "Bond" b     ON b.id  = bp."bondId"
+JOIN "Customer" c ON c.id  = b."customerId"
+JOIN p ON TRUE
+WHERE c."businessId" = p.bid
+  AND c."deletedAt" IS NULL
+  AND bp."paidAt"::date = p.d;

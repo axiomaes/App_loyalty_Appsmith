@@ -1,0 +1,147 @@
+WITH v AS (
+  SELECT
+    {{ this.params.customerId }}::uuid                                           AS cid,
+    /* periodo 'YYYY-MM' (por defecto, mes actual) */
+    COALESCE({{ this.params.period || null }}, to_char(now(),'YYYY-MM'))::text  AS period,
+    {{ this.params.amountCents }}::int                                           AS amount_cents,
+    {{ this.params.method || null }}::text                                       AS method,
+    {{ this.params.notes  || null }}::text                                       AS notes,
+    /* selección manual opcional de plan */
+    {{ this.params.planId   || null }}::uuid                                     AS plan_id_param,
+    NULLIF(TRIM({{ this.params.planCode || '' }}::text),'')                      AS plan_code_param
+),
+
+cust AS (
+  SELECT c.id AS cid, c."businessId" AS bid, c.tag::text AS tag
+  FROM "Customer" c JOIN v ON c.id = v.cid
+),
+
+is_vip AS (
+  SELECT (tag ILIKE '%VIP%') AS is_vip FROM cust
+),
+
+/* --- CANDIDATO DE PLAN (prioridad: planId -> planCode -> por tag VIP) --- */
+plan_from_id AS (
+  SELECT bp.id, bp."businessId", bp.code, bp.name
+  FROM "BondPlan" bp
+  JOIN v ON v.plan_id_param IS NOT NULL AND bp.id = v.plan_id_param
+),
+
+plan_from_code AS (
+  SELECT bp.id, bp."businessId", bp.code, bp.name
+  FROM "BondPlan" bp
+  JOIN v ON v.plan_code_param IS NOT NULL AND LOWER(bp.code) = LOWER(v.plan_code_param)
+),
+
+plan_from_tag AS (
+  SELECT bp.id, bp."businessId", bp.code, bp.name
+  FROM "BondPlan" bp, cust, is_vip
+  WHERE is_vip.is_vip
+    AND bp."businessId" = cust.bid
+    AND (bp.code = 'VIP' OR bp.name ILIKE '%VIP%')
+  ORDER BY bp."isActive" DESC, bp.code
+  LIMIT 1
+),
+
+plan_pref AS (
+  SELECT * FROM plan_from_id
+  UNION ALL
+  SELECT * FROM plan_from_code
+  UNION ALL
+  SELECT * FROM plan_from_tag
+),
+/* quedate con el 1º válido del mismo negocio del cliente */
+plan_ok AS (
+  SELECT DISTINCT ON (1)
+    pf.id AS plan_id, pf."businessId" AS bid, pf.code AS plan_code, pf.name AS plan_name
+  FROM plan_pref pf
+  JOIN cust c ON c.bid = pf."businessId"
+  ORDER BY 1
+),
+
+/* --- BOND existente del cliente (si hay varios, toma uno determinístico) --- */
+bond_old AS (
+  SELECT b.id, b."customerId", b."planId", b.status
+  FROM "Bond" b
+  JOIN cust c ON c.cid = b."customerId"
+  ORDER BY (b.status = 'ACTIVE') DESC, b."createdAt" DESC, b.id
+  LIMIT 1
+),
+
+/* --- Asegura que exista un Bond y con el plan esperado --- */
+bond_create AS (
+  INSERT INTO "Bond"(id, "customerId", "planId", "startedAt", status)
+  SELECT uuid_generate_v4(), c.cid, p.plan_id, now(), 'ACTIVE'
+  FROM cust c
+  JOIN plan_ok p ON TRUE
+  WHERE NOT EXISTS (SELECT 1 FROM bond_old)
+  RETURNING id, "customerId", "planId", status
+),
+
+bond_switch AS (
+  /* cambia plan si ya existe bond y el plan difiere */
+  UPDATE "Bond" b
+     SET "planId" = p.plan_id,
+         status   = 'ACTIVE',
+         "updatedAt" = now()
+  FROM bond_old o, plan_ok p
+  WHERE b.id = o.id
+    AND p.plan_id IS NOT NULL
+    AND o."planId" IS DISTINCT FROM p.plan_id
+  RETURNING b.id, b."customerId", b."planId", b.status
+),
+
+bond_final AS (
+  /* bond vigente tras crear o switch; si nada de eso pasó, es el viejo */
+  SELECT * FROM bond_create
+  UNION ALL
+  SELECT * FROM bond_switch
+  UNION ALL
+  SELECT * FROM bond_old
+  LIMIT 1
+),
+
+/* --- UPSERT de pago del periodo --- */
+pay_upd AS (
+  UPDATE "BondPayment" bp
+     SET "amountCents" = v.amount_cents,
+         "paidAt"      = now(),
+         method        = v.method,
+         notes         = v.notes
+  FROM v, bond_final bf
+  WHERE bp."bondId" = bf.id
+    AND bp.period   = v.period
+  RETURNING 1 AS updated
+),
+
+pay_ins AS (
+  INSERT INTO "BondPayment"(id, "bondId", period, "amountCents", "paidAt", method, notes)
+  SELECT uuid_generate_v4(), bf.id, v.period, v.amount_cents, now(), v.method, v.notes
+  FROM v, bond_final bf
+  WHERE NOT EXISTS (SELECT 1 FROM pay_upd)
+  RETURNING 1 AS inserted
+),
+
+/* Si hubo movimiento de pago, marcamos bond ACTIVE por si acaso */
+bond_mark AS (
+  UPDATE "Bond" b
+     SET status = 'ACTIVE'
+  FROM bond_final bf
+  WHERE b.id = bf.id
+    AND (EXISTS (SELECT 1 FROM pay_upd) OR EXISTS (SELECT 1 FROM pay_ins))
+  RETURNING 1 AS marked
+)
+
+SELECT
+  (SELECT is_vip FROM is_vip)                         AS is_vip,
+  (SELECT COUNT(*) > 0 FROM bond_old)                 AS has_bond_before,
+  (SELECT COUNT(*) > 0 FROM bond_create)              AS created_bond,
+  (SELECT COUNT(*) > 0 FROM bond_switch)              AS switched_plan,
+  (SELECT COUNT(*) > 0 FROM pay_ins)                  AS inserted_payment,
+  (SELECT COUNT(*) > 0 FROM pay_upd)                  AS updated_payment,
+  (SELECT COUNT(*) > 0 FROM bond_mark)                AS bond_marked_active,
+  /* info del bond y plan resultante (si existe) */
+  (SELECT bf.id FROM bond_final bf)                   AS bond_id,
+  (SELECT bf."planId" FROM bond_final bf)             AS bond_plan_id,
+  (SELECT plan_code FROM plan_ok)                     AS plan_code,
+  (SELECT plan_name FROM plan_ok)                     AS plan_name;

@@ -1,0 +1,16 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_55e055ab-fca6-4a69-9c4c-6e8ca2b953d8",
+  "id": "Dashboard_Utils",
+  "unpublishedCollection": {
+    "name": "Utils",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "_TAG_MAP",
+        "value": "{\n  BONO_FAMILIA: \"Bono Familia\",\n  BONO_VIP_A: \"Bono VIP A\",\n  BONO_VIP_B: \"Bono VIP B\",\n  BONO_VIP_C: \"Bono VIP C\",\n  BONO_TARJETA: \"Bono Tarjeta\",\n  VIP: \"VIP\",\n  FRIEND: \"Amigo\",\n  NEW: \"Nuevo\",\n  ESPORADICO: \"Esporádico\",\n  NONE: \"—\"\n}"
+      }
+    ]
+  }
+}

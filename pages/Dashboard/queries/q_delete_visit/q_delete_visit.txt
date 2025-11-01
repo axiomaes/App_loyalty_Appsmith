@@ -1,0 +1,10 @@
+WITH p AS (
+  SELECT {{ appsmith.store.businessId }}::uuid AS bid,
+         {{ this.params.visitId }}::uuid       AS vid
+)
+DELETE FROM "Visit" v
+USING "Customer" c, p
+WHERE v.id = p.vid
+  AND v."customerId" = c.id
+  AND c."businessId" = p.bid
+RETURNING v.*;

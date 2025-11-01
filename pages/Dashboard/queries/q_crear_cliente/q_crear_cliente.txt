@@ -1,0 +1,63 @@
+WITH p AS (
+  SELECT
+    /* businessId: usa Auth.businessId() si existe; si no, store */
+    ({{ (Auth.businessId && Auth.businessId()) || appsmith.store.businessId }})::uuid AS bid
+),
+
+input AS (
+  SELECT
+    p.bid                               AS "businessId",
+    NULLIF(TRIM({{ this.params.name }}::text), '')                  AS name,
+    /* normaliza: deja solo dígitos y toma los últimos 9; antepone +34 */
+    ('+34' || RIGHT(REGEXP_REPLACE({{ this.params.phone }}::text, '[^0-9]', '', 'g'), 9)) AS phone_norm,
+    NULLIF({{ this.params.email || null }}::text, '')              AS email,
+    NULLIF({{ this.params.notes || null }}::text, '')              AS notes,
+    /* acepta 'YYYY-MM-DD' o timestamp; guarda como date -> cast a timestamp si prefieres */
+    CASE
+      WHEN {{ this.params.birthday ? 'true' : 'false' }}
+      THEN ({{ this.params.birthday }}::date)::timestamp
+      ELSE NULL
+    END                                                            AS birthday,
+    /* tag como texto; por defecto 'NONE' si viene vacío/nulo */
+    COALESCE(NULLIF(TRIM({{ this.params.tag || 'NONE' }}::text), ''), 'NONE') AS tag,
+    now() AS "updatedAt"
+  FROM p
+),
+
+-- valida mínimos (businessId, name y phone)
+norm AS (
+  SELECT *
+  FROM input
+  WHERE "businessId" IS NOT NULL
+    AND name IS NOT NULL
+    AND phone_norm IS NOT NULL
+),
+
+-- dedup por business + últimos 9 dígitos del teléfono (ignorando formato)
+dup AS (
+  SELECT c.id
+  FROM "Customer" c
+  JOIN norm n ON n."businessId" = c."businessId"
+  WHERE c."deletedAt" IS NULL
+    AND RIGHT(REGEXP_REPLACE(c.phone, '[^0-9]', '', 'g'), 9)
+        = RIGHT(REGEXP_REPLACE(n.phone_norm, '[^0-9]', '', 'g'), 9)
+  LIMIT 1
+),
+
+ins AS (
+  INSERT INTO "Customer"("businessId", name, phone, email, notes, birthday, tag, "updatedAt")
+  SELECT n."businessId", n.name, n.phone_norm, n.email, n.notes, n.birthday, n.tag, n."updatedAt"
+  FROM norm n
+  WHERE NOT EXISTS (SELECT 1 FROM dup)
+  RETURNING id, "businessId", name, phone, email, notes, birthday, tag, "createdAt", "updatedAt"
+)
+
+SELECT
+  /* flags útiles para la UI */
+  EXISTS (SELECT 1 FROM p)                     AS has_bid,
+  (SELECT COUNT(*) FROM norm) > 0               AS has_min_fields,
+  EXISTS (SELECT 1 FROM dup)                    AS is_duplicate,
+  (SELECT id FROM dup)                          AS duplicate_id,
+  EXISTS (SELECT 1 FROM ins)                    AS inserted,
+  (SELECT to_jsonb(ins.*) FROM ins)             AS row,
+  (SELECT 'AXIOMA:VISIT:CID='||id::text FROM ins) AS qr_payload;
