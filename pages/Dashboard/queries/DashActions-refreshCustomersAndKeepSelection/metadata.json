@@ -1,16 +1,12 @@
 {
-  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_0e88b319-646a-4d3d-a4ad-035951463e65",
-  "id": "Dashboard_DashActions.selectCustomer",
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_e8739245-37ee-43cd-a63c-b090a02e0da7",
+  "id": "Dashboard_DashActions.refreshCustomersAndKeepSelection",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
     "actionConfiguration": {
       "encodeParamsToggle": true,
-      "jsArguments": [
-        {
-          "name": "row"
-        }
-      ],
+      "jsArguments": [],
       "paginationType": "NONE",
       "timeoutInMillisecond": 10000
     },
@@ -26,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "DashActions.selectCustomer",
-    "name": "selectCustomer",
+    "fullyQualifiedName": "DashActions.refreshCustomersAndKeepSelection",
+    "name": "refreshCustomersAndKeepSelection",
     "pageId": "Dashboard",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

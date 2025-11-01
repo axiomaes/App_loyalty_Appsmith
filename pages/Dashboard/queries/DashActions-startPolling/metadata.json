@@ -1,12 +1,17 @@
 {
-  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_378a163e-8541-4f2c-8c23-309afcf711cb",
-  "id": "Dashboard_DashActions.selectFirstIfEmpty",
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_09ee29c2-2837-4c0d-a65c-1623aca218d9",
+  "id": "Dashboard_DashActions.startPolling",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
     "actionConfiguration": {
       "encodeParamsToggle": true,
-      "jsArguments": [],
+      "jsArguments": [
+        {
+          "name": "ms",
+          "value": "{{15000}}"
+        }
+      ],
       "paginationType": "NONE",
       "timeoutInMillisecond": 10000
     },
@@ -22,8 +27,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "DashActions.selectFirstIfEmpty",
-    "name": "selectFirstIfEmpty",
+    "fullyQualifiedName": "DashActions.startPolling",
+    "name": "startPolling",
     "pageId": "Dashboard",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

@@ -1,0 +1,76 @@
+-- Params:
+--   this.params.customerId :: uuid (obligatorio)
+
+WITH v AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid AS bid,
+    {{ this.params.customerId }}::uuid    AS cid
+),
+cust AS (
+  SELECT c.*
+  FROM "Customer" c
+  JOIN v ON c.id = v.cid
+),
+last_visit AS (
+  SELECT
+    v2."customerId" AS cid,
+    MAX(v2."visitedAt") AS ultima_visita,
+    COUNT(*)::int  AS total_visitas_vida
+  FROM "Visit" v2
+  JOIN v ON v.cid = v2."customerId"
+  GROUP BY v2."customerId"
+),
+bond_info AS (
+  SELECT
+    b."customerId" AS cid,
+    b.id           AS bond_id,
+    b."planId"     AS plan_id,
+    b.status       AS bond_status,
+    b."startedAt"  AS bond_started_at,
+    b."lastPaidPeriod" AS last_paid_period
+  FROM "Bond" b
+  JOIN v ON v.cid = b."customerId"
+  ORDER BY b."startedAt" DESC
+  LIMIT 1
+),
+plan_info AS (
+  SELECT
+    bp.id   AS plan_id,
+    bp.code AS plan_code,
+    bp.name AS plan_name,
+    bp."isActive" AS plan_active
+  FROM "BondPlan" bp
+  JOIN bond_info bi ON bi.plan_id = bp.id
+)
+SELECT
+  c.id                    AS customer_id,
+  c.name                  AS customer_name,
+  c.phone                 AS customer_phone,
+  c.email                 AS customer_email,
+  c.tag                   AS customer_tag,
+  c."businessId"          AS business_id,
+  c."createdAt"           AS customer_created_at,
+  c."updatedAt"           AS customer_updated_at,
+  c."deletedAt"           AS customer_deleted_at,
+
+  /* Flags clave para la v2 */
+  (c."businessId" = (SELECT bid FROM v)) AS matches_current_business,
+  (c."deletedAt" IS NULL)                AS is_not_deleted,
+
+  /* Visitas */
+  lv.ultima_visita,
+  COALESCE(lv.total_visitas_vida,0)      AS total_visitas_vida,
+
+  /* Bono / Plan */
+  bi.bond_id,
+  bi.bond_status,
+  bi.bond_started_at,
+  bi.last_paid_period,
+  pi.plan_code,
+  pi.plan_name,
+  pi.plan_active
+
+FROM cust c
+LEFT JOIN last_visit lv ON lv.cid = c.id
+LEFT JOIN bond_info  bi ON bi.cid = c.id
+LEFT JOIN plan_info  pi ON pi.plan_id = bi.plan_id;
