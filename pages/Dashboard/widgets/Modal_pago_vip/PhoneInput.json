@@ -5,7 +5,7 @@
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
   "bottomRow": 19,
   "boxShadow": "none",
-  "defaultText": "{{ JS_BondPayHelper.normalizePhone(Listado_clientes.selectedRow.phone) }}\n",
+  "defaultText": "{{ (appsmith.store.editingCustomer?.phone || '').replace(/\\D/g,'') }}\n",
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
