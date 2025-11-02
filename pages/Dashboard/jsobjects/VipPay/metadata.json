@@ -1,0 +1,11 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_c1153cd2-981f-4db9-ba60-c353bf486b2f",
+  "id": "Dashboard_VipPay",
+  "unpublishedCollection": {
+    "name": "VipPay",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": []
+  }
+}

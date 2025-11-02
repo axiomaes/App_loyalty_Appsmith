@@ -1,0 +1,63 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "alignWidget": "LEFT",
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 29,
+  "defaultCheckedState": "{{ appsmith.store.waWelcomeFirst ?? true }}\n",
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    },
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "defaultCheckedState"
+    }
+  ],
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "defaultCheckedState"
+    },
+    {
+      "key": "onCheckChange"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onCheckChange"
+    }
+  ],
+  "isDisabled": false,
+  "isLoading": false,
+  "isRequired": false,
+  "isVisible": true,
+  "key": "68cfjk48d6",
+  "label": "Enviar bienvenida antes del OTP",
+  "labelPosition": "Left",
+  "leftColumn": 25,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "minWidth": 450,
+  "mobileBottomRow": 35,
+  "mobileLeftColumn": 13,
+  "mobileRightColumn": 25,
+  "mobileTopRow": 31,
+  "needsErrorInfo": false,
+  "onCheckChange": "{{ storeValue('waWelcomeFirst', TogWelcomeFirst.isChecked) }}\n",
+  "originalBottomRow": 29,
+  "originalTopRow": 25,
+  "parentColumnSpace": 11.375,
+  "parentId": "rl7mwev0rk",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 50,
+  "topRow": 25,
+  "type": "CHECKBOX_WIDGET",
+  "version": 1,
+  "widgetId": "mh0re3mpmn",
+  "widgetName": "TogWelcomeFirst"
+}

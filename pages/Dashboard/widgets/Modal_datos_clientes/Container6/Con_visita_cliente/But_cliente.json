@@ -135,7 +135,7 @@
       "itemType": "BUTTON",
       "label": "Vip",
       "menuItems": {},
-      "onClick": "{{\n  (async () => {\n    const row =\n      appsmith.store.editingCustomer\n      ?? q_cliente_detalle.data?.[0]\n      ?? null;\n\n    if (!row?.id) { showAlert(\"Selecciona un cliente primero.\", \"warning\"); return; }\n\n    await storeValue('vipRow', row);\n    await storeValue('vipCustomerId', row.id);\n\n    // Precarga estado (si tu JS VIP lo tiene)\n    if (typeof VIP?.loadStatus === \"function\") {\n      await VIP.loadStatus(row.id);\n    }\n\n    showModal(Modal_pago_vip.name);\n  })()\n}}\n",
+      "onClick": "{{ JS_BondPayHelper.openVipModal() }}\n\n",
       "placement": "CENTER",
       "variant": "filled",
       "widgetId": "dd28buo0z8"

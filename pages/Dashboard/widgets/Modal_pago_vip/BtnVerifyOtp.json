@@ -1,0 +1,53 @@
+{
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 40,
+  "boxShadow": "none",
+  "buttonColor": "#d8b4fe",
+  "buttonVariant": "PRIMARY",
+  "dynamicBindingPathList": [
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "isDisabled"
+    }
+  ],
+  "dynamicPropertyPathList": [
+    {
+      "key": "isDisabled"
+    },
+    {
+      "key": "onClick"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onClick"
+    }
+  ],
+  "iconName": "credit-card",
+  "isDisabled": "{{ !/^\\d{6}$/.test(InputOtp.text || '') }}\n",
+  "isLoading": false,
+  "isVisible": true,
+  "key": "71pgsv2t8b",
+  "leftColumn": 57,
+  "minWidth": 50,
+  "mobileBottomRow": 49,
+  "mobileLeftColumn": 21,
+  "mobileRightColumn": 25,
+  "mobileTopRow": 45,
+  "needsErrorInfo": false,
+  "onClick": "{{\n  (async () => {\n    const ok = await OTPUtils.checkOtp(InputOtp.text, appsmith.store.otp_hash);\n    if (!ok) { showAlert('Código incorrecto o vencido.', 'error'); return; }\n\n    await storeValue('otp_verified', true);\n    showAlert('Código verificado ✅', 'success');\n  })()\n}}\n",
+  "parentColumnSpace": 11.375,
+  "parentId": "rl7mwev0rk",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "hug",
+  "rightColumn": 61,
+  "topRow": 36,
+  "type": "ICON_BUTTON_WIDGET",
+  "version": 1,
+  "widgetId": "ajl2yhxir9",
+  "widgetName": "BtnVerifyOtp"
+}

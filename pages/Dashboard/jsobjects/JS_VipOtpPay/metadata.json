@@ -1,0 +1,20 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_565b7f1d-eac4-464a-bb34-0857a0bf6ae6",
+  "id": "Dashboard_JS_VipOtpPay",
+  "unpublishedCollection": {
+    "name": "JS_VipOtpPay",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "OTP_TEMPLATE_SID",
+        "value": "\"HX8903c49a01fcf311ffec50560694638\""
+      },
+      {
+        "name": "OTP_TTL_MIN",
+        "value": "10"
+      }
+    ]
+  }
+}

@@ -460,5 +460,76 @@ export default {
 			console.error("changePlanSelected error:", e);
 			showAlert(e?.message || "No se pudo cambiar el plan.", "error");
 		}
+	},
+
+	// ==========================================================================
+	// === NUEVO: Apertura del modal VIP y utilidades para bindings =============
+	// ==========================================================================
+
+	// Abre el modal de pago VIP garantizando que el cliente y su detalle
+	// están cargados en appsmith.store.editingCustomer y selCustomerId.
+	async openVipModal(fromRow = null) {
+		try {
+			const id =
+				fromRow?.id ||
+				appsmith.store?.editingCustomer?.id ||
+				appsmith.store?.selCustomerId ||
+				Listado_clientes?.selectedRow?.id;
+
+			if (!id) {
+				showAlert("Selecciona un cliente primero.", "warning");
+				return;
+			}
+
+			// refresca detalle y guarda como fuente única de verdad
+			const detRes = await q_cliente_detalle.run({ id });
+			const det = Array.isArray(detRes) ? (detRes[0] || {}) : (detRes || {});
+			await storeValue("editingCustomer", det);
+			await storeValue("selCustomerId", det.id);
+
+			// recordar/preseleccionar plan si ya tenía
+			const rememberedPlan =
+				appsmith.store?.selVipPlanId ||
+				det.vipPlanId ||
+				det.planId ||
+				null;
+			await storeValue("selVipPlanId", rememberedPlan ? String(rememberedPlan) : null);
+
+			// estado del form (periodo por defecto)
+			await storeValue("vipPay", {
+				period: Logica_Mensual_bonos.currentPeriod(),
+				method: "CASH",
+				notes: ""
+			});
+
+			await showModal(Modal_pago_vip.name);
+		} catch (e) {
+			console.error("openVipModal error:", e);
+			showAlert("No se pudo abrir Pago VIP.", "error");
+		}
+	},
+
+	// Cliente actual desde el store (para usar en títulos/inputs)
+	currentCustomer() {
+		return appsmith.store?.editingCustomer || {};
+	},
+
+	// Periodo actual (o el elegido en el form)
+	currentPeriod() {
+		return appsmith.store?.vipPay?.period || Logica_Mensual_bonos.currentPeriod();
+	},
+
+	// Opciones para el Select de plan VIP
+	planOptions() {
+		return this.vipPlans().map(p => ({
+			label: `${p.name} · € ${this._toIntEuros(p.price_eur ?? (p.priceCents || 0) / 100)}`,
+			value: String(p.id)
+		}));
+	},
+
+	// Valor por defecto del Select de plan
+	defaultPlanValue() {
+		return appsmith.store?.selVipPlanId
+			|| String((this.currentCustomer()?.vipPlanId || this.currentCustomer()?.planId || ""));
 	}
 };

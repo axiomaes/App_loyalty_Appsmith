@@ -3,9 +3,9 @@
   "animateLoading": true,
   "autoFocus": false,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 12,
+  "bottomRow": 41,
   "boxShadow": "none",
-  "defaultText": "{{ JS_BondPayHelper.normalizePhone(JS_BondPayHelper.currentCustomer().phone || '') }}\n",
+  "defaultText": "{{ appsmith.store.otp_code_ui || '' }}\n",
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
@@ -14,44 +14,68 @@
       "key": "borderRadius"
     },
     {
+      "key": "regex"
+    },
+    {
       "key": "defaultText"
+    },
+    {
+      "key": "isVisible"
     }
   ],
   "dynamicHeight": "FIXED",
-  "dynamicTriggerPathList": [],
+  "dynamicPropertyPathList": [
+    {
+      "key": "isVisible"
+    },
+    {
+      "key": "onTextChanged"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onTextChanged"
+    }
+  ],
   "iconAlign": "left",
   "inputType": "TEXT",
   "isDisabled": false,
   "isLoading": false,
   "isRequired": false,
-  "isVisible": true,
-  "key": "pgjwg5m7yz",
-  "label": "Movil",
+  "isVisible": "{{ !!appsmith.store.otp_hash && appsmith.store.otp_verified !== true }}\n",
+  "key": "z9rgjd3ykx",
+  "label": "Codigo Verificación",
   "labelAlignment": "left",
   "labelPosition": "Top",
   "labelStyle": "",
   "labelTextSize": "0.875rem",
   "labelWidth": 5,
-  "leftColumn": 45,
+  "leftColumn": 39,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
   "minWidth": 450,
-  "mobileBottomRow": 19,
-  "mobileLeftColumn": 2,
-  "mobileRightColumn": 22,
-  "mobileTopRow": 12,
+  "mobileBottomRow": 36,
+  "mobileLeftColumn": 41,
+  "mobileRightColumn": 61,
+  "mobileTopRow": 29,
   "needsErrorInfo": false,
+  "onTextChanged": "{{ storeValue('otp_code_ui', InputOtp.text) }}\n",
+  "originalBottomRow": 36,
+  "originalTopRow": 29,
   "parentColumnSpace": 11.375,
   "parentId": "rl7mwev0rk",
   "parentRowSpace": 10,
+  "placeholderText": "000000",
+  "regex": "{{ /^\\d{6}$/.test(InputOtp.text || '') }}\n",
   "renderMode": "CANVAS",
   "resetOnSubmit": true,
   "responsiveBehavior": "fill",
-  "rightColumn": 61,
+  "rightColumn": 54,
   "showStepArrows": false,
-  "topRow": 5,
+  "tooltip": "Ingresa el codigo enviado",
+  "topRow": 34,
   "type": "INPUT_WIDGET_V2",
   "version": 2,
-  "widgetId": "1cdsrl5rk2",
-  "widgetName": "PhoneInput"
+  "widgetId": "0o1d2anlku",
+  "widgetName": "InputOtp"
 }
