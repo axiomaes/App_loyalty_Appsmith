@@ -1,0 +1,22 @@
+-- q_visitas_meses
+WITH p AS (
+  SELECT
+    {{ this.params.customerId }}::uuid AS cid
+)
+SELECT
+  -- para ordenar de más reciente a más antiguo
+  date_trunc('month', v."visitedAt")::date                  AS mes_inicio,
+
+  -- clave para filtros/comparaciones
+  to_char(v."visitedAt", 'YYYY-MM')                         AS value,
+
+  -- etiqueta tipo "NOV / 2025" (idéntica a tu tabla)
+  upper(replace(to_char(v."visitedAt", 'Mon / YYYY'), '.', '')) AS label,
+
+  -- opcional: cuántas visitas hay en ese mes
+  COUNT(*)::int                                             AS visitas_mes
+FROM "Visit" v
+JOIN p ON TRUE
+WHERE v."customerId" = p.cid
+GROUP BY 1,2,3
+ORDER BY mes_inicio DESC;
