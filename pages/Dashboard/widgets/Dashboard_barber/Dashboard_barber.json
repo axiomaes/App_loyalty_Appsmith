@@ -171,7 +171,7 @@
   "flexVerticalAlignment": "stretch",
   "isCanvas": true,
   "isLoading": false,
-  "isVisible": "{{ Roles.isOwner() || Roles.isAdmin() || Roles.isSuper() }}\n",
+  "isVisible": "{{ Roles.isOwner() || Roles.isAdmin() || \nRoles.isStaff()\nRoles.isSuper() }}\n",
   "key": "qafn1ie0sk",
   "leftColumn": 1,
   "maxDynamicHeight": 9000,

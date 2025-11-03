@@ -1,29 +1,22 @@
 export default {
-  // === Nombres de acciones (ajusta si tu query se llama distinto)
-  qLogical: q_delete_customer,          // UPDATE "Customer".deletedAt = now()
-  tableQuery: q_clientes_listado,       // refrescar tabla
-  visitsQuery: q_visitas_historial,     // opcional: refrescar historial
-  detailQuery: q_cliente_detalle,       // opcional: refrescar panel
-
-  // Permisos
+  // === Permisos ===
   canDelete() {
     return Roles?.canDeleteCustomers?.() === true;
   },
 
-  // Validador UUID local (por si no tienes Utils.isUuid)
+  // UUID simple
   _isUuid(s) {
     return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(s || ""));
   },
 
-  // Confirm seguro (evita lint si no existe showConfirm)
   async _confirm(msg) {
     if (typeof showConfirm === "function") return await showConfirm(msg);
     const fn = typeof globalThis.confirm === "function" ? globalThis.confirm : null;
     return fn ? !!fn(msg) : true;
   },
 
-  // Punto de entrada: puedes llamarla desde botón de la tabla o fuera
-  // Si la llamas desde una columna, pásale explícitamente `currentRow`
+  // Punto de entrada (úsalo en la columna de la tabla):
+  // {{ DeleteCustomer.run(currentRow) }}
   async run(row = null) {
     try {
       if (!this.canDelete()) {
@@ -31,7 +24,6 @@ export default {
         return;
       }
 
-      // Fuente del row: param → selección en la tabla
       const r = row || Listado_clientes?.selectedRow || {};
       const id = r?.id;
       const name = r?.name || "(sin nombre)";
@@ -44,16 +36,25 @@ export default {
       const ok = await this._confirm(`¿Marcar como eliminado a "${name}"?`);
       if (!ok) return;
 
-      // 🔧 Solo borrado lógico
-      const res = await this.qLogical.run({ id });
-      const affected = Array.isArray(res) ? res.length : 0;
+      // --- Asegúrate de que la query exista en esta página y se llame EXACTAMENTE así:
+      if (typeof q_delete_customer?.run !== "function") {
+        throw new Error("La acción q_delete_customer no está definida o no es una query ejecutable.");
+      }
 
-      if (!affected) {
-        showAlert("No se modificó el cliente (¿ya estaba eliminado o no pertenece a este negocio?).", "warning");
+      // La query espera { customerId } (no { id })
+      const res = await q_delete_customer.run({ customerId: id });
+
+      // La query que compartiste devuelve { updated: bool, row, related_counts }
+      const updated =
+        Array.isArray(res) ? (res[0]?.updated ? 1 : 0) :
+        (res?.updated ? 1 : 0);
+
+      if (!updated) {
+        showAlert("No se modificó el cliente (¿ya estaba eliminado?).", "warning");
         return;
       }
 
-      // Si era el seleccionado, limpia selección/panel
+      // Limpiar selección si coincide
       const selectedId = appsmith.store.selCustomerId || appsmith.store.editingCustomer?.id;
       if (selectedId === id) {
         await storeValue("selCustomerId", null);
@@ -61,11 +62,10 @@ export default {
         await storeValue("visits", []);
       }
 
-      // Refrescos
-      if (typeof this.tableQuery?.run === "function") await this.tableQuery.run();
-      // Opcional: si tienes panel/historial abiertos para ese cliente, puedes refrescarlos aquí.
+      // Refresca tabla si existe
+      try { typeof q_clientes_listado?.run === "function" && (await q_clientes_listado.run()); } catch {}
 
-      showAlert("Cliente marcado como eliminado.", "success");
+      showAlert(`Cliente "${name}" marcado como eliminado.`, "success");
     } catch (e) {
       console.error("DeleteCustomer.run error:", e);
       showAlert(e?.message || "No se pudo eliminar el cliente.", "error");

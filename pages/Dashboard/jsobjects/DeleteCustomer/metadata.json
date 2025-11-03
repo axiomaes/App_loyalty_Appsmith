@@ -6,23 +6,6 @@
     "pageId": "Dashboard",
     "pluginId": "js-plugin",
     "pluginType": "JS",
-    "variables": [
-      {
-        "name": "qLogical",
-        "value": "q_delete_customer"
-      },
-      {
-        "name": "tableQuery",
-        "value": "q_clientes_listado"
-      },
-      {
-        "name": "visitsQuery",
-        "value": "q_visitas_historial"
-      },
-      {
-        "name": "detailQuery",
-        "value": "q_cliente_detalle"
-      }
-    ]
+    "variables": []
   }
 }

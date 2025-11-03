@@ -1,6 +1,8 @@
--- q_debug_columns
-SELECT table_schema, table_name, column_name, data_type
-FROM information_schema.columns
-WHERE table_schema = 'public'
-  AND table_name IN ('Bond','BondPayment','BondPlan')
-ORDER BY table_name, ordinal_position;
+SELECT
+  t."token",
+  t."customerId",
+  t."businessId",
+  c."name", c."phone", c."tag"
+FROM "CustomerQrToken" t
+JOIN "Customer" c ON c."id" = t."customerId"
+WHERE t."token" = 'rABnrrBMDdKr';

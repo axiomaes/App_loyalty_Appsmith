@@ -5,7 +5,7 @@
   "pluginType": "DB",
   "unpublishedAction": {
     "actionConfiguration": {
-      "body": "-- q_debug_columns\nSELECT table_schema, table_name, column_name, data_type\nFROM information_schema.columns\nWHERE table_schema = 'public'\n  AND table_name IN ('Bond','BondPayment','BondPlan')\nORDER BY table_name, ordinal_position;\n",
+      "body": "SELECT\n  t.\"token\",\n  t.\"customerId\",\n  t.\"businessId\",\n  c.\"name\", c.\"phone\", c.\"tag\"\nFROM \"CustomerQrToken\" t\nJOIN \"Customer\" c ON c.\"id\" = t.\"customerId\"\nWHERE t.\"token\" = 'rABnrrBMDdKr';\n",
       "encodeParamsToggle": true,
       "paginationType": "NONE",
       "pluginSpecifiedTemplates": [

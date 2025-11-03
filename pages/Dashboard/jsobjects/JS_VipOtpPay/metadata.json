@@ -6,15 +6,6 @@
     "pageId": "Dashboard",
     "pluginId": "js-plugin",
     "pluginType": "JS",
-    "variables": [
-      {
-        "name": "OTP_TEMPLATE_SID",
-        "value": "\"HX8903c49a01fcf311ffec50560694638\""
-      },
-      {
-        "name": "OTP_TTL_MIN",
-        "value": "10"
-      }
-    ]
+    "variables": []
   }
 }

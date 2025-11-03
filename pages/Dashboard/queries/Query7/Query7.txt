@@ -1,0 +1,26 @@
+WITH p AS (
+  SELECT {{ appsmith.store.businessId }}::uuid AS bid
+),
+src AS (
+  SELECT c.id, c.name, c.phone,
+         REGEXP_REPLACE(COALESCE(c.phone,''), '\D', '', 'g') AS d
+  FROM "Customer" c
+  WHERE c."businessId" = (SELECT bid FROM p)
+),
+calc AS (
+  SELECT
+    id, name, phone,
+    CASE
+      WHEN phone ~ '^\+\d{11,15}$'                THEN phone
+      WHEN d ~ '^0034\d{9}$'                      THEN '+34' || SUBSTRING(d FROM '0034(\d{9})$')
+      WHEN d ~ '^34\d{9}$'                        THEN '+'  || d
+      WHEN d ~ '^[67]\d{8}$'                      THEN '+34' || d
+      WHEN d ~ '^\d{11,15}$'                      THEN '+'  || d
+      ELSE NULL
+    END AS new_phone
+  FROM src
+)
+SELECT id, name, phone
+FROM calc
+WHERE new_phone IS NULL
+ORDER BY name;

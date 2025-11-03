@@ -4,7 +4,7 @@
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
   "bottomRow": 29,
-  "defaultCheckedState": "{{ appsmith.store.waWelcomeFirst ?? true }}\n",
+  "defaultCheckedState": "{{ appsmith.store.toggleWelcomeFirstDefault || false }}\n",
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
