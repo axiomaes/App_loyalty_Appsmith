@@ -6,9 +6,23 @@ export default {
 	_onlyDigits(s) { return (s || "").replace(/\D/g, ""); },
 
 	_normalizePhoneES(raw) {
-		const nine = this._onlyDigits(raw).slice(-9);
-		return nine ? `+34${nine}` : null;
-		// si ya traes prefijo, puedes mejorar esto detectando +34 al inicio
+		const d = this._onlyDigits(raw);
+
+		if (!d) return null;
+
+		// ya viene como 34XXXXXXXXX
+		if (d.startsWith("34") && d.length >= 11) {
+			return `+34${d.slice(-9)}`;
+		}
+
+		// 9 dígitos móviles ES
+		const nine = d.slice(-9);
+		if (/^[6789]\d{8}$/.test(nine)) return `+34${nine}`;
+
+		// fallback: si tiene más de 9 dígitos, toma los últimos 9 como móvil ES
+		if (d.length > 9) return `+34${d.slice(-9)}`;
+
+		return null;
 	},
 
 	_isValidESPhone(raw) {
@@ -30,11 +44,17 @@ export default {
 		return (s || "").trim();
 	},
 
+	// ► IMPORTANTE: devolver 'YYYY-MM-DD' (DATE) y no ISO con tiempo
 	_normalizeBirthday(d) {
 		if (!d) return null;
 		try {
 			const date = (d instanceof Date) ? d : new Date(d);
-			return date.toISOString(); // SQL lo castea a timestamptz
+			if (isNaN(date.getTime())) return null;
+
+			const yyyy = date.getFullYear();
+			const mm = String(date.getMonth() + 1).padStart(2, "0");
+			const dd = String(date.getDate()).padStart(2, "0");
+			return `${yyyy}-${mm}-${dd}`; // ← tipo DATE compatible
 		} catch {
 			return null;
 		}
@@ -66,7 +86,16 @@ export default {
 			if (!bid) { showAlert("Negocio inválido en la sesión. Vuelve a iniciar sesión.", "error"); return; }
 
 			// 🚀 Ejecuta query de inserción
-			const res = await q_crear_cliente.run({ name, phone, email, notes, birthday, tag /*, businessId: bid*/ });
+			const res = await q_crear_cliente.run({
+				name,
+				phone,
+				email,
+				notes,
+				birthday, // ahora va como 'YYYY-MM-DD'
+				tag
+				// businessId: bid  // si tu SQL lo toma del JWT/store, no hace falta
+			});
+
 			const r = res?.[0];
 
 			if (!r) { showAlert("No se pudo crear el cliente (respuesta vacía).", "error"); return; }

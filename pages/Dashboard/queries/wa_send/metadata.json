@@ -11,7 +11,7 @@
           "value": "application/json"
         }
       ],
-      "body": "{\n  \"to\": \"{{ PhoneInput.text }}\",\n  \"templateVars\": {\n    \"1\": \"{{ appsmith.store.otp_code_plain }}\",\n    \"2\": \"10\"\n  },\n  \"contentSidOverride\": \"HX8903c49a01fcf311ffcec50560694638\"\n}\n",
+      "body": "{\n  \"to\": \"{{ this.params.to }}\",\n  \"contentSidOverride\": \"{{ this.params.contentSidOverride }}\",\n  \"templateVars\": {{ JSON.stringify(this.params.templateVars || {}) }}\n}\n",
       "bodyFormData": [],
       "encodeParamsToggle": true,
       "formData": {

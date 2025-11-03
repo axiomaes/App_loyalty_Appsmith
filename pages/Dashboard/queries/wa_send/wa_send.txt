@@ -1,8 +1,5 @@
 {
-  "to": "{{ PhoneInput.text }}",
-  "templateVars": {
-    "1": "{{ appsmith.store.otp_code_plain }}",
-    "2": "10"
-  },
-  "contentSidOverride": "HX8903c49a01fcf311ffcec50560694638"
+  "to": "{{ this.params.to }}",
+  "contentSidOverride": "{{ this.params.contentSidOverride }}",
+  "templateVars": {{ JSON.stringify(this.params.templateVars || {}) }}
 }

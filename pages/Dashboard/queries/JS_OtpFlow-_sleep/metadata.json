@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_87a9765f-c6e4-4ed2-a581-4505e7eccabd",
-  "id": "Dashboard_JS_OtpFlow._digitsFromE164",
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_5cec005c-2d9d-4352-8bf5-e47227e5251d",
+  "id": "Dashboard_JS_OtpFlow._sleep",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
@@ -8,7 +8,8 @@
       "encodeParamsToggle": true,
       "jsArguments": [
         {
-          "name": "phone"
+          "name": "ms",
+          "value": "{{500}}"
         }
       ],
       "paginationType": "NONE",
@@ -26,8 +27,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "JS_OtpFlow._digitsFromE164",
-    "name": "_digitsFromE164",
+    "fullyQualifiedName": "JS_OtpFlow._sleep",
+    "name": "_sleep",
     "pageId": "Dashboard",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false
