@@ -159,19 +159,25 @@
     },
     {
       "key": "isVisible"
+    },
+    {
+      "key": "tabsObj.tab2.isVisible"
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
   "dynamicPropertyPathList": [
     {
       "key": "isVisible"
+    },
+    {
+      "key": "tabsObj.tab2.isVisible"
     }
   ],
   "dynamicTriggerPathList": [],
   "flexVerticalAlignment": "stretch",
   "isCanvas": true,
   "isLoading": false,
-  "isVisible": "{{ Roles.isOwner() || Roles.isAdmin() || \nRoles.isStaff()\nRoles.isSuper() }}\n",
+  "isVisible": "{{ Roles.isOneOf('OWNER','ADMIN','SUPERADMIN','STAFF','BARBER') }}\n",
   "key": "qafn1ie0sk",
   "leftColumn": 1,
   "maxDynamicHeight": 9000,
@@ -204,7 +210,7 @@
     "tab2": {
       "id": "tab2",
       "index": 1,
-      "isVisible": true,
+      "isVisible": "{{ Roles.isOneOf('OWNER','ADMIN','SUPERADMIN','STAFF') }}\n",
       "label": "Admin",
       "positioning": "vertical",
       "widgetId": "szg8flz04n"
