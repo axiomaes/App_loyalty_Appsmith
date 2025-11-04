@@ -11,7 +11,7 @@
           "value": "application/json"
         }
       ],
-      "body": "{\n  \"to\": \"{{ this.params.to }}\",\n  \"contentSidOverride\": \"{{ this.params.contentSidOverride }}\",\n  \"templateVars\": {{ JSON.stringify(this.params.templateVars || {}) }}\n}\n",
+      "body": "{\n  \"to\": \"{{ String(this.params.to || '').replace(/^whatsapp:/,'').replace(/\\\\D/g,'') }}\",\n  \"contentSidOverride\": HX3b91ea6167d412d8eacc07312603e58a,\n  \"contentVariables\": \"{{ JSON.stringify(this.params.templateVars || {}) }}\",\n  \"body\": \"{{ this.params.body || '' }}\"\n}\n",
       "bodyFormData": [],
       "encodeParamsToggle": true,
       "formData": {

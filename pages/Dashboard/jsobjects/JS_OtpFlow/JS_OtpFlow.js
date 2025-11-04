@@ -7,7 +7,7 @@ export default {
 			otpSid:     "HX8903c49a01fcf311ffcec50560694638", // otp_pago_bono_es (Authentication)
 			vipSid:     "HX3b91ea6167d412d8eacc07312603e58a", // vip_pago_aviso_es (Utility)
 
-			// Enviar bienvenida antes del OTP
+			// Enviar bienvenida antes del OTP (puedes cambiarlo con store.useWelcomeFirst)
 			useWelcomeFirst: !!(appsmith.store?.useWelcomeFirst ?? true),
 
 			// Teléfono del dueño (puedes sobreescribirlo en store.ownerPhone)
@@ -41,7 +41,7 @@ export default {
 
 	_formatEur(val) {
 		const n = Number(val ?? 0);
-		// mostramos "€ 20" (sin decimales para consistencia con helpers)
+		// Mostramos "€ 20" (entero), consistente con _toIntEuros
 		return `€ ${Math.round(n)}`;
 	},
 
@@ -99,14 +99,15 @@ export default {
 							"Plan";
 
 				const amountEur =
-							(JS_BondPayHelper?._toIntEuros?.(InputImporte?.text) ?? Number(InputImporte?.text || 0));
+							(JS_BondPayHelper?._toIntEuros?.(InputImporte?.text) ??
+							 Number(InputImporte?.text || 0));
 
 				const amountLabel = this._formatEur(amountEur);
 				const dateLabel = moment().format("DD/MM/YYYY");
 
 				await wa_send.run({
-					to: ownerTo,
-					contentSidOverride: cfg.vipSid,
+					to: ownerTo,                                 // "34632803533"
+					contentSidOverride: cfg.vipSid,              // vip_pago_aviso_es
 					// {{1}} cliente, {{2}} bono, {{3}} importe, {{4}} fecha, {{5}} código, {{6}} ttl
 					templateVars: {
 						"1": String(name),

@@ -5,7 +5,7 @@
   "bottomRow": 23,
   "boxShadow": "none",
   "closeOnSelection": true,
-  "dateFormat": "D MMMM, YYYY",
+  "dateFormat": "DD/MM/YYYY HH:mm",
   "datePickerType": "DATE_PICKER",
   "dynamicBindingPathList": [
     {
@@ -29,9 +29,7 @@
   "labelTextSize": "0.875rem",
   "labelWidth": 5,
   "leftColumn": 42,
-  "maxDate": "2121-12-31T18:29:00.000Z",
   "maxDynamicHeight": 9000,
-  "minDate": "1920-12-31T18:30:00.000Z",
   "minDynamicHeight": 4,
   "minWidth": 450,
   "mobileBottomRow": 25,
