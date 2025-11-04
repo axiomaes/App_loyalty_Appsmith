@@ -1,3 +1,5 @@
+Tengo JS_OtpHelper .. que es donde ser genera el codigo a enviar .. entonces . .no va vacio
+
 export default {
 	// ===== Constantes =====
 	_WELCOME_SID: "HXb06a2950296822f06a8e3bdc02c893de",   // welcome_qr_es (no usada aquí)

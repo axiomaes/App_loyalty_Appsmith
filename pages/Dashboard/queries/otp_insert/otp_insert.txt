@@ -1,9 +1,9 @@
 INSERT INTO "LoginOtp" ("id","businessId","phone","codeHash","expiresAt")
 VALUES (
   uuid_generate_v4(),
-  {{ BusinessSelect.selectedOptionValue }},
+  {{ appsmith.store.businessId }},
   {{ PhoneInput.text }},
   {{ appsmith.store.otp_hash }},
-  {{ moment().add(appsmith.store.otp_ttl_min || 10, 'minutes').toDate() }}
+  NOW() + ({{ appsmith.store.otp_ttl_min || 10 }}) * INTERVAL '1 minute'
 )
 RETURNING id;

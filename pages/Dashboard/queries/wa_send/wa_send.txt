@@ -1,6 +1,13 @@
 {
   "to": "{{ String(this.params.to || '').replace(/^whatsapp:/,'').replace(/\\D/g,'') }}",
-  "contentSidOverride": HX3b91ea6167d412d8eacc07312603e58a,
-  "contentVariables": "{{ JSON.stringify(this.params.templateVars || {}) }}",
-  "body": "{{ this.params.body || '' }}"
+  "contentSidOverride": "{{ String(this.params.contentSidOverride || 'HX3b91ea6167d412d8eacc07312603e58a') }}",
+  "templateVars": "{{ (() => {
+    const src = this.params.templateVars || {};
+    const clean = Object.fromEntries(Object.entries(src).map(([k, v]) => {
+      let s = String(v ?? '');
+      s = s.replace(/[\\r\\n\\t]/g, ' ').replace(/ {5,}/g, '    ').trim();
+      return [k, s];
+    }));
+    return clean;   // <<< OJO: devolvemos OBJETO, NO JSON.stringify
+  })() }}"
 }

@@ -1,128 +1,112 @@
 export default {
-	// ================== Config ==================
-	CFG() {
-		return {
-			// SIDs de las plantillas en Twilio
-			welcomeSid: "HXb06a2950296822f06a8e3bdc02c893de", // welcome_qr_es (Marketing)
-			otpSid:     "HX8903c49a01fcf311ffcec50560694638", // otp_pago_bono_es (Authentication)
-			vipSid:     "HX3b91ea6167d412d8eacc07312603e58a", // vip_pago_aviso_es (Utility)
+  // ================== Config ==================
+  CFG() {
+    return {
+      // SIDs de las plantillas en Twilio
+      welcomeSid: "HXb06a2950296822f06a8e3bdc02c893de", // (no usado por ahora)
+      otpSid:     "HX8903c49a01fcf311ffcec50560694638", // (no usado por ahora)
+      vipSid:     "HX3b91ea6167d412d8eacc07312603e58a", // vip_pago_aviso_es (Utility)
 
-			// Enviar bienvenida antes del OTP (puedes cambiarlo con store.useWelcomeFirst)
-			useWelcomeFirst: !!(appsmith.store?.useWelcomeFirst ?? true),
+      // Teléfono del dueño (puedes sobreescribirlo en store.ownerPhone)
+      ownerE164: "+34682686605"
+    };
+  },
 
-			// Teléfono del dueño (puedes sobreescribirlo en store.ownerPhone)
-			ownerE164: "+34632803533"
-		};
-	},
+  // ================ Utils =====================
+  _digitsFromE164(phone) {
+    // La acción wa_send espera dígitos (sin '+')
+    return String(phone || "").replace(/\D/g, "");
+  },
 
-	// ================ Utils =====================
-	_digitsFromE164(phone) {
-		// La acción wa_send espera dígitos (sin '+')
-		return String(phone || "").replace(/\D/g, "");
-	},
+  _bizName() {
+    try {
+      return (
+        (typeof Auth?.businessName === "function" && Auth.businessName()) ||
+        appsmith.store?.businessName ||
+        "Tu barbería"
+      );
+    } catch {
+      return "Tu barbería";
+    }
+  },
 
-	_bizName() {
-		try {
-			return (
-				(typeof Auth?.businessName === "function" && Auth.businessName()) ||
-				appsmith.store?.businessName ||
-				"Tu barbería"
-			);
-		} catch {
-			return "Tu barbería";
-		}
-	},
+  _ownerDigits() {
+    const cfg = this.CFG();
+    const raw = appsmith.store?.ownerPhone || cfg.ownerE164;
+    return this._digitsFromE164(raw);
+  },
 
-	_ownerDigits() {
-		const cfg = this.CFG();
-		const raw = appsmith.store?.ownerPhone || cfg.ownerE164;
-		return this._digitsFromE164(raw);
-	},
+  _formatEur(val) {
+    const n = Number(val ?? 0);
+    // Mostramos "€ 20" (entero), consistente con _toIntEuros
+    return `€ ${Math.round(n)}`;
+  },
 
-	_formatEur(val) {
-		const n = Number(val ?? 0);
-		// Mostramos "€ 20" (entero), consistente con _toIntEuros
-		return `€ ${Math.round(n)}`;
-	},
+  _sleep(ms = 500) {
+    return new Promise((r) => setTimeout(r, ms));
+  },
 
-	_sleep(ms = 500) {
-		return new Promise((r) => setTimeout(r, ms));
-	},
+  // Sanea variables para Twilio (sin \r \n \t, sin rachas >4 espacios, sin vacíos)
+  _sanitizeVar(v, { allowEmpty = false } = {}) {
+    let s = String(v ?? "");
+    s = s.replace(/[\r\n\t]/g, " ").replace(/ {5,}/g, "    ").trim();
+    if (!allowEmpty && s.length === 0) {
+      throw new Error("Variable vacía para plantilla");
+    }
+    return s;
+  },
 
-	/**
-   * Envía OTP al cliente con opción de mandar bienvenida primero
-   * y notifica al dueño con la plantilla Utility.
+  /**
+   * Enviar SOLO el aviso al dueño (vip_pago_aviso_es).
+   * No manda bienvenida ni OTP al cliente mientras las plantillas no estén aprobadas.
    *
    * IMPORTANTE en la acción `wa_send`:
-   *   contentVariables: "{{ JSON.stringify(this.params.templateVars || {}) }}"
+   *  - contentSidOverride: si no se pasa, usa por defecto el VIP (HX3b9...e58a)
+   *  - contentVariables: debe sanear y hacer JSON.stringify (ya lo dejaste listo)
    */
-	async sendOtpWithOptionalWelcome({ customer, code, ttlMin = 10 }) {
-		const cfg = this.CFG();
+  async sendOtpWithOptionalWelcome({ customer, code, ttlMin = 10 }) {
+    try {
+      const ownerTo = this._ownerDigits();
+      if (!ownerTo) {
+        showAlert("No hay teléfono del dueño configurado.", "warning");
+        return;
+      }
 
-		const to = this._digitsFromE164(customer?.phone);
-		const name = customer?.name || "cliente";
-		const business = this._bizName();
+      const name = customer?.name || "Cliente";
 
-		if (!to) {
-			showAlert("Teléfono inválido para WhatsApp.", "warning");
-			return;
-		}
+      const planName =
+        SelectPlan?.selectedOptionLabel ||
+        appsmith.store?.selVipPlanName ||
+        "Plan";
 
-		// 1) Bienvenida (opcional)
-		if (cfg.useWelcomeFirst) {
-			try {
-				await wa_send.run({
-					to, // "34XXXXXXXXX"
-					contentSidOverride: cfg.welcomeSid,
-					templateVars: { "1": name, "2": business } // {{1}}=nombre, {{2}}=negocio
-				});
-			} catch (e) {
-				console.warn("welcome failed:", e);
-			}
-			await this._sleep(600); // ordenar llegada
-		}
+      const amountEur =
+        (JS_BondPayHelper?._toIntEuros?.(InputImporte?.text) ??
+         Number(InputImporte?.text || 0));
 
-		// 2) OTP (Authentication)
-		await wa_send.run({
-			to,
-			contentSidOverride: cfg.otpSid,
-			templateVars: { "1": String(code || ""), "2": String(ttlMin) } // {{1}}=código, {{2}}=TTL
-		});
+      const amountLabel = this._formatEur(amountEur);
+      const dateLabel   = moment().format("DD/MM/YYYY");
 
-		// 3) Aviso al dueño (Utility)
-		try {
-			const ownerTo = this._ownerDigits();
-			if (ownerTo) {
-				const planName =
-							SelectPlan?.selectedOptionLabel ||
-							appsmith.store?.selVipPlanName ||
-							"Plan";
+      // Saneamos lo que enviamos (opcional, ya se sanea también en wa_send)
+      const vars = {
+        // {{1}} cliente, {{2}} bono, {{3}} importe, {{4}} fecha, {{5}} código, {{6}} ttl
+        "1": this._sanitizeVar(name),
+        "2": this._sanitizeVar(planName),
+        "3": this._sanitizeVar(amountLabel),
+        "4": this._sanitizeVar(dateLabel),
+        "5": this._sanitizeVar(code),          // lanza si vacío; cambia {allowEmpty:true} si quieres permitirlo
+        "6": this._sanitizeVar(ttlMin)
+      };
 
-				const amountEur =
-							(JS_BondPayHelper?._toIntEuros?.(InputImporte?.text) ??
-							 Number(InputImporte?.text || 0));
+      await wa_send.run({
+        to: ownerTo,           // "34632803533"
+        // NO enviamos contentSidOverride -> la acción usa vipSid por defecto
+        templateVars: vars
+      });
 
-				const amountLabel = this._formatEur(amountEur);
-				const dateLabel = moment().format("DD/MM/YYYY");
-
-				await wa_send.run({
-					to: ownerTo,                                 // "34632803533"
-					contentSidOverride: cfg.vipSid,              // vip_pago_aviso_es
-					// {{1}} cliente, {{2}} bono, {{3}} importe, {{4}} fecha, {{5}} código, {{6}} ttl
-					templateVars: {
-						"1": String(name),
-						"2": String(planName),
-						"3": String(amountLabel),
-						"4": String(dateLabel),
-						"5": String(code || ""),
-						"6": String(ttlMin)
-					}
-				});
-			}
-		} catch (e) {
-			console.warn("owner notify failed:", e);
-		}
-
-		showAlert("Mensaje enviado por WhatsApp.", "success");
-	}
+      showAlert("Aviso enviado al dueño por WhatsApp.", "success");
+    } catch (e) {
+      console.warn("owner notify failed:", e);
+      showAlert("No se pudo enviar el aviso al dueño.", "error");
+    }
+  }
 };

@@ -11,7 +11,7 @@
           "value": "application/json"
         }
       ],
-      "body": "{\n  \"to\": \"{{ String(this.params.to || '').replace(/^whatsapp:/,'').replace(/\\\\D/g,'') }}\",\n  \"contentSidOverride\": HX3b91ea6167d412d8eacc07312603e58a,\n  \"contentVariables\": \"{{ JSON.stringify(this.params.templateVars || {}) }}\",\n  \"body\": \"{{ this.params.body || '' }}\"\n}\n",
+      "body": "{\n  \"to\": \"{{ String(this.params.to || '').replace(/^whatsapp:/,'').replace(/\\\\D/g,'') }}\",\n  \"contentSidOverride\": \"{{ String(this.params.contentSidOverride || 'HX3b91ea6167d412d8eacc07312603e58a') }}\",\n  \"templateVars\": \"{{ (() => {\n    const src = this.params.templateVars || {};\n    const clean = Object.fromEntries(Object.entries(src).map(([k, v]) => {\n      let s = String(v ?? '');\n      s = s.replace(/[\\\\r\\\\n\\\\t]/g, ' ').replace(/ {5,}/g, '    ').trim();\n      return [k, s];\n    }));\n    return clean;   // <<< OJO: devolvemos OBJETO, NO JSON.stringify\n  })() }}\"\n}\n",
       "bodyFormData": [],
       "encodeParamsToggle": true,
       "formData": {
