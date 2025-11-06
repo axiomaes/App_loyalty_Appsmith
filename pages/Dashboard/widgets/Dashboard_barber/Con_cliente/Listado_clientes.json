@@ -164,9 +164,6 @@
       "key": "tableData"
     },
     {
-      "key": "onRowSelected"
-    },
-    {
       "key": "textSize"
     },
     {
@@ -185,13 +182,13 @@
       "key": "primaryColumns.tiene_bono_activo.iconName"
     },
     {
-      "key": "primaryColumns.customColumn2.onClick"
-    },
-    {
       "key": "primaryColumns.tiene_bono_activo.isCellVisible"
     },
     {
       "key": "primaryColumns.customColumn1.isCellVisible"
+    },
+    {
+      "key": "primaryColumns.customColumn2.onClick"
     }
   ],
   "dynamicTriggerPathList": [
@@ -405,7 +402,7 @@
       "menuButtonLabel": "Detalle",
       "menuItemsSource": "STATIC",
       "notation": "standard",
-      "onClick": "{{ CustomerDetailHandler.openDetail(currentRow) }}\n",
+      "onClick": "{{CustomerDetailHandler.openDetail(currentRow);}}",
       "originalId": "customColumn2",
       "sticky": "",
       "textSize": "0.775rem",

@@ -43,6 +43,7 @@
   "responsiveBehavior": "hug",
   "rightColumn": 51,
   "text": "Cerrar",
+  "tooltip": "Cerrar",
   "topRow": 44,
   "type": "BUTTON_WIDGET",
   "version": 1,

@@ -33,7 +33,7 @@
   "mobileRightColumn": 63,
   "mobileTopRow": 18,
   "needsErrorInfo": false,
-  "onClick": "{{CrearCliente.crear();\nq_kpi_total_clientes.run()}}",
+  "onClick": "{{CrearCliente.crear();\nJS_DataRefresh.refreshDetailAndVisits();}}",
   "originalBottomRow": 56,
   "originalTopRow": 52,
   "parentId": "bk2jsvo9si",

@@ -12,20 +12,11 @@
       "formData": {
         "apiContentType": "none"
       },
-      "headers": [
-        {
-          "key": "Key",
-          "value": "x-business-id"
-        },
-        {
-          "key": "Value",
-          "value": "89e2ee5c-9cc3-4d8d-b339-dbc2a7b83fb8"
-        }
-      ],
+      "headers": [],
       "httpMethod": "GET",
       "httpVersion": "HTTP11",
       "paginationType": "NONE",
-      "path": "/wa/status",
+      "path": "/api/wa/status",
       "pluginSpecifiedTemplates": [
         {
           "value": true

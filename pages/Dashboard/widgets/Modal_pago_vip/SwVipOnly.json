@@ -1,0 +1,52 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "alignWidget": "LEFT",
+  "animateLoading": true,
+  "bottomRow": 20,
+  "boxShadow": "none",
+  "defaultSwitchState": true,
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    }
+  ],
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "onChange"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onChange"
+    }
+  ],
+  "isDisabled": false,
+  "isLoading": false,
+  "isVisible": true,
+  "key": "wju6v1hcxh",
+  "label": " Usar plantilla VIP",
+  "labelPosition": "Left",
+  "leftColumn": 41,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 20,
+  "mobileLeftColumn": 44,
+  "mobileRightColumn": 56,
+  "mobileTopRow": 16,
+  "needsErrorInfo": false,
+  "onChange": "{{ storeValue('wa_useVipOnly', SwVipOnly.isSwitchedOn) }}\n",
+  "originalBottomRow": 20,
+  "originalTopRow": 16,
+  "parentColumnSpace": 11.375,
+  "parentId": "rl7mwev0rk",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 56,
+  "topRow": 16,
+  "type": "SWITCH_WIDGET",
+  "version": 1,
+  "widgetId": "d6qlklorzo",
+  "widgetName": "SwVipOnly"
+}

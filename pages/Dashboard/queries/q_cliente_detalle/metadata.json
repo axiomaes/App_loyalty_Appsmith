@@ -5,7 +5,7 @@
   "pluginType": "DB",
   "unpublishedAction": {
     "actionConfiguration": {
-      "body": "WITH p AS (\n  SELECT\n    /* id del cliente (acepta this.params.id o ?customerId=... de la URL) */\n    {{ this.params.id || appsmith.URL.queryParams.customerId }}::uuid AS cid,\n    /* businessId: usa Auth.businessId() si existe; si no, appsmith.store.businessId */\n    {{ (Auth.businessId && Auth.businessId()) || appsmith.store.businessId }}::uuid AS bid\n)\nSELECT\n  c.id,\n  c.name,\n  c.email,\n  c.phone,\n  c.tag,\n  c.birthday,\n  c.notes,\n  c.\"createdAt\",\n  c.\"updatedAt\",\n  vagg.ultima_visita,\n  vagg.total_visitas,\n  (\n    /* activo si hubo visita en 90 días o hay recompensa pendiente */\n    (vrecent.hay_visita_90d OR rpend.hay_reward_pendiente)\n  ) AS activo_raw\nFROM \"Customer\" c\nJOIN p ON c.id = p.cid\n       AND c.\"businessId\" = p.bid\n       AND c.\"deletedAt\" IS NULL\n\n/* agregados de visitas */\nLEFT JOIN LATERAL (\n  SELECT\n    MAX(v.\"visitedAt\") AS ultima_visita,\n    COUNT(*)::int      AS total_visitas\n  FROM \"Visit\" v\n  WHERE v.\"customerId\" = c.id\n) vagg ON TRUE\n\n/* flag: ¿visita en últimos 90 días? */\nLEFT JOIN LATERAL (\n  SELECT EXISTS (\n    SELECT 1\n    FROM \"Visit\" v\n    WHERE v.\"customerId\" = c.id\n      AND v.\"visitedAt\" >= now() - interval '90 days'\n  ) AS hay_visita_90d\n) vrecent ON TRUE\n\n/* flag: ¿reward pendiente? */\nLEFT JOIN LATERAL (\n  SELECT EXISTS (\n    SELECT 1\n    FROM \"Reward\" r\n    WHERE r.\"customerId\" = c.id\n      AND r.status = 'PENDING'\n  ) AS hay_reward_pendiente\n) rpend ON TRUE;\n",
+      "body": "WITH p AS (\n  SELECT\n    {{ this.params.id || appsmith.URL.queryParams.customerId || appsmith.store.selCustomerId }}::uuid AS cid,\n    {{ (Auth.businessId && Auth.businessId()) || appsmith.store.businessId }}::uuid AS bid\n)\nSELECT\n  c.id,\n  c.name,\n  c.email,\n  c.phone,\n  c.tag,\n  c.birthday,\n  c.notes,\n  c.\"createdAt\",\n  c.\"updatedAt\",\n  vagg.ultima_visita,\n  vagg.total_visitas,\n  (vrecent.hay_visita_90d OR rpend.hay_reward_pendiente) AS activo_raw\nFROM \"Customer\" c\nJOIN p ON TRUE\nLEFT JOIN LATERAL (\n  SELECT MAX(v.\"visitedAt\") AS ultima_visita,\n         COUNT(*)::int      AS total_visitas\n  FROM \"Visit\" v WHERE v.\"customerId\" = c.id\n) vagg ON TRUE\nLEFT JOIN LATERAL (\n  SELECT EXISTS (\n    SELECT 1 FROM \"Visit\" v\n    WHERE v.\"customerId\" = c.id\n      AND v.\"visitedAt\" >= now() - interval '90 days'\n  ) AS hay_visita_90d\n) vrecent ON TRUE\nLEFT JOIN LATERAL (\n  SELECT EXISTS (\n    SELECT 1 FROM \"Reward\" r\n    WHERE r.\"customerId\" = c.id AND r.status = 'PENDING'\n  ) AS hay_reward_pendiente\n) rpend ON TRUE\nWHERE c.id = p.cid\n  AND c.\"businessId\" = p.bid\n  AND c.\"deletedAt\" IS NULL;\n",
       "encodeParamsToggle": true,
       "paginationType": "NONE",
       "pluginSpecifiedTemplates": [
@@ -29,7 +29,7 @@
     ],
     "name": "q_cliente_detalle",
     "pageId": "Dashboard",
-    "runBehaviour": "AUTOMATIC",
-    "userSetOnLoad": false
+    "runBehaviour": "ON_PAGE_LOAD",
+    "userSetOnLoad": true
   }
 }

@@ -135,7 +135,7 @@
       "itemType": "BUTTON",
       "label": "Vip",
       "menuItems": {},
-      "onClick": "{{ JS_OtpHelper.openFromDetail() }}\n",
+      "onClick": "{{ JS_OtpHelper.openFromDetail(appsmith.store.selCustomerId) }}\n",
       "placement": "CENTER",
       "variant": "filled",
       "widgetId": "dd28buo0z8"

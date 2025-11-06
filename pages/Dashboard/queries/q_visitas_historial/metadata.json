@@ -5,7 +5,7 @@
   "pluginType": "DB",
   "unpublishedAction": {
     "actionConfiguration": {
-      "body": "WITH p AS (\n  SELECT\n    {{ this.params.customerId }}::uuid AS cid,\n    COALESCE({{ this.params.limit }}, 100)::int  AS lim,\n    COALESCE({{ this.params.offset }}, 0)::int   AS off\n)\nSELECT\n  v.id,\n  v.\"visitedAt\"                                   AS fecha,\n  COALESCE(v.notes, '')                           AS notes,\n\n  -- Claves/etiquetas de mes-año para filtros\n  to_char(v.\"visitedAt\", 'YYYY-MM')               AS mes_key,\n  upper(replace(to_char(v.\"visitedAt\", 'Mon / YYYY'), '.', '')) AS mes_label,\n\n  -- Auxiliares (opcionales por si las necesitas en UI)\n  date_trunc('month', v.\"visitedAt\")::date        AS mes_inicio,\n  EXTRACT(YEAR  FROM v.\"visitedAt\")::int          AS anio,\n  EXTRACT(MONTH FROM v.\"visitedAt\")::int          AS mes_num,\n  to_char(v.\"visitedAt\", 'YYYY-MM')               AS mes_anio_key,\n  upper(to_char(v.\"visitedAt\", 'TMMon')) || ' / ' ||\n  to_char(v.\"visitedAt\", 'YYYY')                  AS mes_anio_label\n\nFROM \"Visit\" v\nJOIN p ON TRUE\nWHERE v.\"customerId\" = p.cid\nORDER BY v.\"visitedAt\" DESC\nLIMIT  (SELECT lim FROM p)\nOFFSET (SELECT off FROM p);\n",
+      "body": "SELECT\n  v.id,\n  v.\"customerId\",\n  v.\"visitedAt\"      AS fecha,\n  v.notes,\n  /* claves de mes opcionales para el filtro */\n  to_char(v.\"visitedAt\", 'YYYY-MM') AS mes_key,\n  to_char(v.\"visitedAt\", 'Mon / YYYY') AS mes_label\nFROM \"Visit\" v\nWHERE ( '{{this.params.customerId}}' = '' OR v.\"customerId\" = '{{this.params.customerId}}'::uuid )\nORDER BY v.\"visitedAt\" DESC\nLIMIT {{ this.params.limit || 100 }}\nOFFSET {{ this.params.offset || 0 }};\n",
       "encodeParamsToggle": true,
       "paginationType": "NONE",
       "pluginSpecifiedTemplates": [
@@ -29,7 +29,7 @@
     ],
     "name": "q_visitas_historial",
     "pageId": "Dashboard",
-    "runBehaviour": "AUTOMATIC",
+    "runBehaviour": "MANUAL",
     "userSetOnLoad": false
   }
 }

@@ -1,8 +1,6 @@
 WITH p AS (
   SELECT
-    /* id del cliente (acepta this.params.id o ?customerId=... de la URL) */
-    {{ this.params.id || appsmith.URL.queryParams.customerId }}::uuid AS cid,
-    /* businessId: usa Auth.businessId() si existe; si no, appsmith.store.businessId */
+    {{ this.params.id || appsmith.URL.queryParams.customerId || appsmith.store.selCustomerId }}::uuid AS cid,
     {{ (Auth.businessId && Auth.businessId()) || appsmith.store.businessId }}::uuid AS bid
 )
 SELECT
@@ -17,40 +15,27 @@ SELECT
   c."updatedAt",
   vagg.ultima_visita,
   vagg.total_visitas,
-  (
-    /* activo si hubo visita en 90 días o hay recompensa pendiente */
-    (vrecent.hay_visita_90d OR rpend.hay_reward_pendiente)
-  ) AS activo_raw
+  (vrecent.hay_visita_90d OR rpend.hay_reward_pendiente) AS activo_raw
 FROM "Customer" c
-JOIN p ON c.id = p.cid
-       AND c."businessId" = p.bid
-       AND c."deletedAt" IS NULL
-
-/* agregados de visitas */
+JOIN p ON TRUE
 LEFT JOIN LATERAL (
-  SELECT
-    MAX(v."visitedAt") AS ultima_visita,
-    COUNT(*)::int      AS total_visitas
-  FROM "Visit" v
-  WHERE v."customerId" = c.id
+  SELECT MAX(v."visitedAt") AS ultima_visita,
+         COUNT(*)::int      AS total_visitas
+  FROM "Visit" v WHERE v."customerId" = c.id
 ) vagg ON TRUE
-
-/* flag: ¿visita en últimos 90 días? */
 LEFT JOIN LATERAL (
   SELECT EXISTS (
-    SELECT 1
-    FROM "Visit" v
+    SELECT 1 FROM "Visit" v
     WHERE v."customerId" = c.id
       AND v."visitedAt" >= now() - interval '90 days'
   ) AS hay_visita_90d
 ) vrecent ON TRUE
-
-/* flag: ¿reward pendiente? */
 LEFT JOIN LATERAL (
   SELECT EXISTS (
-    SELECT 1
-    FROM "Reward" r
-    WHERE r."customerId" = c.id
-      AND r.status = 'PENDING'
+    SELECT 1 FROM "Reward" r
+    WHERE r."customerId" = c.id AND r.status = 'PENDING'
   ) AS hay_reward_pendiente
-) rpend ON TRUE;
+) rpend ON TRUE
+WHERE c.id = p.cid
+  AND c."businessId" = p.bid
+  AND c."deletedAt" IS NULL;

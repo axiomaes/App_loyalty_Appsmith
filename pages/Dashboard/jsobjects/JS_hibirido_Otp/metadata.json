@@ -6,19 +6,6 @@
     "pageId": "Dashboard",
     "pluginId": "js-plugin",
     "pluginType": "JS",
-    "variables": [
-      {
-        "name": "_WELCOME_SID",
-        "value": "\"HXb06a2950296822f06a8e3bdc02c893de\""
-      },
-      {
-        "name": "_OTP_SID",
-        "value": "\"HX8903c49a01fcf311ffcec50560694638\""
-      },
-      {
-        "name": "_OWNER_PHONE",
-        "value": "\"+34632803533\""
-      }
-    ]
+    "variables": []
   }
 }

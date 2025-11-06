@@ -38,7 +38,7 @@
   "mobileRightColumn": 25,
   "mobileTopRow": 45,
   "needsErrorInfo": false,
-  "onClick": "{{\n  (async () => {\n    const ok = await OTPUtils.checkOtp(InputOtp.text, appsmith.store.otp_hash);\n    if (!ok) { showAlert('Código incorrecto o vencido.', 'error'); return; }\n\n    await storeValue('otp_verified', true);\n    showAlert('Código verificado ✅', 'success');\n  })()\n}}\n",
+  "onClick": "{{ JS_OtpHelper.verifyOtp(InputOtp.text) }}\n",
   "parentColumnSpace": 11.375,
   "parentId": "rl7mwev0rk",
   "parentRowSpace": 10,

@@ -1,29 +1,13 @@
-WITH p AS (
-  SELECT
-    {{ this.params.customerId }}::uuid AS cid,
-    COALESCE({{ this.params.limit }}, 100)::int  AS lim,
-    COALESCE({{ this.params.offset }}, 0)::int   AS off
-)
 SELECT
   v.id,
-  v."visitedAt"                                   AS fecha,
-  COALESCE(v.notes, '')                           AS notes,
-
-  -- Claves/etiquetas de mes-año para filtros
-  to_char(v."visitedAt", 'YYYY-MM')               AS mes_key,
-  upper(replace(to_char(v."visitedAt", 'Mon / YYYY'), '.', '')) AS mes_label,
-
-  -- Auxiliares (opcionales por si las necesitas en UI)
-  date_trunc('month', v."visitedAt")::date        AS mes_inicio,
-  EXTRACT(YEAR  FROM v."visitedAt")::int          AS anio,
-  EXTRACT(MONTH FROM v."visitedAt")::int          AS mes_num,
-  to_char(v."visitedAt", 'YYYY-MM')               AS mes_anio_key,
-  upper(to_char(v."visitedAt", 'TMMon')) || ' / ' ||
-  to_char(v."visitedAt", 'YYYY')                  AS mes_anio_label
-
+  v."customerId",
+  v."visitedAt"      AS fecha,
+  v.notes,
+  /* claves de mes opcionales para el filtro */
+  to_char(v."visitedAt", 'YYYY-MM') AS mes_key,
+  to_char(v."visitedAt", 'Mon / YYYY') AS mes_label
 FROM "Visit" v
-JOIN p ON TRUE
-WHERE v."customerId" = p.cid
+WHERE ( '{{this.params.customerId}}' = '' OR v."customerId" = '{{this.params.customerId}}'::uuid )
 ORDER BY v."visitedAt" DESC
-LIMIT  (SELECT lim FROM p)
-OFFSET (SELECT off FROM p);
+LIMIT {{ this.params.limit || 100 }}
+OFFSET {{ this.params.offset || 0 }};

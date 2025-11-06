@@ -11,22 +11,17 @@
           "value": "application/json"
         }
       ],
-      "body": "{\n  \"to\": \"{{ String(this.params.to || '').replace(/^whatsapp:/,'').replace(/\\\\D/g,'') }}\",\n  \"contentSidOverride\": \"{{ String(this.params.contentSidOverride || 'HX3b91ea6167d412d8eacc07312603e58a') }}\",\n  \"templateVars\": \"{{ (() => {\n    const src = this.params.templateVars || {};\n    const clean = Object.fromEntries(Object.entries(src).map(([k, v]) => {\n      let s = String(v ?? '');\n      s = s.replace(/[\\\\r\\\\n\\\\t]/g, ' ').replace(/ {5,}/g, '    ').trim();\n      return [k, s];\n    }));\n    return clean;   // <<< OJO: devolvemos OBJETO, NO JSON.stringify\n  })() }}\"\n}\n",
+      "body": "{\n  \"to\": \"{{ String(this.params.to || '').replace(/^whatsapp:/,'').replace(/\\\\D/g,'') }}\",\n  \"contentSidOverride\": \"{{ String(this.params.contentSidOverride || 'HX3b91ea6167d412d8eacc07312603e58a') }}\",\n  \"templateVars\": {{ this.params.templateVars || {} }},\n  \"forceTemplate\": true\n}\n",
       "bodyFormData": [],
       "encodeParamsToggle": true,
       "formData": {
         "apiContentType": "application/json"
       },
-      "headers": [
-        {
-          "key": "x-business-id",
-          "value": "89e2ee5c-9cc3-4d8d-b339-dbc2a7b83fb8"
-        }
-      ],
+      "headers": [],
       "httpMethod": "POST",
       "httpVersion": "HTTP11",
       "paginationType": "NONE",
-      "path": "/wa/send",
+      "path": "/api/wa/send",
       "pluginSpecifiedTemplates": [
         {
           "value": true

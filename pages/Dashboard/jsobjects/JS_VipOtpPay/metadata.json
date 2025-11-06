@@ -6,6 +6,11 @@
     "pageId": "Dashboard",
     "pluginId": "js-plugin",
     "pluginType": "JS",
-    "variables": []
+    "variables": [
+      {
+        "name": "_VIP_SID",
+        "value": "\"HX3b91ea6167d412d8eacc07312603e58a\""
+      }
+    ]
   }
 }
