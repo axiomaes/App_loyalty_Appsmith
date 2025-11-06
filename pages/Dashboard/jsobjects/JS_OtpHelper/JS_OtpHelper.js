@@ -31,7 +31,7 @@ export default {
 		return `+${d}`;
 	},
 
-	// <- NUEVO: fuerza "dígitos" para wa_send (evita confusiones)
+	// Fuerza "dígitos" para wa_send (evita confusiones con whatsapp:+)
 	_digits(e164) { return String(e164 || "").replace(/\D/g, ""); },
 
 	_formatEur(value) {
@@ -88,32 +88,16 @@ export default {
 		return codeObj;
 	},
 
-	// ===== WhatsApp (wrappers) =====
+	// ===== WhatsApp (solo plantillas) =====
 	async _sendTemplate({ to, sid, vars = {} }) {
-		if (!to) throw new Error("Destino vacío.");
+		const toDigits = this._digits(to);
+		if (!toDigits) throw new Error("Destino vacío.");
 		if (!sid) throw new Error("SID vacío.");
-		await wa_send.run({ to, contentSidOverride: sid, templateVars: vars });
-	},
-
-	async _sendText({ to, body }) {
-		if (!to) throw new Error("Destino vacío.");
-		if (!body) throw new Error("Mensaje vacío.");
-		await wa_send.run({ to, body });
-	},
-
-	async _canSendFreeform(toE164) {
-		try {
-			if (!wa_status?.run) return false;
-			const res = await wa_status.run({ to: toE164 });
-			return !!(res && (res.canFreeform || res.windowOpen || res.within24h));
-		} catch {
-			return false;
-		}
+		await wa_send.run({ to: toDigits, contentSidOverride: sid, templateVars: vars });
 	},
 
 	// ===== Envío VIP SOLO al propietario (plantilla Utility) =====
 	async _sendVipOnlyToOwner({ code, ttlMin }) {
-		// forzar SIEMPRE el número del dueño en dígitos (lo que espera wa_send)
 		const toDigits = this._digits(this._OWNER_PHONE);
 		if (!toDigits) {
 			showAlert("Teléfono del dueño no válido.", "warning");
@@ -129,11 +113,10 @@ export default {
 
 		const vars = this._buildVipVars({ name, planName, amountLabel, dateLabel, code, ttlMin });
 
-		// PASAR explícitamente el SID de la plantilla VIP
-		await wa_send.run({
-			to: toDigits,                        // e.g. "34632803533"
-			contentSidOverride: this._VIP_SID,   // vip_pago_aviso_es
-			templateVars: vars
+		await this._sendTemplate({
+			to: toDigits,
+			sid: this._VIP_SID,   // vip_pago_aviso_es
+			vars
 		});
 
 		try { await storeValue('debug_last_wa_to', toDigits); } catch {}
@@ -152,40 +135,15 @@ export default {
 			return;
 		}
 
-		// MODO CLÁSICO (si lo necesitas): OTP +, opcionalmente, resumen freeform
+		// MODO CLÁSICO (si lo necesitas): OTP al dueño (SIN resumen freeform)
 		const { code, ttlMin: t } = await this._startOtpFor(toOwner, ttlMin);
 
-		// 1) OTP con plantilla
 		await this._sendTemplate({
-			to: this._digits(toOwner),
+			to: toOwner,
 			sid: this._OTP_SID,
 			vars: this._buildOtpVars(code, t)
 		});
 		showAlert("📩 OTP enviado al propietario.", "info");
-
-		// 2) (opcional) resumen en texto libre SOLO si la ventana está abierta
-		const canFreeform = await this._canSendFreeform(toOwner);
-		if (!canFreeform) {
-			console.log("ℹ️ Resumen NO enviado: fuera de la ventana de 24h.");
-			return;
-		}
-
-		const customer = appsmith.store?.editingCustomer || {};
-		const planName = SelectPlan?.selectedOptionLabel || "Sin plan";
-		const importe  = this._formatEur(InputImporte?.text || 0);
-		const fecha    = moment().format("DD/MM/YYYY");
-
-		const msg =
-					`💈 *Nuevo pago VIP registrado*\n` +
-					`👤 Cliente: *${customer.name || "Desconocido"}*\n` +
-					`🎟 Bono: *${planName}*\n` +
-					`💶 Importe: *${importe}*\n` +
-					`📅 Fecha: ${fecha}\n` +
-					`🔢 Código: *${code}*\n` +
-					`⏰ Válido por ${t} minutos.`;
-
-		await this._sendText({ to: this._digits(toOwner), body: msg });
-		showAlert("🧾 Resumen del pago enviado al propietario.", "success");
 	},
 
 	// ===== Abrir modal (carga cliente correcto + reset campos) =====
@@ -193,10 +151,10 @@ export default {
 		try {
 			// 1) Resolver ID del cliente
 			const id =
-						customerId ||
-						appsmith.store?.selCustomerId ||
-						Listado_clientes?.selectedRow?.id ||
-						Listado_clientes?.triggeredRow?.id;
+				customerId ||
+				appsmith.store?.selCustomerId ||
+				Listado_clientes?.selectedRow?.id ||
+				Listado_clientes?.triggeredRow?.id;
 
 			if (!id) { showAlert("No se pudo determinar el ID del cliente.", "warning"); return; }
 
@@ -267,7 +225,7 @@ export default {
 	async onSave() {
 		try {
 			// Si el switch VIP-only está activo, solo mandamos el aviso VIP al dueño
-			if (this._activeMode && this._activeMode() === true) {
+			if (this._activeMode()) {
 				const ownerE164 = this._normalizeE164(this._OWNER_PHONE);
 				const { code, ttlMin } = await this._startOtpFor(ownerE164, 10);
 				await this._sendVipOnlyToOwner({ code, ttlMin });
