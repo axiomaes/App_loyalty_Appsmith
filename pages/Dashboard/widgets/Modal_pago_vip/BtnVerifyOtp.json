@@ -29,7 +29,7 @@
   "iconName": "credit-card",
   "isDisabled": "{{ !/^\\d{6}$/.test(InputOtp.text || '') }}\n",
   "isLoading": false,
-  "isVisible": true,
+  "isVisible": false,
   "key": "71pgsv2t8b",
   "leftColumn": 57,
   "minWidth": 50,

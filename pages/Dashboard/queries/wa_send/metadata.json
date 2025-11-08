@@ -11,7 +11,7 @@
           "value": "application/json"
         }
       ],
-      "body": "{\n  \"to\": \"{{ String(this.params.to || '').replace(/^whatsapp:/,'').replace(/\\\\D/g,'') }}\",\n  \"contentSidOverride\": \"{{ String(this.params.contentSidOverride || 'HX3b91ea6167d412d8eacc07312603e58a') }}\",\n  \"templateVars\": {{ this.params.templateVars || {} }},\n  \"forceTemplate\": true\n}\n",
+      "body": "{\n  \"to\": \"{{ String(this.params.to || appsmith.store.ownerPhone || InputOwnerPhone?.text || '+34632803533')\n            .replace(/^whatsapp:/,'')\n            .replace(/\\D/g,'') }}\",\n  \"contentSid\": \"{{ String(this.params.contentSidOverride || this.params.contentSid || 'HX3b91ea6167d412d8eacc07312603e58a') }}\",\n  \"contentSidOverride\": \"{{ String(this.params.contentSidOverride || this.params.contentSid || 'HX3b91ea6167d412d8eacc07312603e58a') }}\",\n  \"contentLanguage\": \"es\",\n  \"templateVars\": {{ this.params.templateVars || { \"1\":\"Cliente\", \"2\":\"VIP\", \"3\":\"€ 0\", \"4\": moment().format(\"DD/MM/YYYY\"), \"5\":\"000000\", \"6\":\"10\" } }},\n  \"forceTemplate\": true,\n  \"disableTextFallback\": true\n}\n",
       "bodyFormData": [],
       "encodeParamsToggle": true,
       "formData": {

@@ -8,20 +8,12 @@
     "pluginType": "JS",
     "variables": [
       {
-        "name": "_WELCOME_SID",
-        "value": "\"HXb06a2950296822f06a8e3bdc02c893de\""
-      },
-      {
-        "name": "_OTP_SID",
-        "value": "\"HX8903c49a01fcf311ffcec50560694638\""
-      },
-      {
         "name": "_VIP_SID",
         "value": "\"HX3b91ea6167d412d8eacc07312603e58a\""
       },
       {
         "name": "_OWNER_PHONE",
-        "value": "\"+34682686605\""
+        "value": "\"+34632803533\""
       }
     ]
   }

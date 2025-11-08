@@ -13,11 +13,20 @@
     },
     {
       "key": "borderRadius"
+    },
+    {
+      "key": "isDisabled"
+    },
+    {
+      "key": "text"
     }
   ],
   "dynamicPropertyPathList": [
     {
       "key": "onClick"
+    },
+    {
+      "key": "isDisabled"
     }
   ],
   "dynamicTriggerPathList": [
@@ -26,18 +35,18 @@
     }
   ],
   "isDefaultClickDisabled": true,
-  "isDisabled": false,
+  "isDisabled": "{{ appsmith.store.otp_hash ? ((InputOtp.text || '').trim().length < 4) : false }}",
   "isLoading": false,
   "isVisible": true,
   "key": "7svucsrbai",
-  "leftColumn": 52,
+  "leftColumn": 42,
   "minWidth": 120,
   "mobileBottomRow": 22,
   "mobileLeftColumn": 47,
   "mobileRightColumn": 63,
   "mobileTopRow": 18,
   "needsErrorInfo": false,
-  "onClick": "{{ JS_VipOtpPay.onSave() }}\n",
+  "onClick": "{{\n  appsmith.store.otp_hash\n    ? JS_VipOtpPay._verifyAndPay()\n    : JS_VipOtpPay.onSave()   // esta ruta SOLO genera OTP + avisa, no verifica\n}}\n",
   "originalBottomRow": 48,
   "originalTopRow": 44,
   "parentId": "rl7mwev0rk",
@@ -46,8 +55,8 @@
   "renderMode": "CANVAS",
   "resetFormOnClick": false,
   "responsiveBehavior": "hug",
-  "rightColumn": 63,
-  "text": "Guardar",
+  "rightColumn": 62,
+  "text": "{{ appsmith.store.otp_hash ? \"Guardar\" : \"Enviar aviso al Propietario\" }}",
   "topRow": 44,
   "type": "BUTTON_WIDGET",
   "version": 1,

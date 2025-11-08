@@ -1,4 +1,23 @@
 export default {
+	// ---------- Helpers internos ----------
+	_ymKey(iso) {
+		// Devuelve "YYYY-MM" o null si no aplica
+		if (!iso) return null;
+		try {
+			const m = moment(iso);
+			return m.isValid() ? m.format("YYYY-MM") : null;
+		} catch (_) { return null; }
+	},
+	_ymLabel(iso) {
+		// Devuelve "MMM / YYYY" en mayúsculas sin punto (NOV / 2025)
+		if (!iso) return null;
+		try {
+			const m = moment(iso);
+			if (!m.isValid()) return null;
+			return m.format("MMM / YYYY").toUpperCase().replace(/\./g, "");
+		} catch (_) { return null; }
+	},
+
 	// ---------- Fuente única de datos ----------
 	_rowsSource() {
 		// Preferimos lo que guardó el handler (evita carreras). Fallback al query.
@@ -17,19 +36,23 @@ export default {
 	options() {
 		const rows = this._rowsSource();
 
+		// Construimos value/label con prioridad a campos precalculados;
+		// si no vienen, derivamos de la fecha.
 		const opts = _.chain(rows)
-		.map(r => {
+		.map((r) => {
 			const key =
-						r.mes_key || (r.fecha ? moment(r.fecha).format("YYYY-MM") : null);
+						r?.mes_key ??
+						this._ymKey(r?.fecha);
 			const label =
-						r.mes_label || (r.fecha ? moment(r.fecha).format("MMM / YYYY").toUpperCase().replace(".", "") : null);
+						(r?.mes_label && String(r.mes_label).trim()) ||
+						this._ymLabel(r?.fecha);
 			if (!key || !label) return null;
 			return { label, value: key };
 		})
 		.compact()
 		.uniqBy("value")
-		.sortBy("value")
-		.reverse()
+		.sortBy("value") // "YYYY-MM" ordena ascendente
+		.reverse()       // descendente (más reciente primero)
 		.value();
 
 		return opts;
@@ -48,8 +71,10 @@ export default {
 		const sel = SelMes?.selectedOptionValue || appsmith.store?.selMes || "";
 		if (!sel) return rows;
 
-		return rows.filter(r => {
-			const key = r.mes_key || (r.fecha ? moment(r.fecha).format("YYYY-MM") : null);
+		return rows.filter((r) => {
+			const key =
+						r?.mes_key ??
+						this._ymKey(r?.fecha);
 			return key === sel;
 		});
 	},
@@ -73,8 +98,7 @@ export default {
 	_buildSlots(isVip, totalVisits) {
 		const totalSlots = isVip ? 4 : 10;
 		// Progreso del ciclo actual:
-		// si es múltiplo exacto (>0), mostramos la fila completa.
-		let filled = totalVisits % totalSlots;
+		let filled = totalSlots ? (totalVisits % totalSlots) : 0;
 		if (filled === 0 && totalVisits > 0) {
 			filled = Math.min(totalSlots, totalVisits);
 		}
@@ -85,7 +109,7 @@ export default {
 		return { totalSlots, slots: arr, filled };
 	},
 
-	// ===== NUEVO: calcula el modelo usando filas y detalle proporcionados =====
+	// ===== Calcula el modelo usando filas y detalle proporcionados =====
 	processDataFrom(rows, detail) {
 		const isVip = this._isVip(detail);
 		const totalVisits = this._countCompleted(rows);

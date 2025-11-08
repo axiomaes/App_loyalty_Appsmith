@@ -5,7 +5,7 @@
   "pluginType": "DB",
   "unpublishedAction": {
     "actionConfiguration": {
-      "body": "SELECT customerId\nFROM \"CustomerQrToken\"\nWHERE \"businessId\" = {{ appsmith.store.businessId }}::uuid\n  AND token = {{ this.params.token }}::text\n  AND active = true\nLIMIT 1;\n",
+      "body": "WITH inp AS (\n  SELECT\n    {{ this.params.token }}::text  AS token,\n    {{ this.params.businessId || null }}::uuid AS business_id\n)\nSELECT c.\"customerId\"\nFROM \"CustomerQrToken\" c, inp\nWHERE c.\"token\" = inp.token\n  AND (inp.business_id IS NULL OR c.\"businessId\" = inp.business_id)\nLIMIT 1;\n",
       "encodeParamsToggle": true,
       "paginationType": "NONE",
       "pluginSpecifiedTemplates": [

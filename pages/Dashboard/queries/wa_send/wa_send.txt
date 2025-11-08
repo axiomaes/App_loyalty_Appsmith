@@ -1,6 +1,11 @@
 {
-  "to": "{{ String(this.params.to || '').replace(/^whatsapp:/,'').replace(/\\D/g,'') }}",
-  "contentSidOverride": "{{ String(this.params.contentSidOverride || 'HX3b91ea6167d412d8eacc07312603e58a') }}",
-  "templateVars": {{ this.params.templateVars || {} }},
-  "forceTemplate": true
+  "to": "{{ String(this.params.to || appsmith.store.ownerPhone || InputOwnerPhone?.text || '+34632803533')
+            .replace(/^whatsapp:/,'')
+            .replace(/\D/g,'') }}",
+  "contentSid": "{{ String(this.params.contentSidOverride || this.params.contentSid || 'HX3b91ea6167d412d8eacc07312603e58a') }}",
+  "contentSidOverride": "{{ String(this.params.contentSidOverride || this.params.contentSid || 'HX3b91ea6167d412d8eacc07312603e58a') }}",
+  "contentLanguage": "es",
+  "templateVars": {{ this.params.templateVars || { "1":"Cliente", "2":"VIP", "3":"€ 0", "4": moment().format("DD/MM/YYYY"), "5":"000000", "6":"10" } }},
+  "forceTemplate": true,
+  "disableTextFallback": true
 }

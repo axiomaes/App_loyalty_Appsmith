@@ -18,6 +18,9 @@
     },
     {
       "key": "isVisible"
+    },
+    {
+      "key": "isDisabled"
     }
   ],
   "dynamicHeight": "FIXED",
@@ -27,6 +30,9 @@
     },
     {
       "key": "onTextChanged"
+    },
+    {
+      "key": "isDisabled"
     }
   ],
   "dynamicTriggerPathList": [
@@ -34,11 +40,12 @@
       "key": "onTextChanged"
     }
   ],
+  "errorMessage": "Ingresa 6 digitos",
   "iconAlign": "left",
   "inputType": "TEXT",
-  "isDisabled": false,
+  "isDisabled": "{{ !appsmith.store.otp_hash || appsmith.store.otp_verified === true }}",
   "isLoading": false,
-  "isRequired": false,
+  "isRequired": true,
   "isVisible": "{{ !!appsmith.store.otp_hash && appsmith.store.otp_verified !== true }}\n",
   "key": "z9rgjd3ykx",
   "label": "Codigo Verificación",
@@ -48,6 +55,7 @@
   "labelTextSize": "0.875rem",
   "labelWidth": 5,
   "leftColumn": 39,
+  "maxChars": "6",
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
   "minWidth": 450,
@@ -72,6 +80,7 @@
   "tooltip": "Ingresa el codigo enviado",
   "topRow": 34,
   "type": "INPUT_WIDGET_V2",
+  "validation": "",
   "version": 2,
   "widgetId": "0o1d2anlku",
   "widgetName": "InputOtp"

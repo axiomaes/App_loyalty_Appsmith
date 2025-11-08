@@ -1,0 +1,13 @@
+INSERT INTO wa_settings (id, owner_phone, wa_mode, bi_approved, updated_at)
+VALUES (
+  1,
+  {{ this.params.owner_phone }}::text,
+  {{ this.params.wa_mode }}::text,
+  {{ this.params.bi_approved }}::boolean,
+  NOW()
+)
+ON CONFLICT (id) DO UPDATE
+SET owner_phone = EXCLUDED.owner_phone,
+    wa_mode     = EXCLUDED.wa_mode,
+    bi_approved = EXCLUDED.bi_approved,
+    updated_at  = NOW();

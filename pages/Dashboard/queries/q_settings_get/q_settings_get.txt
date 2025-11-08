@@ -1,0 +1,1 @@
+SELECT * FROM wa_settings ORDER BY id DESC LIMIT 1;

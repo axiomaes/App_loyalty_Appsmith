@@ -1,0 +1,16 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_c96a869b-49a9-48e5-8f9e-15e4a6728e30",
+  "id": "Dashboard_JS_WaLog",
+  "unpublishedCollection": {
+    "name": "JS_WaLog",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "PRICE_PER_MSG",
+        "value": "0.25"
+      }
+    ]
+  }
+}

@@ -10,6 +10,10 @@
       {
         "name": "API_BASE",
         "value": "\"https://axioma-api.loyalty.axioma-creativa.es/public/customers\""
+      },
+      {
+        "name": "_timer",
+        "value": "null"
       }
     ]
   }

@@ -1,59 +1,97 @@
 export default {
-  // --- Config ---------------------------------------------------------------
-  API_BASE: "https://axioma-api.loyalty.axioma-creativa.es/public/customers",
+	// ================== CONFIG ==================
+	API_BASE: "https://axioma-api.loyalty.axioma-creativa.es/public/customers",
 
-  // --- Utils ----------------------------------------------------------------
-  _isUuid(s) {
-    return typeof s === "string" &&
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s);
-  },
-  _normId(id) {
-    const s = String(id || "").trim();
-    return s && this._isUuid(s) ? s : "";
-  },
-  _normSize(size, def = 300) {
-    const n = Number(size);
-    return Number.isFinite(n) ? Math.max(64, Math.min(1024, Math.trunc(n))) : def;
-  },
+	// ================== ESTADO ==================
+	_timer: null,
 
-  // --- URLs -----------------------------------------------------------------
-  /** URL del PNG del QR generado por el API */
-  pngUrl(id, size = 300) {
-    const cid = this._normId(id);
-    if (!cid) return "";
-    const sz = this._normSize(size);
-    return `${this.API_BASE}/${encodeURIComponent(cid)}/qr.png?size=${sz}`;
-  },
+	// ================== HELPERS =================
+	_isUuid(s) {
+		return typeof s === "string" &&
+			/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s);
+	},
+	_normId(id) {
+		const s = String(id || "").trim();
+		return s && this._isUuid(s) ? s : "";
+	},
+	_normSize(size, def = 300) {
+		const n = Number(size);
+		return Number.isFinite(n) ? Math.max(64, Math.min(1024, Math.trunc(n))) : def;
+	},
+	_clean(text) {
+		return String(text || "")
+			.replace(/\uFEFF/g, "")
+			.replace(/[\r\n\t]+$/g, "")
+			.trim();
+	},
+	_refocus() {
+		try { ScanInput?.focus && ScanInput.focus(); } catch (_) {}
+	},
 
-  /** URL de la landing pública de Appsmith (página QR_Landing?cid=...) */
-  pageUrl(id) {
-    const cid = this._normId(id);
-    if (!cid) return "";
-    const appName = encodeURIComponent(appsmith.app.name);
-    return `${window.location.origin}/app/${appName}/QR_Landing?cid=${encodeURIComponent(cid)}`;
-  },
+	// ================== LECTOR (PISTOLA/CÁMARA) ==================
+	/** Caso pistola con Enter → vincular a onSubmit del Input oculto */
+	async onSubmit(raw) {
+		const text = this._clean(raw);
+		if (!text) return;
+		try {
+			await VisitAdd.fromQr(text);
+			await storeValue("_lastScanRaw", text);
+		} finally {
+			ScanInput.setValue("");
+			this._refocus();
+		}
+	},
 
-  // --- Acciones -------------------------------------------------------------
-  /** Copia al portapapeles la URL pública de la landing */
-  async copyLandingUrl(id) {
-    const url = this.pageUrl(id);
-    if (!url) return showAlert("Cliente inválido.", "warning");
-    await copyToClipboard(url);
-    showAlert("Enlace copiado al portapapeles.", "success");
-  },
+	/** Caso sin Enter → vincular a onTextChanged del Input oculto */
+	onType(raw) {
+		const text = this._clean(raw);
+		if (!text) return;
+		clearTimeout(this._timer);
+		this._timer = setTimeout(async () => {
+			try {
+				await VisitAdd.fromQr(text);
+				await storeValue("_lastScanRaw", text);
+			} finally {
+				ScanInput.setValue("");
+				this._refocus();
+			}
+		}, 150); // debounce corto para pistolas rápidas
+	},
 
-  /** Abre la landing en una pestaña nueva */
-  openLanding(id) {
-    const url = this.pageUrl(id);
-    if (!url) return showAlert("Cliente inválido.", "warning");
-    window.open(url, "_blank", "noopener,noreferrer");
-  },
+	// ================== URLS / ACCIONES ==================
+	/** URL del PNG del QR generado por el API */
+	pngUrl(id, size = 300) {
+		const cid = this._normId(id);
+		if (!cid) return "";
+		const sz = this._normSize(size);
+		return `${this.API_BASE}/${encodeURIComponent(cid)}/qr.png?size=${sz}`;
+	},
 
-  /** Copia al portapapeles la URL del PNG (por si lo necesitas) */
-  async copyPngUrl(id, size = 300) {
-    const url = this.pngUrl(id, size);
-    if (!url) return showAlert("Cliente inválido.", "warning");
-    await copyToClipboard(url);
-    showAlert("URL del QR copiada.", "success");
-  }
+	/** URL de la landing pública en Appsmith (si la usas) */
+	pageUrl(id) {
+		const cid = this._normId(id);
+		if (!cid) return "";
+		const appName = encodeURIComponent(appsmith.app.name);
+		return `${window.location.origin}/app/${appName}/QR_Landing?cid=${encodeURIComponent(cid)}`;
+	},
+
+	async copyLandingUrl(id) {
+		const url = this.pageUrl(id);
+		if (!url) return showAlert("Cliente inválido.", "warning");
+		await copyToClipboard(url);
+		showAlert("Enlace copiado al portapapeles.", "success");
+	},
+
+	openLanding(id) {
+		const url = this.pageUrl(id);
+		if (!url) return showAlert("Cliente inválido.", "warning");
+		window.open(url, "_blank", "noopener,noreferrer");
+	},
+
+	async copyPngUrl(id, size = 300) {
+		const url = this.pngUrl(id, size);
+		if (!url) return showAlert("Cliente inválido.", "warning");
+		await copyToClipboard(url);
+		showAlert("URL del QR copiada.", "success");
+	},
 };

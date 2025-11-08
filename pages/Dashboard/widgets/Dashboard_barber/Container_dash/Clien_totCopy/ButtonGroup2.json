@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 6,
+  "bottomRow": 5,
   "boxShadow": "none",
   "buttonVariant": "PRIMARY",
   "childStylesheet": {
@@ -14,9 +14,17 @@
       "key": "borderRadius"
     }
   ],
+  "dynamicPropertyPathList": [
+    {
+      "key": "groupButtons.groupButton2.onClick"
+    }
+  ],
   "dynamicTriggerPathList": [
     {
       "key": "groupButtons.groupButton1.onClick"
+    },
+    {
+      "key": "groupButtons.groupButton2.onClick"
     }
   ],
   "groupButtons": {
@@ -36,7 +44,7 @@
       "widgetId": ""
     },
     "groupButton2": {
-      "buttonColor": "#fef9c3",
+      "buttonColor": "#ffe58a",
       "buttonType": "SIMPLE",
       "disabledWhenInvalid": false,
       "iconName": "barcode",
@@ -46,6 +54,7 @@
       "isVisible": true,
       "label": "Leer QR",
       "menuItems": {},
+      "onClick": "{{ showModal(ModalScan.name); showAlert('Escanea el código...', 'info'); }}\n",
       "placement": "CENTER",
       "widgetId": ""
     }
@@ -54,7 +63,7 @@
   "isLoading": false,
   "isVisible": true,
   "key": "jvvp1yd7lr",
-  "leftColumn": 3,
+  "leftColumn": 10,
   "minWidth": 450,
   "mobileBottomRow": 6,
   "mobileLeftColumn": 15,
@@ -67,8 +76,8 @@
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 59,
-  "topRow": 2,
+  "rightColumn": 56,
+  "topRow": 1,
   "type": "BUTTON_GROUP_WIDGET",
   "version": 1,
   "widgetId": "lsr3n6gfsl",

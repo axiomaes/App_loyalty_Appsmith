@@ -1,0 +1,13 @@
+INSERT INTO wa_message_log
+  (business_id, to_digits, template_sid, category, twilio_msg_sid, status, unit_price_eur)
+VALUES
+  (
+    {{ this.params.business_id }},
+    {{ this.params.to_digits }},
+    {{ this.params.template_sid }},
+    {{ this.params.category }},
+    {{ this.params.twilio_sid }},
+    {{ this.params.status || 'sent' }},
+    {{ this.params.unit_price_eur || 0.25 }}
+  )
+ON CONFLICT (twilio_msg_sid) DO NOTHING;

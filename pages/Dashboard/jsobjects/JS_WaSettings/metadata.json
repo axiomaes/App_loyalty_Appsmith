@@ -1,0 +1,24 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_0b8cb171-a744-48a7-8ba9-f0a2b75df321",
+  "id": "Dashboard_JS_WaSettings",
+  "unpublishedCollection": {
+    "name": "JS_WaSettings",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "KEY_OWNER",
+        "value": "\"ownerPhone\""
+      },
+      {
+        "name": "KEY_MODE",
+        "value": "\"wa_mode\""
+      },
+      {
+        "name": "KEY_APPROVED",
+        "value": "\"wa_bi_approved\""
+      }
+    ]
+  }
+}
