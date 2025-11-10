@@ -1,0 +1,51 @@
+WITH tz AS (
+	SELECT now() AT TIME ZONE 'Europe/Madrid' AS now_es
+),
+bounds AS (
+	SELECT
+	date_trunc('day', now_es) AS start_es,
+	date_trunc('day', now_es) + interval '1 day' AS end_es
+	FROM tz
+)
+SELECT
+  v.id,
+  v."visitedAt" AT TIME ZONE 'Europe/Madrid' AS hora,
+  c.name        AS cliente,
+  c.phone       AS telefono,
+  COALESCE(v.notes,'') AS notas,
+
+  -- Nombre del plan activo si existe; si no, cae al tag o "Sin bono"
+  COALESCE(
+		bono.plan_name,
+		CASE
+		WHEN c.tag IS NULL OR c.tag = '' THEN 'Sin bono'
+		ELSE initcap(replace(replace(lower(c.tag), '_', ' '), 'vip', 'VIP'))
+		END
+	) AS tipo_bono,
+
+  -- ⬇️ Marca la última visita (dentro del día) para poder resaltarla en la tabla
+  (ROW_NUMBER() OVER (ORDER BY v."visitedAt" DESC, v.id DESC) = 1) AS ultima
+
+FROM "Visit" v
+JOIN "Customer" c
+  ON c.id = v."customerId"
+
+-- Plan activo más reciente (si lo hay)
+LEFT JOIN LATERAL (
+	SELECT bp.name AS plan_name
+	FROM "Bond" b
+	JOIN "BondPlan" bp
+	ON bp.id = b."planId"
+	AND bp."businessId" = c."businessId"
+	AND bp."isActive"   = TRUE
+	WHERE b."customerId" = c.id
+	ORDER BY b."startedAt" DESC
+	LIMIT 1
+) bono ON TRUE
+
+JOIN bounds b
+  ON v."visitedAt" >= b.start_es AT TIME ZONE 'UTC'
+ AND v."visitedAt" <  b.end_es   AT TIME ZONE 'UTC'
+
+WHERE c."businessId" = {{ appsmith.store.businessId }}::uuid
+ORDER BY v."visitedAt" DESC, v.id DESC;

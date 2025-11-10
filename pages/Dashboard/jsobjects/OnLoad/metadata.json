@@ -6,6 +6,15 @@
     "pageId": "Dashboard",
     "pluginId": "js-plugin",
     "pluginType": "JS",
-    "variables": []
+    "variables": [
+      {
+        "name": "__visitsTicker",
+        "value": "null"
+      },
+      {
+        "name": "__visitsVisHandler",
+        "value": "null"
+      }
+    ]
   }
 }

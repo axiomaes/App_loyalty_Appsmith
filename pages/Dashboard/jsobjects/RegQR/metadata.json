@@ -1,0 +1,16 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_c00cf871-a4d4-4315-92f9-c0e25286653f",
+  "id": "Dashboard_RegQR",
+  "unpublishedCollection": {
+    "name": "RegQR",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "_timer",
+        "value": "null"
+      }
+    ]
+  }
+}

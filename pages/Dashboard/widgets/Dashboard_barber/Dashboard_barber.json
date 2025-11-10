@@ -5,12 +5,12 @@
   "borderColor": "#E0DEDE",
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
   "borderWidth": 1,
-  "bottomRow": 117,
+  "bottomRow": 58,
   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
   "children": [
     {
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      "bottomRow": 1020,
+      "bottomRow": 1000,
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "canExtend": true,
       "detachFromLayout": true,
@@ -102,7 +102,7 @@
     },
     {
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      "bottomRow": 1020,
+      "bottomRow": 430,
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "canExtend": false,
       "containerStyle": "none",
@@ -188,7 +188,7 @@
   "mobileRightColumn": 41,
   "mobileTopRow": 113,
   "needsErrorInfo": false,
-  "originalBottomRow": 117,
+  "originalBottomRow": 60,
   "originalTopRow": 11,
   "parentColumnSpace": 20.25,
   "parentId": "0",
@@ -218,7 +218,7 @@
     "tabfea1l3gnwl": {
       "id": "tabfea1l3gnwl",
       "index": 2,
-      "isVisible": false,
+      "isVisible": true,
       "label": "QR",
       "widgetId": "d3vxx11tgs"
     }
