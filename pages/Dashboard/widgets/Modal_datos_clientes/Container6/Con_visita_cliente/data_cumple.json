@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 15,
+  "bottomRow": 19,
   "dynamicBindingPathList": [
     {
       "key": "truncateButtonColor"
@@ -51,7 +51,7 @@
   "text": "{{ q_cliente_detalle.data?.[0]?.birthday ? Lang.formatDate(q_cliente_detalle.data[0].birthday) : \"—\" }}\n",
   "textAlign": "LEFT",
   "textColor": "#18181b",
-  "topRow": 11,
+  "topRow": 14,
   "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
   "type": "TEXT_WIDGET",
   "version": 1,

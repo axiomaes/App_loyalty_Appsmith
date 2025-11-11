@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 78,
+  "bottomRow": 79,
   "dynamicBindingPathList": [
     {
       "key": "truncateButtonColor"
@@ -18,7 +18,7 @@
   "isLoading": false,
   "isVisible": true,
   "key": "w8njx3ku9q",
-  "leftColumn": 25,
+  "leftColumn": 11,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
   "minWidth": 450,
@@ -27,7 +27,7 @@
   "mobileRightColumn": 52,
   "mobileTopRow": 68,
   "needsErrorInfo": false,
-  "originalBottomRow": 78,
+  "originalBottomRow": 79,
   "originalTopRow": 74,
   "overflow": "NONE",
   "parentColumnSpace": 20.25,
@@ -35,7 +35,7 @@
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 41,
+  "rightColumn": 48,
   "shouldTruncate": false,
   "text": "Desarrollado por Axioma - Creativa",
   "textAlign": "CENTER",

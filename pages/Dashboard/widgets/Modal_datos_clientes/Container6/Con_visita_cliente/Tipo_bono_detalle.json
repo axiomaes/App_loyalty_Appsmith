@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 10,
+  "bottomRow": 12,
   "dynamicBindingPathList": [
     {
       "key": "truncateButtonColor"
@@ -51,7 +51,7 @@
   "text": "{{\n  (() => {\n    // 1️⃣ Trae el valor desde la query o deja vacío\n    const raw = q_cliente_detalle.data?.[0]?.tag || \"\";\n    if (!raw) return \"—\";\n\n    // 2️⃣ Normaliza (elimina espacios y pone mayúsculas)\n    const t = raw.trim().toUpperCase().replace(/\\s+/g, \"_\");\n\n    // 3️⃣ Mapeo de equivalencias\n    const map = {\n      BONO_FAMILIA: \"Bono Familia\",\n      BONO_VIP_A: \"Bono VIP A\",\n      BONO_VIP_B: \"Bono VIP B\",\n      BONO_VIP_C: \"Bono VIP C\",\n      BONO_TARJETA: \"Bono Tarjeta\",\n      VIP: \"VIP\",\n      FRIEND: \"Amigo\",\n      NEW: \"Nuevo\",\n      ESPORADICO: \"Esporádico\",\n      NONE: \"—\",\n    };\n\n    // 4️⃣ Devuelve la versión amigable\n    return map[t] || raw;\n  })()\n}}\n",
   "textAlign": "LEFT",
   "textColor": "#18181b",
-  "topRow": 6,
+  "topRow": 7,
   "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
   "type": "TEXT_WIDGET",
   "version": 1,

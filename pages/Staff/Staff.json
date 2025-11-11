@@ -1,24 +1,23 @@
 {
-  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_56d5756e-8a09-4195-ae68-e16c51240a9f",
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_0f453e81-f834-498f-8c02-ce24658a21b8",
   "unpublishedPage": {
-    "isHidden": false,
+    "isHidden": true,
     "layouts": [
       {
         "dsl": {
           "backgroundColor": "none",
-          "bottomRow": 790,
+          "bottomRow": 500,
           "canExtend": true,
           "containerStyle": "none",
           "detachFromLayout": true,
           "dynamicBindingPathList": [],
-          "dynamicTriggerPathList": [],
           "leftColumn": 0,
-          "minHeight": 1292,
+          "minHeight": 800,
           "parentColumnSpace": 1,
           "parentRowSpace": 1,
-          "rightColumn": 4896,
+          "rightColumn": 1224,
           "snapColumns": 64,
-          "snapRows": 124,
+          "snapRows": 78,
           "topRow": 0,
           "type": "CANVAS_WIDGET",
           "version": 94,
@@ -27,7 +26,7 @@
         }
       }
     ],
-    "name": "Login",
-    "slug": "login"
+    "name": "Staff",
+    "slug": "staff"
   }
 }

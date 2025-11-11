@@ -29,7 +29,7 @@
     }
   ],
   "isDefaultClickDisabled": true,
-  "isDisabled": "{{\n  !(\n    // 1) Email válido (sin espacios)\n    /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test((InputEmailCambio.text || '').trim())\n    // 2) Contraseña actual no vacía\n    && (InputPassActual.text || '').length >= 1\n    // 3) Nueva contraseña con mínimo 8 caracteres (en ambos campos)\n    && (InputPassNueva.text || '').length >= 8\n    && (InputPassNueva2.text || '').length >= 8\n    // 4) Las nuevas coinciden\n    && (InputPassNueva.text === InputPassNueva2.text)\n    // 5) La nueva es distinta a la actual\n    && (InputPassNueva.text !== InputPassActual.text)\n  )\n}}\n",
+  "isDisabled": "{{\n  !(\n    // 1) Email válido (sin espacios)\n    /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test((InputEmail.text || '').trim())\n    // 2) Contraseña actual no vacía\n    && (InputPassActual.text || '').length >= 1\n    // 3) Nueva contraseña con mínimo 8 caracteres (en ambos campos)\n    && (InputPassNueva.text || '').length >= 8\n    && (InputPassNueva2.text || '').length >= 8\n    // 4) Las nuevas coinciden\n    && (InputPassNueva.text === InputPassNueva2.text)\n    // 5) La nueva es distinta a la actual\n    && (InputPassNueva.text !== InputPassActual.text)\n  )\n}}\n",
   "isLoading": false,
   "isVisible": true,
   "key": "tjafdjergi",
