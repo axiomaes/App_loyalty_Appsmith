@@ -14,9 +14,14 @@
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "fontSize"
+    }
+  ],
   "dynamicTriggerPathList": [],
   "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
-  "fontSize": "1rem",
+  "fontSize": "0.675rem",
   "fontStyle": "BOLD",
   "isLoading": false,
   "isVisible": true,
@@ -30,7 +35,7 @@
   "mobileRightColumn": 19,
   "mobileTopRow": 19,
   "needsErrorInfo": false,
-  "originalBottomRow": 4,
+  "originalBottomRow": 6,
   "originalTopRow": 0,
   "overflow": "NONE",
   "parentColumnSpace": 18.6905517578125,
@@ -38,7 +43,7 @@
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 56,
+  "rightColumn": 63,
   "shouldTruncate": false,
   "text": "Nuevos Clientes",
   "textAlign": "CENTER",

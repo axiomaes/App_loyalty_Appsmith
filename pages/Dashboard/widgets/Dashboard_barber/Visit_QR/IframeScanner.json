@@ -1,0 +1,52 @@
+{
+  "animateLoading": true,
+  "borderOpacity": 100,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "borderWidth": 1,
+  "bottomRow": 34,
+  "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+  "dynamicBindingPathList": [
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "boxShadow"
+    }
+  ],
+  "dynamicPropertyPathList": [
+    {
+      "key": "onMessageReceived"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onMessageReceived"
+    }
+  ],
+  "flexVerticalAlignment": "start",
+  "isLoading": false,
+  "isVisible": true,
+  "key": "n4hgjpsrxr",
+  "leftColumn": 2,
+  "mobileBottomRow": 35,
+  "mobileLeftColumn": 13,
+  "mobileRightColumn": 37,
+  "mobileTopRow": 3,
+  "needsErrorInfo": false,
+  "onMessageReceived": "{{\n  try {\n    const msg = event.data || {};\n    if (msg.type !== \"QR_DETECTED\") return;\n    const code = (msg.payload?.text || \"\").trim();\n    if (!code) return;\n\n    // 1) Guardar último QR (debug/UX)\n    storeValue(\"lastQR\", code);\n\n    // 2) Resolver cliente por QR y registrar visita\n    //    AJUSTA nombres de queries/JS según los tuyos\n    //    - q_get_customer_by_token: retorna { id, name, phone, is_vip, plan_name, tag, visits_count, first_half_issued }\n    //    - q_add_visit: inserta visita para customerId\n    //    - q_visitas_hoy: refresca la tabla\n    //    - q_progress: trae progreso para la tarjeta\n\n    JS_StaffFlow.onQr(code);\n  } catch (e) {\n    showAlert(\"Error procesando QR\", \"error\");\n    console.error(e);\n  }\n}}\n",
+  "originalBottomRow": 105,
+  "originalTopRow": 73,
+  "parentColumnSpace": 5.99658203125,
+  "parentId": "7krvft3u8n",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 64,
+  "source": "",
+  "srcDoc": "<!doctype html>\n<meta charset=\"utf-8\" />\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\" />\n<title>Scanner</title>\n<style>\n  :root { color-scheme: light dark; }\n  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial}\n  .wrap{padding:12px}\n  #reader{width:100%;max-width:560px;margin:0 auto;border-radius:12px;overflow:hidden}\n  .row{display:flex;gap:8px;justify-content:center;margin:10px 0}\n  button{padding:10px 14px;border:0;border-radius:10px;background:#4f46e5;color:#fff;font-weight:600}\n  #status{font-size:14px;opacity:.7;text-align:center;margin-top:6px}\n</style>\n\n<div class=\"wrap\">\n  <div class=\"row\"><button id=\"btn\">Iniciar cámara</button></div>\n  <div id=\"reader\"></div>\n  <div id=\"status\">Listo para escanear…</div>\n</div>\n\n<script src=\"https://unpkg.com/html5-qrcode@2.3.9/minified/html5-qrcode.min.js\"></script>\n<script>\n  let running = false, qr = null, lastAt = 0;\n\n  function postQR(text){\n    // Enviamos a Appsmith (padre)\n    parent.postMessage({ type: \"QR_DETECTED\", payload: { text } }, \"*\");\n  }\n\n  async function start(){\n    if (running) return;\n    const el = document.getElementById('reader');\n    qr = new Html5Qrcode(el.id, /* verbose */ false);\n    const cams = await Html5Qrcode.getCameras();\n    if (!cams.length) throw new Error(\"Sin cámaras\");\n    const back = cams.find(c=>/back|rear|trás/i.test(c.label))?.id || cams[0].id;\n    await qr.start(\n      back,\n      { fps: 12, qrbox: 240 },\n      (txt)=>{\n        const now = Date.now();\n        // anti-repeticiones: ignora lecturas en <1200ms\n        if (now - lastAt < 1200) return;\n        lastAt = now;\n        postQR((txt||\"\").trim());\n        document.getElementById('status').textContent = \"Código leído\";\n      },\n      (err)=>{}\n    );\n    running = true;\n    document.getElementById('btn').textContent = \"Parar cámara\";\n    document.getElementById('status').textContent = \"Escaneando…\";\n  }\n\n  async function stop(){\n    if (!running) return;\n    await qr.stop(); await qr.clear();\n    running = false; qr = null;\n    document.getElementById('btn').textContent = \"Iniciar cámara\";\n    document.getElementById('status').textContent = \"Cámara detenida\";\n  }\n\n  document.getElementById('btn').addEventListener('click', ()=> running ? stop() : start());\n</script>\n",
+  "topRow": 2,
+  "type": "IFRAME_WIDGET",
+  "version": 1,
+  "widgetId": "h7j0f8660k",
+  "widgetName": "IframeScanner"
+}
