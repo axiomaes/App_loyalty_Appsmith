@@ -55,6 +55,7 @@
   ],
   "columnUpdatedAt": 1762082452641,
   "columnWidthMap": {
+    "customColumn1": 108,
     "email": 140,
     "name": 132,
     "phone": 101,

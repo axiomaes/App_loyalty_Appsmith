@@ -3,7 +3,7 @@
   "animateLoading": true,
   "autoFocus": false,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 14,
+  "bottomRow": 13,
   "boxShadow": "none",
   "defaultText": "",
   "dynamicBindingPathList": [
@@ -14,7 +14,12 @@
       "key": "borderRadius"
     }
   ],
-  "dynamicHeight": "FIXED",
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "labelTextSize"
+    }
+  ],
   "dynamicTriggerPathList": [],
   "iconAlign": "left",
   "inputType": "TEXT",
@@ -27,7 +32,7 @@
   "labelAlignment": "left",
   "labelPosition": "Top",
   "labelStyle": "",
-  "labelTextSize": "0.875rem",
+  "labelTextSize": "0.575rem",
   "labelWidth": 5,
   "leftColumn": 2,
   "maxDynamicHeight": 9000,
@@ -38,13 +43,16 @@
   "mobileRightColumn": 22,
   "mobileTopRow": 7,
   "needsErrorInfo": false,
+  "originalBottomRow": 14,
+  "originalTopRow": 7,
   "parentColumnSpace": 9.4375,
   "parentId": "bk2jsvo9si",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "resetOnSubmit": true,
   "responsiveBehavior": "fill",
-  "rightColumn": 28,
+  "rightColumn": 47,
+  "shouldScrollContents": true,
   "showStepArrows": false,
   "topRow": 7,
   "type": "INPUT_WIDGET_V2",

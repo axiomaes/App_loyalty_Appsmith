@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 20,
+  "bottomRow": 19,
   "dynamicBindingPathList": [
     {
       "key": "truncateButtonColor"
@@ -14,14 +14,19 @@
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "fontSize"
+    }
+  ],
   "dynamicTriggerPathList": [],
   "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
-  "fontSize": "1rem",
+  "fontSize": "0.575rem",
   "fontStyle": "BOLD",
   "isLoading": false,
   "isVisible": true,
   "key": "70k8ax0x40",
-  "leftColumn": 1,
+  "leftColumn": 0,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
   "minWidth": 450,
@@ -30,20 +35,20 @@
   "mobileRightColumn": 42,
   "mobileTopRow": 17,
   "needsErrorInfo": false,
-  "originalBottomRow": 15,
-  "originalTopRow": 11,
+  "originalBottomRow": 24,
+  "originalTopRow": 17,
   "overflow": "NONE",
   "parentColumnSpace": 7.16644287109375,
   "parentId": "6sxqqdiu8e",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 14,
+  "rightColumn": 22,
   "shouldTruncate": false,
   "text": "CUMPLEAÑOS",
   "textAlign": "LEFT",
   "textColor": "#3f3f46",
-  "topRow": 13,
+  "topRow": 15,
   "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
   "type": "TEXT_WIDGET",
   "version": 1,

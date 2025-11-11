@@ -50,7 +50,8 @@
   "columnWidthMap": {
     "amount_eur": 102,
     "paid_date": 84,
-    "period": 105
+    "period": 105,
+    "plan_name": 127
   },
   "customIsLoading": false,
   "customIsLoadingValue": "",
@@ -555,7 +556,7 @@
   },
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 63,
+  "rightColumn": 64,
   "searchKey": "",
   "tableData": "{{q_pagos_listado.data}}",
   "textSize": "0.675rem",

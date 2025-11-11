@@ -3,7 +3,7 @@
   "animateLoading": true,
   "autoFocus": false,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 21,
+  "bottomRow": 29,
   "boxShadow": "none",
   "defaultText": "{{ appsmith.store.editingCustomer?.email || '' }}\n",
   "dynamicBindingPathList": [
@@ -17,7 +17,7 @@
       "key": "defaultText"
     }
   ],
-  "dynamicHeight": "FIXED",
+  "dynamicHeight": "AUTO_HEIGHT",
   "dynamicPropertyPathList": [
     {
       "key": "labelTextSize"
@@ -37,7 +37,7 @@
   "labelStyle": "",
   "labelTextSize": "0.675rem",
   "labelWidth": 5,
-  "leftColumn": 1,
+  "leftColumn": 2,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
   "minWidth": 450,
@@ -46,16 +46,19 @@
   "mobileRightColumn": 53,
   "mobileTopRow": 7,
   "needsErrorInfo": false,
+  "originalBottomRow": 29,
+  "originalTopRow": 22,
   "parentColumnSpace": 8.8125,
   "parentId": "9xdfg529qx",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "resetOnSubmit": true,
   "responsiveBehavior": "fill",
-  "rightColumn": 31,
+  "rightColumn": 32,
   "shouldAllowAutofill": true,
+  "shouldScrollContents": true,
   "showStepArrows": false,
-  "topRow": 14,
+  "topRow": 22,
   "type": "INPUT_WIDGET_V2",
   "version": 2,
   "widgetId": "gima06kcox",

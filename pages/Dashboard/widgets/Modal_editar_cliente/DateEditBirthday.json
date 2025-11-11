@@ -19,7 +19,7 @@
       "key": "defaultDate"
     }
   ],
-  "dynamicHeight": "FIXED",
+  "dynamicHeight": "AUTO_HEIGHT",
   "dynamicPropertyPathList": [
     {
       "key": "defaultDate"
@@ -48,13 +48,16 @@
   "mobileRightColumn": 56,
   "mobileTopRow": 16,
   "needsErrorInfo": false,
+  "originalBottomRow": 20,
+  "originalTopRow": 13,
   "parentColumnSpace": 8.8125,
   "parentId": "9xdfg529qx",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 55,
+  "rightColumn": 62,
   "shortcuts": false,
+  "shouldScrollContents": true,
   "timePrecision": "minute",
   "topRow": 13,
   "type": "DATE_PICKER_WIDGET2",

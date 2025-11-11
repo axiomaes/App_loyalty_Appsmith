@@ -3,7 +3,7 @@
   "animateLoading": true,
   "autoFocus": false,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 23,
+  "bottomRow": 27,
   "boxShadow": "none",
   "defaultText": "",
   "dynamicBindingPathList": [
@@ -14,7 +14,12 @@
       "key": "borderRadius"
     }
   ],
-  "dynamicHeight": "FIXED",
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "labelTextSize"
+    }
+  ],
   "dynamicTriggerPathList": [],
   "iconAlign": "left",
   "inputType": "EMAIL",
@@ -27,7 +32,7 @@
   "labelAlignment": "left",
   "labelPosition": "Top",
   "labelStyle": "",
-  "labelTextSize": "0.875rem",
+  "labelTextSize": "0.575rem",
   "labelWidth": 5,
   "leftColumn": 2,
   "maxDynamicHeight": 9000,
@@ -38,16 +43,19 @@
   "mobileRightColumn": 23,
   "mobileTopRow": 18,
   "needsErrorInfo": false,
+  "originalBottomRow": 27,
+  "originalTopRow": 21,
   "parentColumnSpace": 9.4375,
   "parentId": "bk2jsvo9si",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "resetOnSubmit": true,
   "responsiveBehavior": "fill",
-  "rightColumn": 41,
+  "rightColumn": 49,
   "shouldAllowAutofill": true,
+  "shouldScrollContents": true,
   "showStepArrows": false,
-  "topRow": 16,
+  "topRow": 21,
   "type": "INPUT_WIDGET_V2",
   "version": 2,
   "widgetId": "mcz6ou9dlu",

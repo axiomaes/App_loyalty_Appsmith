@@ -20,6 +20,9 @@
   "dynamicPropertyPathList": [
     {
       "key": "sourceData"
+    },
+    {
+      "key": "labelTextSize"
     }
   ],
   "dynamicTriggerPathList": [],
@@ -32,9 +35,9 @@
   "labelAlignment": "left",
   "labelPosition": "Top",
   "labelText": "Tipo Bono",
-  "labelTextSize": "0.875rem",
+  "labelTextSize": "0.575rem",
   "labelWidth": 5,
-  "leftColumn": 35,
+  "leftColumn": 33,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
   "minWidth": 450,
@@ -45,13 +48,15 @@
   "needsErrorInfo": false,
   "optionLabel": "name",
   "optionValue": "code",
+  "originalBottomRow": 33,
+  "originalTopRow": 26,
   "parentColumnSpace": 8.8125,
   "parentId": "9xdfg529qx",
   "parentRowSpace": 10,
   "placeholderText": "Select option",
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 55,
+  "rightColumn": 59,
   "serverSideFiltering": false,
   "sourceData": "[\n  {\n    \"name\": \"VIP\",\n    \"code\": \"VIP\"\n  },\n  {\n    \"name\": \"Bono Familia\",\n    \"code\": \"BONO_FAMILIA\"\n  },\n  {\n    \"name\": \"Esporádico\",\n    \"code\": \"ESPORADICO\"\n  },\n  {\n    \"name\": \"Bono VIP A\",\n    \"code\": \"BONO_VIP_A\"\n  },\n  {\n    \"name\": \"Bono VIP B\",\n    \"code\": \"BONO_VIP_B\"\n  },\n  {\n    \"name\": \"Bono VIP C\",\n    \"code\": \"BONO_VIP_C\"\n  },\n  {\n    \"name\": \"Bono Tarjeta\",\n    \"code\": \"BONO_TARJETA\"\n  }\n]",
   "topRow": 22,

@@ -17,9 +17,14 @@
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "fontSize"
+    }
+  ],
   "dynamicTriggerPathList": [],
   "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
-  "fontSize": "1.25rem",
+  "fontSize": "0.575rem",
   "fontStyle": "BOLD",
   "isLoading": false,
   "isVisible": true,
@@ -39,7 +44,7 @@
   "parentId": "gj4avnppws",
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 31,
+  "rightColumn": 36,
   "shouldTruncate": false,
   "text": "{{ (appsmith.store.clienteDetalle?.name || \"—\").toUpperCase() }}\n\n",
   "textAlign": "LEFT",

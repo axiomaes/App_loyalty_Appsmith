@@ -36,10 +36,6 @@
     {
       "id": "Landing",
       "isDefault": false
-    },
-    {
-      "id": "Staff",
-      "isDefault": false
     }
   ],
   "unpublishedAppLayout": {
