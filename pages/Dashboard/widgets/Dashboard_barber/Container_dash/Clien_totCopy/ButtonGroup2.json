@@ -51,7 +51,7 @@
       "id": "groupButton2",
       "index": 1,
       "isDisabled": false,
-      "isVisible": true,
+      "isVisible": false,
       "label": "Leer QR",
       "menuItems": {},
       "onClick": "{{ showModal(ModalScan.name); showAlert('Escanea el código...', 'info'); }}\n",
