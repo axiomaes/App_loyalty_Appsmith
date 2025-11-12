@@ -6,11 +6,45 @@ bounds AS (
 	date_trunc('day', now_es) + interval '1 day' AS end_es
 	FROM tz
 ),
+-- Contexto robusto: no depende de appsmith.store.session
 ctx AS (
 	SELECT
-	{{ appsmith.store?.session?.role || appsmith.store?.role || 'BARBER' }}::text AS role,
-	{{ appsmith.user.email || '' }}::text AS email
+	-- Rol: Auth.role() -> store.role -> 'BARBER'
+	(
+		{{ typeof Auth?.role === 'function' ? Auth.role() : '' }}
+		||
+		{{ appsmith.store?.role || '' }}
+	)::text
+	/* si todo vacío, default */ 
+	AS role_raw,
+
+	-- Email: store.userEmail -> Auth.email() -> appsmith.user.email -> ''
+	(
+		{{ appsmith.store?.userEmail || '' }}
+		||
+		{{ typeof Auth?.email === 'function' ? Auth.email() : '' }}
+		||
+		{{ appsmith.user?.email || '' }}
+	)::text AS email_raw
+),
+ctx_norm AS (
+	SELECT
+	CASE
+	WHEN trim(role_raw) IS NULL OR trim(role_raw) = '' THEN 'BARBER'
+	ELSE upper(trim(role_raw))
+	END AS role,
+	trim(email_raw) AS email
+	FROM ctx
+),
+biz AS (
+	SELECT
+	(
+		{{ appsmith.store?.businessId || '' }}
+		||
+		{{ typeof Auth?.businessId === 'function' ? Auth.businessId() : '' }}
+	)::uuid AS business_id
 )
+
 SELECT
   v.id,
   v."visitedAt" AT TIME ZONE 'Europe/Madrid' AS hora,
@@ -42,10 +76,9 @@ LEFT JOIN LATERAL (
 JOIN bounds b
   ON v."visitedAt" >= b.start_es AT TIME ZONE 'UTC'
  AND v."visitedAt" <  b.end_es   AT TIME ZONE 'UTC'
--- 🔐 VISIBILIDAD por rol
-WHERE c."businessId" = {{ appsmith.store.businessId }}::uuid
+WHERE c."businessId" = (SELECT business_id FROM biz)
   AND (
-		(SELECT role FROM ctx) IN ('ADMIN','OWNER','SUPERADMIN')
-		OR COALESCE(v."createdBy",'') = (SELECT email FROM ctx)
+		(SELECT role FROM ctx_norm) IN ('ADMIN','OWNER','SUPERADMIN')
+		OR COALESCE(v."createdBy",'') = (SELECT email FROM ctx_norm)
 	)
 ORDER BY v."visitedAt" DESC;
