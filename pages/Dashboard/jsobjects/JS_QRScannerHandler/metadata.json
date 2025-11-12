@@ -1,0 +1,16 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_b9a4dbe5-90a6-45f5-b80d-b3190a95cdc1",
+  "id": "Dashboard_JS_QRScannerHandler",
+  "unpublishedCollection": {
+    "name": "JS_QRScannerHandler",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "DEDUP_MS",
+        "value": "2500"
+      }
+    ]
+  }
+}

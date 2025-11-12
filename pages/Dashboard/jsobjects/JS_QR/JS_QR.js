@@ -67,6 +67,41 @@ export default {
 		return `${this.API_BASE}/${encodeURIComponent(cid)}/qr.png?size=${sz}`;
 	},
 
+	// --- NUEVO: extraer token desde URL o texto crudo ---
+	extractToken(text) {
+		if (!text) return "";
+		const t = String(text).trim();
+		if (!/[\/\s]/.test(t) && t.length >= 6 && t.length <= 64) return t;
+		try {
+			const url = new URL(t);
+			const path = (url.pathname || "").replace(/\/+$/, "");
+			const last = path.split("/").filter(Boolean).pop() || "";
+			return last;
+		} catch {
+			const noHash = t.split("#")[0];
+			const noQuery = noHash.split("?")[0];
+			const last = noQuery.split("/").filter(Boolean).pop() || "";
+			return last;
+		}
+	},
+
+	// --- NUEVO: orquesta una lectura de scanner/pistola ---
+	async fromScan(raw) {
+		const token = this.extractToken(raw);
+		if (!token) {
+			showAlert("QR inválido.", "warning");
+			return { ok: false, reason: "invalid_token" };
+		}
+		// Si tu VisitAdd.fromQr acepta token directamente, úsalo:
+		if (typeof VisitAdd?.fromQr === "function") {
+			return VisitAdd.fromQr(token);
+		}
+		// O si prefieres por UUID/cliente ID, aquí podrías resolver token->ID
+		showAlert("No hay handler para registrar con este QR.", "error");
+		return { ok: false, reason: "no_handler" };
+	},
+
+
 	/** URL de la landing pública en Appsmith (si la usas) */
 	pageUrl(id) {
 		const cid = this._normId(id);
