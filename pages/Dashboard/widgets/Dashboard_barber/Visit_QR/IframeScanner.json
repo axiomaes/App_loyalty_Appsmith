@@ -11,6 +11,9 @@
     },
     {
       "key": "boxShadow"
+    },
+    {
+      "key": "source"
     }
   ],
   "dynamicPropertyPathList": [
@@ -42,7 +45,7 @@
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
   "rightColumn": 64,
-  "source": "https://portal.axioma-creativa.es/scanner.html",
+  "source": "https://portal.axioma-creativa.es/scanner.html?_t={{ Date.now() }}\n",
   "srcDoc": "",
   "topRow": 2,
   "type": "IFRAME_WIDGET",
