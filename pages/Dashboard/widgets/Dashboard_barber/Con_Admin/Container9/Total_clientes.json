@@ -14,19 +14,15 @@
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
-  "dynamicPropertyPathList": [
-    {
-      "key": "isVisible"
-    }
-  ],
+  "dynamicPropertyPathList": [],
   "dynamicTriggerPathList": [],
   "fontFamily": "Poppins",
   "fontSize": "1rem",
   "fontStyle": "BOLD",
   "isLoading": false,
-  "isVisible": "",
+  "isVisible": true,
   "key": "fvu3b26fev",
-  "leftColumn": 30,
+  "leftColumn": 25,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
   "minWidth": 450,
@@ -43,7 +39,7 @@
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 52,
+  "rightColumn": 47,
   "shouldScrollContents": true,
   "shouldTruncate": false,
   "text": "{{ (q_kpi_total_clientes.data?.[0]?.total_clientes ?? 0).toLocaleString() }}\n",
