@@ -1,16 +1,12 @@
 {
-  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_1704a470-7bf2-4f7e-9a44-468c3458efb2",
-  "id": "Dashboard_OTPUtils.sha256",
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_eada5aa4-3b3a-4460-85c2-29022a39b1bd",
+  "id": "Dashboard_OTPUtils._crypto",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
     "actionConfiguration": {
       "encodeParamsToggle": true,
-      "jsArguments": [
-        {
-          "name": "str"
-        }
-      ],
+      "jsArguments": [],
       "paginationType": "NONE",
       "timeoutInMillisecond": 10000
     },
@@ -26,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "OTPUtils.sha256",
-    "name": "sha256",
+    "fullyQualifiedName": "OTPUtils._crypto",
+    "name": "_crypto",
     "pageId": "Dashboard",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

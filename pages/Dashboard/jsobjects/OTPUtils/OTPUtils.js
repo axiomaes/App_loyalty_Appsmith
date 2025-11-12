@@ -1,36 +1,71 @@
 export default {
-	// ---- SHA-256 compatible con todos los entornos ----
+	// ===== Helpers de entorno (browser) =====
+	_crypto() {
+		try { return globalThis && globalThis.crypto ? globalThis.crypto : null; }
+		catch (_) { return null; }
+	},
+	_hasSubtle() {
+		const c = this._crypto();
+		return !!(c && typeof c.subtle?.digest === "function");
+	},
+
+	// ---- SHA-256 compatible con Appsmith (WebCrypto + polyfill TextEncoder) ----
 	async sha256(str) {
-		try {
-			if (typeof window !== "undefined" && window.crypto?.subtle) {
-				const enc = new TextEncoder();
-				const data = enc.encode(String(str));
-				const buf = await window.crypto.subtle.digest("SHA-256", data);
-				return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-			}
-			// Fallback Node (no debería usarse en Appsmith, pero lo dejamos por portabilidad)
-			if (typeof require !== "undefined") {
-				const crypto = require("crypto");
-				return crypto.createHash("sha256").update(String(str)).digest("hex");
-			}
-			throw new Error("SHA-256 no disponible en este entorno");
-		} catch (e) {
-			console.error("Error generando SHA-256:", e);
-			throw e;
+		if (!this._hasSubtle()) {
+			throw new Error("SHA-256 no disponible: WebCrypto/SubtleCrypto no está expuesto en este entorno.");
 		}
+
+		// Polyfill seguro para TextEncoder si no existe (UTF-8)
+		const TEnc = globalThis.TextEncoder || (function () {
+			return class {
+				encode(s) {
+					// Convierte string a UTF-8 manualmente
+					s = String(s);
+					const out = [];
+					for (let i = 0; i < s.length; i++) {
+						let code = s.charCodeAt(i);
+						if (code < 0x80) {
+							out.push(code);
+						} else if (code < 0x800) {
+							out.push(0xc0 | (code >> 6));
+							out.push(0x80 | (code & 0x3f));
+						} else if (code < 0xd800 || code >= 0xe000) {
+							out.push(0xe0 | (code >> 12));
+							out.push(0x80 | ((code >> 6) & 0x3f));
+							out.push(0x80 | (code & 0x3f));
+						} else {
+							// surrogate pair
+							i++;
+							code = 0x10000 + (((code & 0x3ff) << 10) | (s.charCodeAt(i) & 0x3ff));
+							out.push(0xf0 | (code >> 18));
+							out.push(0x80 | ((code >> 12) & 0x3f));
+							out.push(0x80 | ((code >> 6) & 0x3f));
+							out.push(0x80 | (code & 0x3f));
+						}
+					}
+					return new Uint8Array(out);
+				}
+			};
+		})();
+
+
+		const enc = new TEnc();
+		const data = enc.encode(String(str));
+		const buf = await this._crypto().subtle.digest("SHA-256", data);
+		return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 	},
 
 	// ---- Generador de código: usa CSPRNG si existe ----
 	genCode(len = 6) {
 		const L = Math.max(4, Math.min(10, Number(len) || 6)); // entre 4 y 10 dígitos
-		if (typeof window !== "undefined" && window.crypto?.getRandomValues) {
+		const c = this._crypto();
+		if (c && typeof c.getRandomValues === "function") {
 			const bytes = new Uint8Array(L);
-			window.crypto.getRandomValues(bytes);
-			// Cada byte → 0..255 -> 0..9
+			c.getRandomValues(bytes);
 			const digits = Array.from(bytes, b => (b % 10).toString()).join("");
 			return digits.slice(0, L).padStart(L, "0");
 		}
-		// Fallback
+		// Fallback no críptico (solo si no hay WebCrypto)
 		return Math.floor(Math.random() * 10 ** L).toString().padStart(L, "0");
 	},
 
@@ -38,7 +73,6 @@ export default {
 	_digits(phone) {
 		return String(phone || "").replace(/\D/g, "");
 	},
-
 	_clampTtl(ttlMin) {
 		const n = Math.floor(Number(ttlMin || 10));
 		return Math.max(1, Math.min(30, n)); // entre 1 y 30 min

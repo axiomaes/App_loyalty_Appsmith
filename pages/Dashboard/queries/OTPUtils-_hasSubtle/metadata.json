@@ -1,16 +1,12 @@
 {
-  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_995a73b3-5edc-4220-8f8d-781bf5b02494",
-  "id": "Dashboard_OTPUtils._digits",
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_57d189ea-4ad5-45a7-8f8a-4127a7cc747e",
+  "id": "Dashboard_OTPUtils._hasSubtle",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
     "actionConfiguration": {
       "encodeParamsToggle": true,
-      "jsArguments": [
-        {
-          "name": "phone"
-        }
-      ],
+      "jsArguments": [],
       "paginationType": "NONE",
       "timeoutInMillisecond": 10000
     },
@@ -26,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "OTPUtils._digits",
-    "name": "_digits",
+    "fullyQualifiedName": "OTPUtils._hasSubtle",
+    "name": "_hasSubtle",
     "pageId": "Dashboard",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

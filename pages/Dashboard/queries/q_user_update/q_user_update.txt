@@ -1,0 +1,47 @@
+WITH v AS (
+	SELECT
+	{{ appsmith.store.businessId }}::uuid AS bid,
+	{{ this.params.id }}::uuid            AS uid,
+	upper(trim(COALESCE({{ this.params.role }}, '')))     AS role_raw,
+	nullif(trim({{ this.params.first_name || '' }}), '')   AS first_name,
+	nullif(trim({{ this.params.last_name  || '' }}), '')   AS last_name,
+	nullif(trim({{ this.params.phone      || '' }}), '')   AS phone,
+	(CASE WHEN {{ this.params.is_active }} IS NULL
+	 THEN NULL
+	 ELSE ({{ this.params.is_active }}::text)::boolean
+	 END) AS is_active,
+	lower(trim(
+		COALESCE({{ this.params.updated_by_email }},
+						 {{ appsmith.store.userEmail }},
+						 {{ appsmith.user.email }},
+						 '')
+	)) AS updated_by_email
+),
+upd_by AS (
+	SELECT u.id AS updated_by_id
+	FROM "User" u, v
+	WHERE u."businessId" = v.bid
+	AND lower(u.email) = v.updated_by_email
+	LIMIT 1
+),
+to_update AS (
+	SELECT u.id
+	FROM "User" u, v
+	WHERE u.id = v.uid AND u."businessId" = v.bid
+)
+UPDATE "User" u
+SET
+  role  = COALESCE(NULLIF(v.role_raw, ''), u.role),
+  "firstName" = COALESCE(v.first_name, u."firstName"),
+  "lastName"  = COALESCE(v.last_name,  u."lastName"),
+  "phone"     = COALESCE(v.phone,      u."phone"),
+  "isActive"  = COALESCE(v.is_active,  u."isActive"),
+  "updatedBy"      = upd_by.updated_by_id,
+  "updatedByEmail" = v.updated_by_email
+FROM v
+LEFT JOIN upd_by ON TRUE
+JOIN to_update tu ON tu.id = u.id
+RETURNING
+  u.id, u.email, u.role, u."isActive",
+  u."firstName", u."lastName", u."phone",
+  u."updatedAt", u."updatedBy", u."updatedByEmail";

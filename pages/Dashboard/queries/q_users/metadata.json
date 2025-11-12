@@ -5,7 +5,7 @@
   "pluginType": "DB",
   "unpublishedAction": {
     "actionConfiguration": {
-      "body": "SELECT\n  u.id,\n  u.email,\n  u.role\nFROM \"User\" u\nWHERE\n  u.\"businessId\" = {{ appsmith.store.businessId }}\n  AND u.email NOT ILIKE '%@axioma-creativa.es'\nORDER BY u.role, u.email;\n",
+      "body": "WITH v AS (\n  SELECT {{ appsmith.store.businessId }}::uuid AS bid\n)\nSELECT\n  u.id,\n  u.email,\n  COALESCE(u.\"firstName\", '') AS first_name,\n  COALESCE(u.\"lastName\", '')  AS last_name,\n  COALESCE(u.\"phone\", '')     AS phone,\n  u.role,\n  u.\"isActive\"                AS activo,\n  u.\"createdAt\" AT TIME ZONE 'Europe/Madrid' AS creado,\n  u.\"updatedAt\" AT TIME ZONE 'Europe/Madrid' AS actualizado,\n  COALESCE(u.\"createdByEmail\", '') AS created_by_email,\n  COALESCE(u.\"updatedByEmail\", '') AS updated_by_email\nFROM \"User\" u\nJOIN v ON u.\"businessId\" = v.bid\nWHERE u.email NOT ILIKE '%@axioma-creativa.es'\nORDER BY\n  CASE \n    WHEN u.role = 'SUPERADMIN' THEN 1\n    WHEN u.role = 'OWNER'      THEN 2\n    WHEN u.role = 'ADMIN'      THEN 3\n    WHEN u.role = 'STAFF'      THEN 4\n    WHEN u.role = 'BARBER'     THEN 5\n    ELSE 6\n  END,\n  lower(u.email);\n",
       "encodeParamsToggle": true,
       "paginationType": "NONE",
       "pluginSpecifiedTemplates": [

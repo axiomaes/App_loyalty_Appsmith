@@ -49,6 +49,9 @@
     },
     {
       "key": "groupButtons.groupButton42z77z8qof.onClick"
+    },
+    {
+      "key": "groupButtons.groupButtonaztn5ggikm.onClick"
     }
   ],
   "groupButtons": {
@@ -83,6 +86,22 @@
       "placement": "CENTER",
       "variant": "filled",
       "widgetId": "dd28buo0z8"
+    },
+    "groupButtonaztn5ggikm": {
+      "buttonColor": "#93c5fd",
+      "buttonType": "SIMPLE",
+      "id": "groupButtonaztn5ggikm",
+      "index": 3,
+      "isDisabled": false,
+      "isSeparator": false,
+      "isVisible": true,
+      "itemType": "BUTTON",
+      "label": "QR",
+      "menuItems": {},
+      "onClick": "{{showModal(Modal_QR.name);}}",
+      "placement": "CENTER",
+      "variant": "filled",
+      "widgetId": "2mgurd0pne"
     },
     "groupButtonlrj6oqet34": {
       "buttonColor": "#86efac",

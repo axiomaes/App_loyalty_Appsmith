@@ -1,9 +1,28 @@
+WITH v AS (
+  SELECT {{ appsmith.store.businessId }}::uuid AS bid
+)
 SELECT
   u.id,
   u.email,
-  u.role
+  COALESCE(u."firstName", '') AS first_name,
+  COALESCE(u."lastName", '')  AS last_name,
+  COALESCE(u."phone", '')     AS phone,
+  u.role,
+  u."isActive"                AS activo,
+  u."createdAt" AT TIME ZONE 'Europe/Madrid' AS creado,
+  u."updatedAt" AT TIME ZONE 'Europe/Madrid' AS actualizado,
+  COALESCE(u."createdByEmail", '') AS created_by_email,
+  COALESCE(u."updatedByEmail", '') AS updated_by_email
 FROM "User" u
-WHERE
-  u."businessId" = {{ appsmith.store.businessId }}
-  AND u.email NOT ILIKE '%@axioma-creativa.es'
-ORDER BY u.role, u.email;
+JOIN v ON u."businessId" = v.bid
+WHERE u.email NOT ILIKE '%@axioma-creativa.es'
+ORDER BY
+  CASE 
+    WHEN u.role = 'SUPERADMIN' THEN 1
+    WHEN u.role = 'OWNER'      THEN 2
+    WHEN u.role = 'ADMIN'      THEN 3
+    WHEN u.role = 'STAFF'      THEN 4
+    WHEN u.role = 'BARBER'     THEN 5
+    ELSE 6
+  END,
+  lower(u.email);
