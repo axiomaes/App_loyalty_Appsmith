@@ -32,7 +32,7 @@
   "mobileRightColumn": 47,
   "mobileTopRow": 18,
   "needsErrorInfo": false,
-  "onClick": "{{closeModal(mdlCreateUser.name);}}",
+  "onClick": "{{closeModal(Modal_CreateUser.name);}}",
   "parentId": "558zwkt6wc",
   "placement": "CENTER",
   "recaptchaType": "V3",

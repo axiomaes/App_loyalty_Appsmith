@@ -32,7 +32,7 @@
   "mobileRightColumn": 62,
   "mobileTopRow": 1,
   "needsErrorInfo": false,
-  "onClick": "{{showModal(mdlCreateUser.name);}}",
+  "onClick": "{{showModal(Modal_CreateUser.name);}}",
   "parentColumnSpace": 18.6905517578125,
   "parentId": "d5zjrdie03",
   "parentRowSpace": 10,

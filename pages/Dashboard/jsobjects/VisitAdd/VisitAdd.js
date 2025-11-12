@@ -28,7 +28,6 @@ export default {
 		return s;
 	},
 
-
 	// UUID / URLs / payloads -> customerId
 	parseCustomerIdFromQr(text) {
 		const s = this.cleanScan(text);
@@ -55,49 +54,48 @@ export default {
 
 	// ----- (Opcional) Resolver TOKEN -> customerId vía CustomerQrToken -----
 	async resolveCustomerIdByTokenMaybe(text) {
-  const raw = this.cleanScan(text);
-  if (!raw) return null;
+		const raw = this.cleanScan(text);
+		if (!raw) return null;
 
-  if (Utils.isUuid(raw)) return raw;
+		if (Utils.isUuid(raw)) return raw;
 
-  let token = null;
+		let token = null;
 
-  // ?token=XYZ
-  let m = raw.match(/[?&]token=([\w\-]+)/i);
-  if (m) token = m[1];
+		// ?token=XYZ
+		let m = raw.match(/[?&]token=([\w\-]+)/i);
+		if (m) token = m[1];
 
-  // /qr/XYZ
-  if (!token) {
-    m = raw.match(/\/qr\/([\w\-]+)/i);
-    if (m) token = m[1];
-  }
+		// /qr/XYZ
+		if (!token) {
+			m = raw.match(/\/qr\/([\w\-]+)/i);
+			if (m) token = m[1];
+		}
 
-  // /p/XYZ
-  if (!token) {
-    m = raw.match(/\/p\/([\w\-]+)/i);
-    if (m) token = m[1];
-  }
+		// /p/XYZ
+		if (!token) {
+			m = raw.match(/\/p\/([\w\-]+)/i);
+			if (m) token = m[1];
+		}
 
-  // **nuevo**: también acepta -p-XYZ por mapeo raro del lector
-  if (!token) {
-    m = raw.match(/[-\/]p[-\/]([\w\-]{6,})/i);
-    if (m) token = m[1];
-  }
+		// **nuevo**: también acepta -p-XYZ por mapeo raro del lector
+		if (!token) {
+			m = raw.match(/[-\/]p[-\/]([\w\-]{6,})/i);
+			if (m) token = m[1];
+		}
 
-  token = token || raw;
-  if (!token) return null;
+		token = token || raw;
+		if (!token) return null;
 
-  try {
-    const businessId = appsmith.store?.session?.businessId || appsmith.store?.businessId;
-    const r = await q_qr_token_resolve.run({ token, businessId });
-    const cid = r?.[0]?.customerid || r?.[0]?.customerId || null;
-    return Utils.isUuid(cid) ? cid : null;
-  } catch (e) {
-    console.warn("resolveCustomerIdByTokenMaybe error:", e);
-    return null;
-  }
-},
-
+		try {
+			const businessId = appsmith.store?.session?.businessId || appsmith.store?.businessId;
+			const r = await q_qr_token_resolve.run({ token, businessId });
+			const cid = r?.[0]?.customerid || r?.[0]?.customerId || null;
+			return Utils.isUuid(cid) ? cid : null;
+		} catch (e) {
+			console.warn("resolveCustomerIdByTokenMaybe error:", e);
+			return null;
+		}
+	},
 
 	// ----- Añadir visita manual (mantienes tu flujo actual) -----
 	async manual() {
@@ -121,6 +119,10 @@ export default {
 				customerId,
 				notes,
 				isAdminLike,
+				// 👇 trazabilidad (nuevo)
+				createdBy: appsmith.user?.email || "",
+				createdByRole: appsmith.store?.session?.role || appsmith.store?.role || "",
+				createdById: appsmith.store?.session?.userId || null,
 			});
 
 			const ok =
@@ -130,6 +132,11 @@ export default {
 			if (!ok) {
 				showAlert("No se pudo registrar: regla de 48 h activa.", "warning");
 				return;
+			}
+
+			// refresco opcional de "visitas de hoy"
+			if (typeof q_visitas_hoy?.run === "function") {
+				try { await q_visitas_hoy.run(); } catch (_) {}
 			}
 
 			await this._refreshIfSelected(customerId);
@@ -186,6 +193,10 @@ export default {
 				customerId: cid,
 				notes: "Visita por QR",
 				isAdminLike,
+				// 👇 trazabilidad (nuevo)
+				createdBy: appsmith.user?.email || "",
+				createdByRole: appsmith.store?.session?.role || appsmith.store?.role || "",
+				createdById: appsmith.store?.session?.userId || null,
 			});
 
 			const ok =
@@ -196,6 +207,11 @@ export default {
 				showAlert("No se pudo registrar: regla de 48 h activa.", "warning");
 				await storeValue("_lastScanOk", false);
 				return;
+			}
+
+			// refresco opcional de "visitas de hoy"
+			if (typeof q_visitas_hoy?.run === "function") {
+				try { await q_visitas_hoy.run(); } catch (_) {}
 			}
 
 			await this._refreshIfSelected(cid);

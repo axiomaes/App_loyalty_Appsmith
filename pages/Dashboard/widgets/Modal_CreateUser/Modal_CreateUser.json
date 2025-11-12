@@ -79,6 +79,6 @@
   "type": "MODAL_WIDGET",
   "version": 2,
   "widgetId": "ww6mm7besa",
-  "widgetName": "mdlCreateUser",
+  "widgetName": "Modal_CreateUser",
   "width": 564
 }

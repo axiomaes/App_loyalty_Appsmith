@@ -33,7 +33,7 @@
   "mobileRightColumn": 37,
   "mobileTopRow": 3,
   "needsErrorInfo": false,
-  "onMessageReceived": "{{\n  try {\n    const msg = event.data || {};\n    if (msg.type !== \"QR_DETECTED\") return;\n    const code = (msg.payload?.text || \"\").trim();\n    if (!code) return;\n\n    // 1) Guardar último QR (debug/UX)\n    storeValue(\"lastQR\", code);\n\n    // 2) Resolver cliente por QR y registrar visita\n    //    AJUSTA nombres de queries/JS según los tuyos\n    //    - q_get_customer_by_token: retorna { id, name, phone, is_vip, plan_name, tag, visits_count, first_half_issued }\n    //    - q_add_visit: inserta visita para customerId\n    //    - q_visitas_hoy: refresca la tabla\n    //    - q_progress: trae progreso para la tarjeta\n\n    JS_StaffFlow.onQr(code);\n  } catch (e) {\n    showAlert(\"Error procesando QR\", \"error\");\n    console.error(e);\n  }\n}}\n",
+  "onMessageReceived": "{{\n(() => {\n  // 1) Tomar el evento (Appsmith suele exponerlo como \"message\")\n  const ev = (typeof message !== \"undefined\") ? message : undefined;\n  const msg = ev && ev.data ? ev.data : {};\n\n  try {\n    // 2) Solo procesamos si viene del scanner con el tipo esperado\n    if (msg.type !== \"QR_DETECTED\") return;\n\n    const code = (msg.payload && msg.payload.text ? msg.payload.text : \"\").trim();\n    if (!code) return;\n\n    // 3) Guardar último QR (útil para debug/UX)\n    storeValue(\"lastQR\", code);\n\n    // 4) Disparar tu flujo de Staff\n    return JS_StaffFlow.onQr(code);\n  } catch (e) {\n    console.log(e?.message || e);\n    showAlert(\"Error procesando QR\", \"error\");\n  }\n})();\n}}\n",
   "originalBottomRow": 105,
   "originalTopRow": 73,
   "parentColumnSpace": 5.99658203125,

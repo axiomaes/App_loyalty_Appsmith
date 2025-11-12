@@ -38,9 +38,9 @@
     "telefono",
     "notas",
     "tipo_bono",
-    "ultima"
+    "creado_por"
   ],
-  "columnUpdatedAt": 1762779285126,
+  "columnUpdatedAt": 1762942007513,
   "columnWidthMap": {
     "cliente": 152,
     "hora": 101,
@@ -87,18 +87,12 @@
       "key": "primaryColumns.tipo_bono.computedValue"
     },
     {
-      "key": "primaryColumns.ultima.computedValue"
-    },
-    {
-      "key": "primaryColumns.ultima.cellBackground"
+      "key": "primaryColumns.creado_por.computedValue"
     }
   ],
   "dynamicPropertyPathList": [
     {
       "key": "tableData"
-    },
-    {
-      "key": "primaryColumns.ultima.cellBackground"
     },
     {
       "key": "textSize"
@@ -126,8 +120,8 @@
   "mobileRightColumn": 54,
   "mobileTopRow": 8,
   "needsErrorInfo": false,
-  "originalBottomRow": 111,
-  "originalTopRow": 83,
+  "originalBottomRow": 103,
+  "originalTopRow": 75,
   "parentColumnSpace": 17.78564453125,
   "parentId": "7krvft3u8n",
   "parentRowSpace": 10,
@@ -157,6 +151,40 @@
       "notation": "standard",
       "originalId": "cliente",
       "sticky": "",
+      "textSize": "0.5\n75rem",
+      "thousandSeparator": true,
+      "validation": {},
+      "verticalAlignment": "CENTER",
+      "width": 150
+    },
+    "creado_por": {
+      "alias": "creado_por",
+      "allowCellWrapping": false,
+      "allowSameOptionsInNewRow": true,
+      "cellBackground": "",
+      "columnType": "text",
+      "computedValue": "{{(() => { const tableData = Table_Visit_QR.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"creado_por\"])) : creado_por })()}}",
+      "currencyCode": "USD",
+      "decimals": 0,
+      "enableFilter": true,
+      "enableSort": true,
+      "fontStyle": "",
+      "horizontalAlignment": "LEFT",
+      "id": "creado_por",
+      "index": 5,
+      "isCellEditable": false,
+      "isCellVisible": true,
+      "isDerived": false,
+      "isDisabled": false,
+      "isDiscardVisible": true,
+      "isEditable": false,
+      "isSaveVisible": true,
+      "isVisible": true,
+      "label": "creado_por",
+      "notation": "standard",
+      "originalId": "creado_por",
+      "sticky": "",
+      "textColor": "",
       "textSize": "0.5\n75rem",
       "thousandSeparator": true,
       "validation": {},
@@ -313,38 +341,6 @@
       "label": "TIPO BONO",
       "notation": "standard",
       "originalId": "tipo_bono",
-      "sticky": "",
-      "textSize": "0.5\n75rem",
-      "thousandSeparator": true,
-      "validation": {},
-      "verticalAlignment": "CENTER",
-      "width": 150
-    },
-    "ultima": {
-      "alias": "ultima",
-      "allowCellWrapping": false,
-      "allowSameOptionsInNewRow": true,
-      "cellBackground": "{{(() => { const tableData = Table_Visit_QR.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => ( currentRow.ultima ? \"#d4ffd4\" : \"white\" )) :  currentRow.ultima ? \"#d4ffd4\" : \"white\"  })()}}",
-      "columnType": "checkbox",
-      "computedValue": "{{(() => { const tableData = Table_Visit_QR.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"ultima\"])) : ultima })()}}",
-      "currencyCode": "USD",
-      "decimals": 0,
-      "enableFilter": true,
-      "enableSort": true,
-      "horizontalAlignment": "LEFT",
-      "id": "ultima",
-      "index": 6,
-      "isCellEditable": false,
-      "isCellVisible": true,
-      "isDerived": false,
-      "isDisabled": false,
-      "isDiscardVisible": true,
-      "isEditable": false,
-      "isSaveVisible": true,
-      "isVisible": true,
-      "label": "Registro",
-      "notation": "standard",
-      "originalId": "ultima",
       "sticky": "",
       "textSize": "0.5\n75rem",
       "thousandSeparator": true,

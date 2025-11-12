@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_4bed961b-22f7-45c9-a581-96603b84cdd9",
-  "id": "Dashboard_SessionTools.clearUiState",
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_34b19ab8-d174-4a65-989b-3b62abc1d748",
+  "id": "Dashboard_SessionTools.businessId",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
@@ -22,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "SessionTools.clearUiState",
-    "name": "clearUiState",
+    "fullyQualifiedName": "SessionTools.businessId",
+    "name": "businessId",
     "pageId": "Dashboard",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

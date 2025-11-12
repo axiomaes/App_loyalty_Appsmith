@@ -1,38 +1,41 @@
 WITH input AS (
-  SELECT
-    {{ this.params.customerId }}::uuid AS customer_id,
-    NULLIF(TRIM({{ this.params.notes || '' }}::text), '') AS notes,
-    ({{ this.params.isAdminLike ? 'true' : 'false' }})::boolean AS is_admin_like,
-    now()::timestamp AS now_ts
+	SELECT
+	{{ this.params.customerId }}::uuid                                      AS customer_id,
+	NULLIF(TRIM({{ this.params.notes || '' }}::text), '')                   AS notes,
+	({{ this.params.isAdminLike ? 'true' : 'false' }})::boolean             AS is_admin_like,
+	now()::timestamp                                                         AS now_ts,
+	NULLIF({{ this.params.createdBy || appsmith.user.email || '' }}, '')    AS created_by,
+	NULLIF({{ this.params.createdByRole || appsmith.store?.session?.role || '' }}, '') AS created_by_role,
+	(CASE WHEN {{ this.params.createdById ? 'true' : 'false' }}
+	 THEN {{ this.params.createdById }}::uuid ELSE NULL END)           AS created_by_id
 ),
 
 ins AS (
-  INSERT INTO "Visit"(id, "customerId", "visitedAt", notes)
-  SELECT
-    uuid_generate_v4(),
-    i.customer_id,
-    i.now_ts,
-    i.notes
-  FROM input i
-  WHERE
-    -- Admin puede siempre
-    i.is_admin_like
-    -- Si no es admin: sólo si no hay visitas en las últimas 48h
-    OR NOT EXISTS (
-      SELECT 1
-      FROM "Visit" v
-      WHERE v."customerId" = i.customer_id
-        AND v."visitedAt" > (i.now_ts - INTERVAL '48 hours')
-    )
-  RETURNING *
+	INSERT INTO "Visit"(id, "customerId", "visitedAt", notes, "createdBy", "createdByRole", "createdById")
+	SELECT
+	uuid_generate_v4(),
+	i.customer_id,
+	i.now_ts,
+	i.notes,
+	i.created_by,
+	i.created_by_role,
+	i.created_by_id
+	FROM input i
+	WHERE
+	-- Admin puede siempre
+	i.is_admin_like
+	-- Si no es admin: sólo si no hay visitas en las últimas 48h
+	OR NOT EXISTS (
+		SELECT 1
+		FROM "Visit" v
+		WHERE v."customerId" = i.customer_id
+		AND v."visitedAt" > (i.now_ts - INTERVAL '48 hours')
+	)
+	RETURNING *
 )
 
 SELECT
-  -- allowed := se insertó (o hubiera podido insertarse si es admin_like)
   COALESCE( (SELECT true FROM ins LIMIT 1), (SELECT is_admin_like FROM input) ) AS allowed,
-  -- última visita real (para UI)
   (SELECT MAX(v."visitedAt") FROM "Visit" v WHERE v."customerId" = (SELECT customer_id FROM input)) AS last_visit,
-  -- si insertó fila nueva
   (SELECT COUNT(*) > 0 FROM ins) AS inserted,
-  -- fila creada (si la hay)
   (SELECT to_jsonb(ins.*) FROM ins) AS row;
