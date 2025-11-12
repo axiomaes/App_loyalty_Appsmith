@@ -45,9 +45,6 @@
       "key": "groupButtons.groupButton1.onClick"
     },
     {
-      "key": "groupButtons.groupButton3.onClick"
-    },
-    {
       "key": "groupButtons.groupButtonlrj6oqet34.onClick"
     },
     {
@@ -70,65 +67,12 @@
       "placement": "CENTER",
       "widgetId": ""
     },
-    "groupButton3": {
-      "buttonColor": "#fde047",
-      "buttonType": "SIMPLE",
-      "disabledWhenInvalid": false,
-      "iconName": "barcode",
-      "id": "groupButton3",
-      "index": 1,
-      "isDisabled": false,
-      "isVisible": true,
-      "label": "QR",
-      "menuItems": {
-        "menuItem1": {
-          "backgroundColor": "#FFFFFF",
-          "disabledWhenInvalid": false,
-          "id": "menuItem1",
-          "index": 0,
-          "isDisabled": false,
-          "isVisible": true,
-          "label": "First Option",
-          "onClick": "",
-          "widgetId": ""
-        },
-        "menuItem2": {
-          "backgroundColor": "#FFFFFF",
-          "disabledWhenInvalid": false,
-          "id": "menuItem2",
-          "index": 1,
-          "isDisabled": false,
-          "isVisible": true,
-          "label": "Second Option",
-          "onClick": "",
-          "widgetId": ""
-        },
-        "menuItem3": {
-          "backgroundColor": "#DD4B34",
-          "disabledWhenInvalid": false,
-          "iconAlign": "right",
-          "iconColor": "#FFFFFF",
-          "iconName": "trash",
-          "id": "menuItem3",
-          "index": 2,
-          "isDisabled": false,
-          "isVisible": true,
-          "label": "Delete",
-          "onClick": "",
-          "textColor": "#FFFFFF",
-          "widgetId": ""
-        }
-      },
-      "onClick": "{{\n  (async () => {\n    const det = appsmith.store.clienteDetalle;\n    if (!det?.id) { showAlert(\"No hay cliente.\", \"warning\"); return; }\n\n    // 1) Garantiza TOKEN (y úsalo en el fallback)\n    const r = await q_customer_token_upsert.run({ id: det.id });\n    const token = r?.[0]?.token;\n    if (!token) { showAlert(\"No se pudo obtener token.\", \"error\"); return; }\n\n    const size = 280;\n\n    // 2) URL fallback (siempre válida): QR con la URL del kiosko por TOKEN\n    const kioskUrl = `https://kiosk.tudominio.com/scan?t=${encodeURIComponent(token)}`;\n    const fallback = `https://quickchart.io/qr?text=${encodeURIComponent(kioskUrl)}&size=${size}`;\n\n    // 3) URL principal: PNG servido por tu API (puede fallar por 404/CORS)\n    const primary =\n      \"https://axioma-api.loyalty.axioma-creativa.es/public/customers/\" +\n      encodeURIComponent(det.id) +\n      `/qr.png?size=${size}&_=${Date.now()}`;\n\n    // 4) Muestra YA el fallback (el usuario siempre ve un QR)\n    await storeValue(\"qrFallbackUrl\", fallback);\n    await storeValue(\"qrImg\", fallback);\n\n    // 5) Abre el modal\n    await closeModal(Modal_datos_clientes.name);\n    await showModal(Modal_QR.name);\n\n    // 6) Intenta cambiar al PNG oficial (si carga bien, el onError no se dispara)\n    //    si falla, el onError del Image volverá a poner el fallback\n    await storeValue(\"qrImg\", primary);\n  })()\n}}\n",
-      "placement": "CENTER",
-      "widgetId": ""
-    },
     "groupButton42z77z8qof": {
       "buttonColor": "#f3e8ff",
       "buttonType": "SIMPLE",
       "iconName": "bookmark",
       "id": "groupButton42z77z8qof",
-      "index": 3,
+      "index": 2,
       "isDisabled": false,
       "isSeparator": false,
       "isVisible": "{{   (appsmith.store.editingCustomer?.tag \n    ?? q_cliente_detalle.data?.[0]?.tag \n    ?? \"\")\n  .toLowerCase()\n  .includes(\"vip\")\n}}\n",
@@ -145,7 +89,7 @@
       "buttonType": "SIMPLE",
       "iconName": "automatic-updates",
       "id": "groupButtonlrj6oqet34",
-      "index": 2,
+      "index": 1,
       "isDisabled": false,
       "isSeparator": false,
       "isVisible": true,

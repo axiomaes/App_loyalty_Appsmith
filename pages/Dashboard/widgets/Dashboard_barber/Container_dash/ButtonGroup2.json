@@ -22,9 +22,6 @@
   "dynamicTriggerPathList": [
     {
       "key": "groupButtons.groupButton1.onClick"
-    },
-    {
-      "key": "groupButtons.groupButton2.onClick"
     }
   ],
   "groupButtons": {
@@ -42,28 +39,13 @@
       "onClick": "{{showModal(Modal_crear_cliente.name);}}",
       "placement": "CENTER",
       "widgetId": ""
-    },
-    "groupButton2": {
-      "buttonColor": "#ffe58a",
-      "buttonType": "SIMPLE",
-      "disabledWhenInvalid": false,
-      "iconName": "barcode",
-      "id": "groupButton2",
-      "index": 1,
-      "isDisabled": false,
-      "isVisible": false,
-      "label": "Leer QR",
-      "menuItems": {},
-      "onClick": "{{ showModal(ModalScan.name); showAlert('Escanea el código...', 'info'); }}\n",
-      "placement": "CENTER",
-      "widgetId": ""
     }
   },
   "isCanvas": false,
   "isLoading": false,
   "isVisible": true,
   "key": "jvvp1yd7lr",
-  "leftColumn": 10,
+  "leftColumn": 8,
   "minWidth": 450,
   "mobileBottomRow": 6,
   "mobileLeftColumn": 15,
@@ -71,12 +53,14 @@
   "mobileTopRow": 2,
   "needsErrorInfo": false,
   "orientation": "horizontal",
+  "originalBottomRow": 21,
+  "originalTopRow": 17,
   "parentColumnSpace": 15.795974731445312,
-  "parentId": "yltlsc749h",
+  "parentId": "kmk0e6eal7",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 56,
+  "rightColumn": 54,
   "topRow": 1,
   "type": "BUTTON_GROUP_WIDGET",
   "version": 1,

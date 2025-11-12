@@ -55,7 +55,7 @@
       "widgetName": "Canvas22"
     }
   ],
-  "defaultTab": "QR",
+  "defaultTab": "Manual",
   "dynamicBindingPathList": [
     {
       "key": "accentColor"

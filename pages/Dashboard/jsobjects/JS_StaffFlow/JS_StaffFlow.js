@@ -1,40 +1,64 @@
 export default {
-  maskPhone(p){
-    const s = (p || "").replace(/\s+/g, "");
-    if (s.length < 3) return "—";
-    return "••• •• •• " + s.slice(-3);
-  },
+	_maskPhone(p) {
+		const s = String(p || "").replace(/\s+/g, "");
+		if (!s) return "—";
+		return "••• •• •• " + s.slice(-3);
+	},
 
-  async onQr(code){
-    // 1) Cliente por token
-    const c = await q_get_customer_by_token.run({ token: code });
-    if (!c || !c.id) {
-      showAlert("QR no reconocido", "warning");
-      return;
-    }
+	async onQr(scanned) {
+		const cid = String(scanned || "").trim();
+		if (!Utils?.isUuid?.(cid)) {
+			showAlert("QR inválido: no es un UUID.", "warning");
+			return;
+		}
 
-    // 2) Registrar visita
-    await q_add_visit.run({ customerId: c.id });
+		const isAdminLike = !!(Roles?.isAdminLike && Roles.isAdminLike());
 
-    // 3) Refrescar listado de hoy
-    if (typeof q_visitas_hoy?.run === "function") await q_visitas_hoy.run();
+		try {
+			// 1) Insertar visita con tu query existente
+			const res = await q_visit_code_qr.run({
+				customerId: cid,
+				notes: "Visita por QR (STAFF)",
+				isAdminLike,
+			});
+			const r = Array.isArray(res) ? res[0] : res;
+			if (!(r?.allowed && r?.inserted)) {
+				showAlert("No se registró (regla de 48h activa).", "warning");
+				return;
+			}
 
-    // 4) Cargar progreso de tarjeta
-    const p = await q_progress.run({ customerId: c.id }); // devuelve { visits, isVip, firstHalfIssued, totalSlots, slots[], planName, tag }
-    // 5) Actualizar widget tarjeta
-    await CustomCard.setModel({
-      planName: p.planName,
-      tag: p.tag,
-      isVip: p.isVip,
-      currentVisits: p.visits,
-      totalSlots: p.isVip ? 4 : 10,
-      firstHalfIssued: p.firstHalfIssued,
-      slots: p.slots  // [{value:1..N, filled:true/false}]
-    });
+			// 2) Cargar detalle + historial del cliente (para pintar tarjeta)
+			const [detail] = await Promise.all([
+				q_cliente_detalle.run({ id: cid }),                       // debe devolver planName/tag si los tienes
+				q_visitas_historial.run({ customerId: cid, limit: 500, offset: 0 }),
+			]);
+			const rows = Array.isArray(q_visitas_historial.data) ? q_visitas_historial.data : [];
 
-    // 6) Mostrar cabecera cliente
-    TxtCliente.text = `${c.name} • ${this.maskPhone(c.phone)}`;
+			// 3) Construir modelo de tarjeta con tu helper existente
+			const model = JS_VisitsFilter.processDataFrom(rows, detail || {});
 
-    showAlert("Visita registrada", "success");
-  }
-}
+			// 4) Enviar modelo al Custom Widget de la tarjeta
+			if (typeof CustomCard?.setModel === "function") {
+				await CustomCard.setModel(model);
+			}
+
+			// 5) Cabecera con nombre + teléfono enmascarado (si usas un Text)
+			if (typeof TxtCliente !== "undefined") {
+				const name  = detail?.name || "Cliente";
+				const phone = this._maskPhone(detail?.phone);
+				try { TxtCliente.text = `${name} • ${phone}`; } catch (_) {}
+			}
+
+			// 6) Refrescar tabla "visitas de hoy" (para caja tipo supermercado)
+			const bid = appsmith.store?.businessId;
+			if (typeof q_visitas_hoy?.run === "function") {
+				await q_visitas_hoy.run({ bid });
+			}
+
+			showAlert("Visita registrada ✅", "success");
+		} catch (e) {
+			console.error("STAFF onQr error:", e);
+			showAlert(e?.message || "No se pudo registrar la visita.", "error");
+		}
+	},
+};

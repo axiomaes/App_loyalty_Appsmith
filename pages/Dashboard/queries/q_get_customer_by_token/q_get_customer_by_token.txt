@@ -1,0 +1,12 @@
+SELECT
+  c.id,
+  c.name,
+  c.phone,
+  COALESCE(c.tag, 'NORMAL') AS tag,
+  COUNT(v.id) AS total_visitas
+FROM "Customer" c
+LEFT JOIN "Visit" v ON v."customerId" = c.id
+WHERE c.id = {{ this.params.customerId }}::uuid
+  AND c."deletedAt" IS NULL
+GROUP BY c.id, c.name, c.phone, c.tag
+LIMIT 1;
