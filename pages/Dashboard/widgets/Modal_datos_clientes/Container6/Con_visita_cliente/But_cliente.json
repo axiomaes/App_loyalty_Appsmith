@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 31,
+  "bottomRow": 39,
   "boxShadow": "none",
   "buttonVariant": "PRIMARY",
   "childStylesheet": {
@@ -135,7 +135,7 @@
   "mobileRightColumn": 58,
   "mobileTopRow": 25,
   "needsErrorInfo": false,
-  "orientation": "horizontal",
+  "orientation": "vertical",
   "originalBottomRow": 32,
   "originalTopRow": 28,
   "parentColumnSpace": 7.16644287109375,
