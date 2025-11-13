@@ -38,6 +38,9 @@
     },
     {
       "key": "groupButtons.groupButton3.onClick"
+    },
+    {
+      "key": "groupButtons.groupButtonaztn5ggikm.onClick"
     }
   ],
   "dynamicTriggerPathList": [
@@ -96,9 +99,9 @@
       "isSeparator": false,
       "isVisible": true,
       "itemType": "BUTTON",
-      "label": "QR",
+      "label": "Ver QR",
       "menuItems": {},
-      "onClick": "{{showModal(Modal_QR.name);}}",
+      "onClick": "{{ showModal(Modal_QR.name) }}\n",
       "placement": "CENTER",
       "variant": "filled",
       "widgetId": "2mgurd0pne"

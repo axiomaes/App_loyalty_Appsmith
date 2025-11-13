@@ -9,7 +9,7 @@
     "variables": [
       {
         "name": "API_BASE",
-        "value": "\"https://axioma-api.loyalty.axioma-creativa.es/public/customers\""
+        "value": "\"https://axioma-api.loyalty.axioma-creativa.es/api/public/customers\""
       },
       {
         "name": "_timer",

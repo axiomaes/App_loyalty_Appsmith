@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_1fbeb2d7-d435-48eb-abd9-b6373afa34b2",
-  "id": "Dashboard_JS_QR._refocus",
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_53c6da3e-1c86-4a8d-996f-22ec146efdc6",
+  "id": "Dashboard_JS_QR.openQrModalFromStore",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
@@ -22,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "JS_QR._refocus",
-    "name": "_refocus",
+    "fullyQualifiedName": "JS_QR.openQrModalFromStore",
+    "name": "openQrModalFromStore",
     "pageId": "Dashboard",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

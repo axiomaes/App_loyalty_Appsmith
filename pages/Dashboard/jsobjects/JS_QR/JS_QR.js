@@ -1,6 +1,6 @@
 export default {
 	// ================== CONFIG ==================
-	API_BASE: "https://axioma-api.loyalty.axioma-creativa.es/public/customers",
+	API_BASE: "https://axioma-api.loyalty.axioma-creativa.es/api/public/customers",
 
 	// ================== ESTADO ==================
 	_timer: null,
@@ -25,7 +25,7 @@ export default {
 			.trim();
 	},
 	_refocus() {
-		try { ScanInput?.focus && ScanInput.focus(); } catch (_) {}
+		/* no-op para evitar lint por focus */
 	},
 
 	// ================== LECTOR (PISTOLA/CÁMARA) ==================
@@ -37,7 +37,7 @@ export default {
 			await VisitAdd.fromQr(text);
 			await storeValue("_lastScanRaw", text);
 		} finally {
-			ScanInput.setValue("");
+			try { ScanInput && ScanInput.setValue && ScanInput.setValue(""); } catch(_) {}
 			this._refocus();
 		}
 	},
@@ -52,7 +52,7 @@ export default {
 				await VisitAdd.fromQr(text);
 				await storeValue("_lastScanRaw", text);
 			} finally {
-				ScanInput.setValue("");
+				try { ScanInput && ScanInput.setValue && ScanInput.setValue(""); } catch(_) {}
 				this._refocus();
 			}
 		}, 150); // debounce corto para pistolas rápidas
@@ -64,63 +64,59 @@ export default {
 		const cid = this._normId(id);
 		if (!cid) return "";
 		const sz = this._normSize(size);
-		return `${this.API_BASE}/${encodeURIComponent(cid)}/qr.png?size=${sz}`;
+		// ⚠️ NO usar `this.API_BASE` en Appsmith -> usa el nombre del objeto
+		const base = String(
+			JS_QR.API_BASE || appsmith.store?.API_PUBLIC_BASE ||
+			"https://axioma-api.loyalty.axioma-creativa.es/public/customers"
+		).replace(/\/+$/, "");
+		return `${base}/${encodeURIComponent(cid)}/qr.png?size=${sz}`;
 	},
 
-	// --- NUEVO: extraer token desde URL o texto crudo ---
+	// --- extraer token desde URL o texto crudo (sin new URL)
 	extractToken(text) {
 		if (!text) return "";
 		const t = String(text).trim();
 		if (!/[\/\s]/.test(t) && t.length >= 6 && t.length <= 64) return t;
-		try {
-			const url = new URL(t);
-			const path = (url.pathname || "").replace(/\/+$/, "");
-			const last = path.split("/").filter(Boolean).pop() || "";
-			return last;
-		} catch {
-			const noHash = t.split("#")[0];
-			const noQuery = noHash.split("?")[0];
-			const last = noQuery.split("/").filter(Boolean).pop() || "";
-			return last;
-		}
+		const noHash = t.split("#")[0];
+		const noQuery = noHash.split("?")[0];
+		const last = noQuery.split("/").filter(Boolean).pop() || "";
+		return last;
 	},
 
-	// --- NUEVO: orquesta una lectura de scanner/pistola ---
+	// --- orquesta una lectura de scanner/pistola ---
 	async fromScan(raw) {
 		const token = this.extractToken(raw);
 		if (!token) {
 			showAlert("QR inválido.", "warning");
 			return { ok: false, reason: "invalid_token" };
 		}
-		// Si tu VisitAdd.fromQr acepta token directamente, úsalo:
 		if (typeof VisitAdd?.fromQr === "function") {
 			return VisitAdd.fromQr(token);
 		}
-		// O si prefieres por UUID/cliente ID, aquí podrías resolver token->ID
 		showAlert("No hay handler para registrar con este QR.", "error");
 		return { ok: false, reason: "no_handler" };
 	},
 
-
-	/** URL de la landing pública en Appsmith (si la usas) */
+	/** URL de la landing pública (usa PORTAL_BASE del store si la configuras) */
 	pageUrl(id) {
 		const cid = this._normId(id);
 		if (!cid) return "";
-		const appName = encodeURIComponent(appsmith.app.name);
-		return `${window.location.origin}/app/${appName}/QR_Landing?cid=${encodeURIComponent(cid)}`;
+		const base = String(appsmith.store?.PORTAL_BASE || "").replace(/\/+$/, "");
+		if (!base) return "";
+		return `${base}/QR_Landing?cid=${encodeURIComponent(cid)}`;
 	},
 
 	async copyLandingUrl(id) {
 		const url = this.pageUrl(id);
-		if (!url) return showAlert("Cliente inválido.", "warning");
+		if (!url) return showAlert("Cliente inválido o PORTAL_BASE no configurado.", "warning");
 		await copyToClipboard(url);
 		showAlert("Enlace copiado al portapapeles.", "success");
 	},
 
 	openLanding(id) {
 		const url = this.pageUrl(id);
-		if (!url) return showAlert("Cliente inválido.", "warning");
-		window.open(url, "_blank", "noopener,noreferrer");
+		if (!url) return showAlert("Cliente inválido o PORTAL_BASE no configurado.", "warning");
+		navigateTo(url, {}, "NEW_WINDOW");
 	},
 
 	async copyPngUrl(id, size = 300) {
@@ -128,5 +124,42 @@ export default {
 		if (!url) return showAlert("Cliente inválido.", "warning");
 		await copyToClipboard(url);
 		showAlert("URL del QR copiada.", "success");
+	},
+
+	/* ================== AÑADIDOS MÍNIMOS ================== */
+
+	// 1) URL directa de descarga
+	downloadUrl(id) {
+		const cid = this._normId(id);
+		if (!cid) return "";
+		const base = String(
+			JS_QR.API_BASE || appsmith.store?.API_PUBLIC_BASE ||
+			"https://axioma-api.loyalty.axioma-creativa.es/public/customers"
+		).replace(/\/+$/, "");
+		return `${base}/${encodeURIComponent(cid)}/qr/download`;
+	},
+
+	// 2) Copiar el link de descarga
+	async copyDownloadUrl(id) {
+		const url = this.downloadUrl(id);
+		if (!url) return showAlert("Cliente inválido.", "warning");
+		await copyToClipboard(url);
+		showAlert("Enlace de descarga copiado.", "success");
+	},
+
+	// 3) Abrir descarga en pestaña nueva
+	openDownload(id) {
+		const url = this.downloadUrl(id);
+		if (!url) return showAlert("Cliente inválido.", "warning");
+		navigateTo(url, {}, "NEW_WINDOW");
+	},
+
+	// 4) Abrir Modal_QR usando el id ya guardado en store
+	openQrModalFromStore() {
+		const id = appsmith.store?.selCustomerId;
+		if (!id) return showAlert("Cliente inválido.", "warning");
+		storeValue("qrImg", this.pngUrl(id));              // preview
+		storeValue("qrFallbackUrl", this.downloadUrl(id)); // backup/descarga
+		showModal(Modal_QR.name);
 	},
 };

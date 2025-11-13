@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_eddafdd4-2dbb-4d2e-afb0-b41543dcabf6",
-  "id": "Dashboard_JS_QR._normSize",
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_f19a4fa2-edc0-4f98-bdad-810eb51cd300",
+  "id": "Dashboard_JS_QR.downloadUrl",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
@@ -8,11 +8,7 @@
       "encodeParamsToggle": true,
       "jsArguments": [
         {
-          "name": "size"
-        },
-        {
-          "name": "def",
-          "value": "{{300}}"
+          "name": "id"
         }
       ],
       "paginationType": "NONE",
@@ -30,8 +26,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "JS_QR._normSize",
-    "name": "_normSize",
+    "fullyQualifiedName": "JS_QR.downloadUrl",
+    "name": "downloadUrl",
     "pageId": "Dashboard",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

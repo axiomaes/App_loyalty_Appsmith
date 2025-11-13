@@ -63,6 +63,10 @@ export default {
 			// 2) Guardar selección global
 			await storeValue("selCustomerId", id);
 			await storeValue("selectedCustomerId", id);
+			await storeValue("qrImg", JS_QR.pngUrl(id));                 // ahora ya trae /api/...
+			await storeValue("qrFallbackUrl", JS_QR.downloadUrl(id));
+			await storeValue("qrImgBase64", "");                          // que no tape con base64 vacío
+
 
 			// 3) Ejecutar queries en paralelo
 			const pageSize = Table_visitas?.pageSize || 50;
