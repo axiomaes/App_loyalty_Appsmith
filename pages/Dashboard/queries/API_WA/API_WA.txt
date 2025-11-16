@@ -1,0 +1,6 @@
+{
+  "to": "{{ JS_WhatsApp._e164ToWaPhone(appsmith.store.clienteTelefono) }}",
+  "customerId": "{{ appsmith.store.selCustomerId }}",
+  "customerName": "{{ appsmith.store.clienteNombre || 'cliente' }}",
+  "businessName": "{{ Auth.businessName() || 'La Cubierta Barbería' }}"
+}

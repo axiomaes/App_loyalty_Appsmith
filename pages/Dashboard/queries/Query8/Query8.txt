@@ -1,10 +1,14 @@
-WITH inp AS (
-  SELECT
-    {{ this.params.token }}::text  AS token,
-    {{ this.params.businessId || null }}::uuid AS business_id
-)
-SELECT c."customerId"
-FROM "CustomerQrToken" c, inp
-WHERE c."token" = inp.token
-  AND (inp.business_id IS NULL OR c."businessId" = inp.business_id)
-LIMIT 1;
+SELECT
+  tc.constraint_name,
+  tc.table_name      AS referencing_table,
+  kcu.column_name    AS referencing_column
+FROM information_schema.table_constraints tc
+JOIN information_schema.key_column_usage kcu
+  ON tc.constraint_name = kcu.constraint_name
+  AND tc.constraint_schema = kcu.constraint_schema
+JOIN information_schema.constraint_column_usage ccu
+  ON ccu.constraint_name = tc.constraint_name
+  AND ccu.constraint_schema = tc.constraint_schema
+WHERE tc.constraint_type = 'FOREIGN KEY'
+  AND ccu.table_name = 'Customer'
+ORDER BY referencing_table, referencing_column;

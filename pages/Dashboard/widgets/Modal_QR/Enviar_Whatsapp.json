@@ -36,7 +36,7 @@
   "mobileRightColumn": 63,
   "mobileTopRow": 18,
   "needsErrorInfo": false,
-  "onClick": "{{ JS_QR.downloadUrl(appsmith.store.selCustomerId) }}\n",
+  "onClick": "{{ WA_QR.sendQrToSelected() }}\n\n",
   "originalBottomRow": 49,
   "originalTopRow": 45,
   "parentId": "181cr8gy1u",

@@ -5,7 +5,7 @@
   "pluginType": "DB",
   "unpublishedAction": {
     "actionConfiguration": {
-      "body": "WITH inp AS (\n  SELECT\n    {{ this.params.token }}::text  AS token,\n    {{ this.params.businessId || null }}::uuid AS business_id\n)\nSELECT c.\"customerId\"\nFROM \"CustomerQrToken\" c, inp\nWHERE c.\"token\" = inp.token\n  AND (inp.business_id IS NULL OR c.\"businessId\" = inp.business_id)\nLIMIT 1;\n",
+      "body": "SELECT\n  tc.constraint_name,\n  tc.table_name      AS referencing_table,\n  kcu.column_name    AS referencing_column\nFROM information_schema.table_constraints tc\nJOIN information_schema.key_column_usage kcu\n  ON tc.constraint_name = kcu.constraint_name\n  AND tc.constraint_schema = kcu.constraint_schema\nJOIN information_schema.constraint_column_usage ccu\n  ON ccu.constraint_name = tc.constraint_name\n  AND ccu.constraint_schema = tc.constraint_schema\nWHERE tc.constraint_type = 'FOREIGN KEY'\n  AND ccu.table_name = 'Customer'\nORDER BY referencing_table, referencing_column;\n",
       "encodeParamsToggle": true,
       "paginationType": "NONE",
       "pluginSpecifiedTemplates": [
@@ -22,11 +22,7 @@
       "name": "AxiomaDB",
       "pluginId": "postgres-plugin"
     },
-    "dynamicBindingPathList": [
-      {
-        "key": "body"
-      }
-    ],
+    "dynamicBindingPathList": [],
     "name": "Query8",
     "pageId": "Dashboard",
     "runBehaviour": "MANUAL",

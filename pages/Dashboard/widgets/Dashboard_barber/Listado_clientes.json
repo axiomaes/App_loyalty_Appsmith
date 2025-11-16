@@ -34,6 +34,7 @@
   "columnOrder": [
     "name",
     "phone",
+    "customColumn2",
     "tag",
     "id",
     "email",
@@ -45,7 +46,6 @@
     "tiene_bono_activo",
     "total_visitas",
     "customColumn1",
-    "customColumn2",
     "hay_visita_90d",
     "hay_reward_pendiente",
     "vip_status",
@@ -53,7 +53,7 @@
     "vip_expires_at",
     "cliente_activo"
   ],
-  "columnUpdatedAt": 1762082452641,
+  "columnUpdatedAt": 1763119831267,
   "columnWidthMap": {
     "customColumn1": 108,
     "email": 140,

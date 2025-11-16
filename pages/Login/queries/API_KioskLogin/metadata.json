@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_4bb558c7-e5a6-420f-ab50-d40fe62f1448",
-  "id": "Login_login",
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_7d9a96b8-6208-47eb-b8d0-7d7d45e738ec",
+  "id": "Login_API_KioskLogin",
   "pluginId": "restapi-plugin",
   "pluginType": "API",
   "unpublishedAction": {
@@ -11,7 +11,7 @@
           "value": "application/json"
         }
       ],
-      "body": "{\n  \"email\": \"{{InputCorreo.text}}\",\n  \"password\": \"{{InputPass.text}}\"\n}\n",
+      "body": "{\n  \"email\": \"{{ (InputCorreo.text || '').trim() }}\"\n}\n",
       "bodyFormData": [],
       "encodeParamsToggle": true,
       "formData": {
@@ -19,18 +19,14 @@
       },
       "headers": [
         {
-          "key": "Authorization",
-          "value": "Bearer {{ appsmith.store.jwt }}"
-        },
-        {
-          "key": "X-Business-Id",
-          "value": "{{ appsmith.store.businessId }}"
+          "key": "Value",
+          "value": "application/json"
         }
       ],
-      "httpMethod": "GET",
+      "httpMethod": "POST",
       "httpVersion": "HTTP11",
       "paginationType": "NONE",
-      "path": "/api/auth/login",
+      "path": "/api/auth/kiosk-login",
       "pluginSpecifiedTemplates": [
         {
           "value": true
@@ -49,15 +45,9 @@
     "dynamicBindingPathList": [
       {
         "key": "body"
-      },
-      {
-        "key": "headers[0].value"
-      },
-      {
-        "key": "headers[1].value"
       }
     ],
-    "name": "login",
+    "name": "API_KioskLogin",
     "pageId": "Login",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

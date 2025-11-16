@@ -60,6 +60,21 @@ export default {
 				return;
 			}
 
+			// 🔸 NUEVO: intentar sacar nombre y teléfono de la fila
+			const nombre =
+						row?.name ||
+						row?.cliente ||
+						row?.fullName ||
+						row?.nombre ||
+						null;
+
+			const telefono =
+						row?.phone ||
+						row?.telefono ||
+						row?.mobile ||
+						row?.telefono_movil ||
+						null;
+
 			// 2) Guardar selección global
 			await storeValue("selCustomerId", id);
 			await storeValue("selectedCustomerId", id);
@@ -67,6 +82,9 @@ export default {
 			await storeValue("qrFallbackUrl", JS_QR.downloadUrl(id));
 			await storeValue("qrImgBase64", "");                          // que no tape con base64 vacío
 
+			// 🔸 NUEVO: guardar en store para WhatsApp
+			await storeValue("clienteNombre", nombre);
+			await storeValue("clienteTelefono", telefono);
 
 			// 3) Ejecutar queries en paralelo
 			const pageSize = Table_visitas?.pageSize || 50;

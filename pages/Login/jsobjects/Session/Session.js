@@ -1,23 +1,33 @@
 export default {
-  login: async () => {
-    const data = await q_find_business_by_email.run();
+	login: async () => {
+		try {
+			const res = await API_KioskLogin.run();
 
-    if (!data || !data.length) {
-      showAlert("Correo no encontrado", "warning");
-      return;
-    }
+			if (!res || !res.access_token) {
+				showAlert("Credenciales incorrectas o usuario no permitido", "error");
+				return;
+			}
 
-    const user = data[0];
+			const token = res.access_token;
+			const user  = res.user || {};
 
-    await Auth.setSession({
-      userId: user.user_id,
-      role: user.user_role,
-      email: user.user_email,
-      businessId: user.business_id,
-      businessName: user.business_name
-    });
+			// Guardar sesión completa
+			await Promise.all([
+				storeValue("jwt", token),
+				storeValue("userId", user.id || null),
+				storeValue("role", (user.role || "STAFF").toUpperCase()),
+				storeValue("userEmail", user.email || null),
+				storeValue("businessId", user.businessId || null),
+				storeValue("businessName", user.businessName || null),
+				storeValue("selectedBusinessId", null)
+			]);
 
-    showAlert(`Bienvenido a ${user.business_name}`, "success");
-    navigateTo("Dashboard");
-  }
+			showAlert(`Bienvenido a ${user.businessName}`, "success");
+			navigateTo("Dashboard");
+
+		} catch (e) {
+			showAlert("Error de conexión con el servidor", "error");
+			console.error(e);
+		}
+	}
 };

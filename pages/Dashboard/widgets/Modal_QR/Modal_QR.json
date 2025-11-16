@@ -29,7 +29,7 @@
       "leftColumn": 0,
       "maxDynamicHeight": 9000,
       "minDynamicHeight": 4,
-      "minHeight": 510,
+      "minHeight": 460,
       "minWidth": 450,
       "mobileBottomRow": 240,
       "mobileLeftColumn": 0,
@@ -84,5 +84,5 @@
   "version": 2,
   "widgetId": "63hswol7w4",
   "widgetName": "Modal_QR",
-  "width": 405.5
+  "width": 399.5
 }
