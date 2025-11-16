@@ -21,9 +21,6 @@
     },
     {
       "key": "onTextChanged"
-    },
-    {
-      "key": "onFocus"
     }
   ],
   "dynamicTriggerPathList": [
@@ -59,7 +56,7 @@
   "mobileRightColumn": 56,
   "mobileTopRow": 10,
   "needsErrorInfo": false,
-  "onFocus": "{{ ScanInput.focus && ScanInput.focus() }}\n",
+  "onFocus": "",
   "onSubmit": "{{ JS_QR.onSubmit(ScanInput.text) }}",
   "onTextChanged": "{{ JS_QR.onType(ScanInput.text) }}",
   "parentColumnSpace": 15.795974731445312,

@@ -2,7 +2,7 @@
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 38,
+  "bottomRow": 45,
   "boxShadow": "none",
   "defaultOptionValue": "STAFF",
   "dynamicBindingPathList": [
@@ -54,7 +54,7 @@
   "rightColumn": 32,
   "serverSideFiltering": false,
   "sourceData": "[\n  {\n    \"name\": \"Owner\",\n    \"code\": \"OWNER\"\n  },\n  {\n    \"name\": \"Barber\",\n    \"code\": \"BARBER\"\n  },\n  {\n    \"name\": \"Admin\",\n    \"code\": \"ADMIN\"\n  }\n]",
-  "topRow": 31,
+  "topRow": 38,
   "type": "SELECT_WIDGET",
   "version": 1,
   "widgetId": "hljhtca6jd",

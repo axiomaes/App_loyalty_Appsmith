@@ -70,7 +70,7 @@ export default {
 		if (!found && rows.length > 0) {
 			// si el seleccionado ya no está (o no había), selecciona el primero
 			await this.selectCustomer(rows[0]);
-			try { Listado_clientes?.selectRow?.(0); } catch (_) {}
+			// ya no forzamos selección visual en la tabla
 		}
 	},
 
@@ -80,12 +80,6 @@ export default {
 		this._pollerId = setInterval(async () => {
 			try {
 				await this.refreshCustomersAndKeepSelection();
-				// Si quieres refrescar también el panel del cliente seleccionado, descomenta:
-				// const cid = appsmith.store.selCustomerId;
-				// if (this._isUuid(cid)) {
-				//   await q_cliente_detalle.run({ id: cid });
-				//   await q_visitas_historial.run({ customerId: cid, limit: 50, offset: 0 });
-				// }
 			} catch (e) {
 				console.warn("poll refresh error:", e);
 			}
@@ -124,7 +118,7 @@ export default {
 		const rows = this._rows();
 		if (!appsmith.store.selCustomerId && rows.length > 0) {
 			await this.selectCustomer(rows[0]);
-			try { Listado_clientes?.selectRow?.(0); } catch (_) {}
+			// ya no forzamos selección visual en la tabla
 		}
 	}
 };

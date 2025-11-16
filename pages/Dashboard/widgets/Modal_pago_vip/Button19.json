@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 48,
+  "bottomRow": 52,
   "boxShadow": "none",
   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
   "buttonStyle": "PRIMARY_BUTTON",
@@ -57,7 +57,7 @@
   "responsiveBehavior": "hug",
   "rightColumn": 62,
   "text": "{{ appsmith.store.otp_hash ? \"Guardar\" : \"Enviar aviso al Propietario\" }}",
-  "topRow": 44,
+  "topRow": 48,
   "type": "BUTTON_WIDGET",
   "version": 1,
   "widgetId": "8j704vtlx9",

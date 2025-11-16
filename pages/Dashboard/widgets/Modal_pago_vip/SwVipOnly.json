@@ -2,7 +2,7 @@
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "alignWidget": "LEFT",
   "animateLoading": true,
-  "bottomRow": 20,
+  "bottomRow": 24,
   "boxShadow": "none",
   "defaultSwitchState": true,
   "dynamicBindingPathList": [

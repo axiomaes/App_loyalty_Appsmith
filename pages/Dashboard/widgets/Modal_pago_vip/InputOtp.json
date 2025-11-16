@@ -3,7 +3,7 @@
   "animateLoading": true,
   "autoFocus": false,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 41,
+  "bottomRow": 45,
   "boxShadow": "none",
   "defaultText": "",
   "dynamicBindingPathList": [
@@ -78,7 +78,7 @@
   "rightColumn": 54,
   "showStepArrows": false,
   "tooltip": "Ingresa el codigo enviado",
-  "topRow": 34,
+  "topRow": 38,
   "type": "INPUT_WIDGET_V2",
   "validation": "",
   "version": 2,

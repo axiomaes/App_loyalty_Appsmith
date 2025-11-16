@@ -471,10 +471,10 @@ export default {
 	async openVipModal(fromRow = null) {
 		try {
 			const id =
-				fromRow?.id ||
-				appsmith.store?.editingCustomer?.id ||
-				appsmith.store?.selCustomerId ||
-				Listado_clientes?.selectedRow?.id;
+						fromRow?.id ||
+						appsmith.store?.editingCustomer?.id ||
+						appsmith.store?.selCustomerId ||
+						Listado_clientes?.selectedRow?.id;
 
 			if (!id) {
 				showAlert("Selecciona un cliente primero.", "warning");
@@ -489,10 +489,10 @@ export default {
 
 			// recordar/preseleccionar plan si ya tenía
 			const rememberedPlan =
-				appsmith.store?.selVipPlanId ||
-				det.vipPlanId ||
-				det.planId ||
-				null;
+						appsmith.store?.selVipPlanId ||
+						det.vipPlanId ||
+						det.planId ||
+						null;
 			await storeValue("selVipPlanId", rememberedPlan ? String(rememberedPlan) : null);
 
 			// estado del form (periodo por defecto)
@@ -530,6 +530,6 @@ export default {
 	// Valor por defecto del Select de plan
 	defaultPlanValue() {
 		return appsmith.store?.selVipPlanId
-			|| String((this.currentCustomer()?.vipPlanId || this.currentCustomer()?.planId || ""));
+		|| String((this.currentCustomer()?.vipPlanId || this.currentCustomer()?.planId || ""));
 	}
 };

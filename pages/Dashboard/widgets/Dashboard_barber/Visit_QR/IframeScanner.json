@@ -36,7 +36,7 @@
   "mobileRightColumn": 37,
   "mobileTopRow": 3,
   "needsErrorInfo": false,
-  "onMessageReceived": "{{ JS_QRScannerHandler.onQrMessage(message) }}\n",
+  "onMessageReceived": "{{ JS_QRScannerHandler.onQrMessage(IframeScanner.message) }}\n",
   "originalBottomRow": 105,
   "originalTopRow": 73,
   "parentColumnSpace": 5.99658203125,

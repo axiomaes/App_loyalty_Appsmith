@@ -176,7 +176,7 @@
       "label": "Eliminar ",
       "labelColor": "#FFFFFF",
       "notation": "standard",
-      "onClick": "{{ VisitDelete.run(currentRow.id) }}\n",
+      "onClick": "{{ VisitDelete.run(Table_visitas.triggeredRow.id) }}\n",
       "originalId": "customColumn1",
       "sticky": "",
       "textSize": "0.675rem",

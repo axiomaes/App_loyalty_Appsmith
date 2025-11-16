@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 42,
+  "bottomRow": 50,
   "boxShadow": "none",
   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
   "buttonStyle": "PRIMARY_BUTTON",
@@ -13,11 +13,20 @@
     },
     {
       "key": "borderRadius"
+    },
+    {
+      "key": "text"
+    },
+    {
+      "key": "isDisabled"
     }
   ],
   "dynamicPropertyPathList": [
     {
       "key": "onClick"
+    },
+    {
+      "key": "isDisabled"
     }
   ],
   "dynamicTriggerPathList": [
@@ -26,7 +35,7 @@
     }
   ],
   "isDefaultClickDisabled": true,
-  "isDisabled": false,
+  "isDisabled": "{{\n  !(InputEmail.text && SelectRole.selectedOptionValue) ||\n  ( !appsmith.store.editingUser?.id && (!InputPassword.text || InputPassword.text.length < 8) )\n}}\n",
   "isLoading": false,
   "isVisible": true,
   "key": "7svucsrbai",
@@ -37,9 +46,9 @@
   "mobileRightColumn": 63,
   "mobileTopRow": 18,
   "needsErrorInfo": false,
-  "onClick": "{{ JSUsers.createUser() }}",
-  "originalBottomRow": 42,
-  "originalTopRow": 38,
+  "onClick": "{{ JS_UserModal.save() }}\n\n",
+  "originalBottomRow": 49,
+  "originalTopRow": 45,
   "parentId": "558zwkt6wc",
   "placement": "CENTER",
   "recaptchaType": "V3",
@@ -47,8 +56,8 @@
   "resetFormOnClick": false,
   "responsiveBehavior": "hug",
   "rightColumn": 61,
-  "text": "Crear",
-  "topRow": 38,
+  "text": "{{ appsmith.store.editingUser?.id ? \"Actualizar\" : \"Crear\" }}",
+  "topRow": 46,
   "type": "BUTTON_WIDGET",
   "version": 1,
   "widgetId": "dqigg2zamc",

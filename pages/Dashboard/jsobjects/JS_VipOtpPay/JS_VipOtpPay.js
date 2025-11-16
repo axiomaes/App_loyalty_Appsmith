@@ -182,7 +182,7 @@ export default {
 			await this._sendVipToOwner({ code, ttlMin: 10 });
 
 			showAlert("Aviso enviado.", "success");
-			try { InputOtp?.setFocus?.(); } catch (_){}
+			try { focusWidget("InputOtp"); } catch (_) {}
 		} catch (e) {
 			console.error("onSave error:", e);
 			showAlert(e?.message || "No se pudo completar la operación.", "error");

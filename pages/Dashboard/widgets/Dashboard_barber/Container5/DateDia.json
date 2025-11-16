@@ -7,15 +7,24 @@
   "closeOnSelection": true,
   "dateFormat": "DD-MM-YYYY",
   "datePickerType": "DATE_PICKER",
+  "defaultDate": "{{ new Date().toISOString().split(\"T\")[0] }}\n",
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
     },
     {
       "key": "borderRadius"
+    },
+    {
+      "key": "defaultDate"
     }
   ],
   "dynamicHeight": "FIXED",
+  "dynamicPropertyPathList": [
+    {
+      "key": "defaultDate"
+    }
+  ],
   "dynamicTriggerPathList": [],
   "firstDayOfWeek": "1",
   "isDisabled": false,
@@ -39,8 +48,8 @@
   "mobileRightColumn": 27,
   "mobileTopRow": 2,
   "needsErrorInfo": false,
-  "originalBottomRow": 12,
-  "originalTopRow": 5,
+  "originalBottomRow": 11,
+  "originalTopRow": 4,
   "parentColumnSpace": 18.388916015625,
   "parentId": "4ieeo8zclb",
   "parentRowSpace": 10,
