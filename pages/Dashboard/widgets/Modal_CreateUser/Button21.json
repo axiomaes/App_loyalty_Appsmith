@@ -15,10 +15,10 @@
       "key": "borderRadius"
     },
     {
-      "key": "text"
+      "key": "isDisabled"
     },
     {
-      "key": "isDisabled"
+      "key": "text"
     }
   ],
   "dynamicPropertyPathList": [
@@ -35,7 +35,7 @@
     }
   ],
   "isDefaultClickDisabled": true,
-  "isDisabled": "{{\n  !(InputEmail.text && SelectRole.selectedOptionValue) ||\n  ( !appsmith.store.editingUser?.id && (!InputPassword.text || InputPassword.text.length < 8) )\n}}\n",
+  "isDisabled": "{{\n  !(InputEmail_rol.text && SelectRole.selectedOptionValue) ||\n  ( !appsmith.store.editingUser?.id && (!InputPassword.text || InputPassword.text.length < 8) )\n}}\n",
   "isLoading": false,
   "isVisible": true,
   "key": "7svucsrbai",
@@ -47,8 +47,8 @@
   "mobileTopRow": 18,
   "needsErrorInfo": false,
   "onClick": "{{ JS_UserModal.save() }}\n\n",
-  "originalBottomRow": 49,
-  "originalTopRow": 45,
+  "originalBottomRow": 50,
+  "originalTopRow": 46,
   "parentId": "558zwkt6wc",
   "placement": "CENTER",
   "recaptchaType": "V3",

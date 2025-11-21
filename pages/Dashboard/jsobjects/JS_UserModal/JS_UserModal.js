@@ -17,8 +17,6 @@ export default {
 	_safeSelectRole(value, label) {
 		try {
 			if (typeof SelectRole?.setSelectedOption === "function") {
-				// en Select clásico suele bastar con pasar el value
-				// si tu widget espera { label, value }, también funciona:
 				SelectRole.setSelectedOption({ value, label: label || value });
 			}
 		} catch (_) {}
@@ -44,7 +42,7 @@ export default {
 
 		await storeValue("editingUser", null);
 
-		this._safeSetValue(InputEmail, "");
+		this._safeSetValue(InputEmail_rol, "");
 		this._safeSelectRole("STAFF", "Staff");
 		this._safeSetValue(InputFirst, "");
 		this._safeSetValue(InputLast, "");
@@ -69,7 +67,7 @@ export default {
 
 		await storeValue("editingUser", u);
 
-		this._safeSetValue(InputEmail, u.email || "");
+		this._safeSetValue(InputEmail_rol, u.email || "");
 		this._safeSelectRole(u.role || "STAFF", u.role || "Staff");
 		this._safeSetValue(
 			InputFirst,
@@ -87,7 +85,7 @@ export default {
 
 	// ----- validaciones simples
 	_validate() {
-		const email = (InputEmail?.text || "").trim().toLowerCase();
+		const email = (InputEmail_rol?.text || "").trim().toLowerCase();
 		const role =
 					SelectRole?.selectedOptionValue ||
 					SelectRole?.value ||
@@ -110,6 +108,7 @@ export default {
 		return { email, role, first, last, phone, isActive };
 	},
 
+	// ----- guardar
 	async save() {
 		try {
 			if (!this._canManage()) {
@@ -120,18 +119,18 @@ export default {
 			const data = this._validate();
 			if (!data) return;
 
-			// Duplicados
-			const dup = await q_user_email_exists.run({ email: data.email });
-			if (
-				Array.isArray(dup) &&
-				dup.length > 0 &&
-				!appsmith.store?.editingUser?.id
-			) {
+			const editingId = appsmith.store?.editingUser?.id;
+
+			// Duplicados (consulta previa)
+			const dup = await q_user_email_exists.run({
+				email: data.email,
+				exclude_user_id: editingId || null,
+			});
+
+			if (Array.isArray(dup) && dup.length > 0 && !editingId) {
 				showAlert("Ese email ya existe en este negocio.", "warning");
 				return;
 			}
-
-			const editingId = appsmith.store?.editingUser?.id;
 
 			if (editingId) {
 				// EDITAR
@@ -156,7 +155,7 @@ export default {
 					return;
 				}
 
-				await q_create_user.run({
+				const res = await q_create_user.run({
 					email: data.email,
 					new_pass: newPass,
 					role: data.role,
@@ -166,6 +165,36 @@ export default {
 					created_by_email:
 					appsmith.store?.userEmail || appsmith.user?.email || ""
 				});
+
+				const r = Array.isArray(res) ? res[0] : null;
+
+				const okEmail = r?.ok_email;
+				const okPass  = r?.ok_pass;
+				const okRole  = r?.ok_role;
+				const inserted = r?.inserted;
+				const duplicate = r?.duplicate_email;
+
+				// Interpretar resultado del SQL
+				if (!okEmail) {
+					showAlert("Email inválido (según validación SQL).", "error");
+					return;
+				}
+				if (!okPass) {
+					showAlert("La contraseña no cumple los requisitos.", "error");
+					return;
+				}
+				if (!okRole) {
+					showAlert("Rol inválido.", "error");
+					return;
+				}
+				if (!inserted) {
+					if (duplicate) {
+						showAlert("Ese email ya existe en este negocio.", "warning");
+					} else {
+						showAlert("No se pudo crear el usuario (sin insertar fila).", "error");
+					}
+					return;
+				}
 			}
 
 			if (typeof q_users?.run === "function") {

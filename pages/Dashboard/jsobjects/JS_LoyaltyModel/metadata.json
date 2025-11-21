@@ -1,0 +1,11 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_dce60c51-a714-41a5-ac7a-dd7e574a4d66",
+  "id": "Dashboard_JS_LoyaltyModel",
+  "unpublishedCollection": {
+    "name": "JS_LoyaltyModel",
+    "pageId": "Dashboard",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": []
+  }
+}

@@ -1,8 +1,0 @@
-SELECT "customerId", COUNT(*) AS visitas
-FROM "Visit"
-WHERE "customerId" IN (
-  '92475592-04fc-4892-a08b-b8be810ea092',
-  '7942b9d4-8395-417a-a315-b7329f934fec',
-  '95080b3c-5bb6-4801-a0d4-a9599c97b4d6'
-)
-GROUP BY "customerId";

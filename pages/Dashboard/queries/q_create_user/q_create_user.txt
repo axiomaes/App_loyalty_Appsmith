@@ -1,7 +1,7 @@
 WITH v AS (
 	SELECT
 	{{ appsmith.store.businessId }}::uuid                          AS bid,
-	lower(trim({{ this.params.email }}::text))                     AS email_norm,
+	NULLIF(lower(trim({{ this.params.email || '' }}::text)), '')   AS email_norm,
 	{{ this.params.new_pass }}::text                               AS pass_raw,
 	upper(trim(COALESCE({{ this.params.role }}::text,'BARBER')))   AS role_raw,
 	lower(trim(
@@ -13,12 +13,17 @@ WITH v AS (
 ),
 chk AS (
 	SELECT
-	(email_norm ~ '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$') AS ok_email,
-	(length(pass_raw) >= 8)                         AS ok_pass,
-	(role_raw IN ('BARBER','ADMIN','OWNER','SUPERADMIN')) AS ok_role
+	-- 👇 en vez de regex complicada: solo que no sea NULL/vacío
+	(email_norm IS NOT NULL)                                       AS ok_email,
+	(length(pass_raw) >= 8)                                        AS ok_pass,
+	(role_raw IN ('BARBER','ADMIN','OWNER','SUPERADMIN'))          AS ok_role
 	FROM v
 ),
-go AS ( SELECT 1 FROM chk WHERE ok_email AND ok_pass AND ok_role ),
+go AS (
+	SELECT 1
+	FROM chk
+	WHERE ok_email AND ok_pass AND ok_role
+),
 
 creator AS (
 	SELECT u.id AS created_by_id
@@ -34,7 +39,8 @@ ins AS (
 	FROM v
 	JOIN go ON TRUE
 	LEFT JOIN creator c ON TRUE
-	ON CONFLICT ON CONSTRAINT ux_user_email_lower DO NOTHING
+	-- sin nombrar constraint: deja que Postgres use el índice/unique que corresponda
+	ON CONFLICT DO NOTHING
 	RETURNING id, email, role, "createdBy", "createdByEmail"
 )
 SELECT
@@ -43,7 +49,8 @@ SELECT
   (SELECT ok_role  FROM chk) AS ok_role,
   EXISTS (SELECT 1 FROM ins) AS inserted,
   EXISTS (
-		SELECT 1 FROM "User" u, v
+		SELECT 1
+		FROM "User" u, v
 		WHERE lower(u.email) = v.email_norm
 		AND u."businessId" = v.bid
 	) AS duplicate_email,

@@ -1,0 +1,27 @@
+WITH v AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid                             AS bid,
+    {{ Roles.isAdminLike() ? 'true' : 'false' }}::boolean             AS is_admin_like,
+    {{ appsmith.store.session?.userId || appsmith.store.userId }}::uuid AS staff_id
+)
+SELECT
+  l.id,
+  l."visitedAt",
+  l."createdAt",
+  l."serviceName",
+  l."priceCents",
+  l.quantity,
+  c.name  AS customer_name,
+  c.phone AS customer_phone
+FROM "StaffServiceLog" l
+JOIN v ON l."businessId" = v.bid
+LEFT JOIN "Customer" c ON c.id = l."customerId"
+WHERE
+  -- Admin / Owner / Superadmin → ven todo
+  v.is_admin_like IS TRUE
+  -- Barber → solo sus servicios
+  OR l."staffUserId" = v.staff_id
+ORDER BY
+  l."visitedAt" DESC NULLS LAST,
+  l."createdAt" DESC
+LIMIT 200;

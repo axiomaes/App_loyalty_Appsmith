@@ -1,26 +1,26 @@
 WITH v AS (
-  SELECT
-    {{ appsmith.store.businessId }}::uuid                                    AS bid,
-    NULLIF(lower(trim({{ this.params.email || '' }}::text)), '')             AS email_norm,
-    NULLIF(trim({{ this.params.exclude_user_id || '' }}::text), '')::uuid    AS exclude_uid
+	SELECT
+	{{ appsmith.store.businessId }}::uuid                                 AS bid,
+	NULLIF(lower(trim({{ this.params.email || '' }}::text)), '')          AS email_norm,
+	NULLIF(trim({{ this.params.exclude_user_id || '' }}::text), '')::uuid AS exclude_uid
 ),
 chk AS (
-  SELECT
-    email_norm IS NOT NULL
-    AND email_norm ~ '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$' AS ok_email
-  FROM v
-),
-dup AS (
-  SELECT
-    u.id, u.email, u.role, u."businessId"
-  FROM "User" u, v
-  WHERE (SELECT ok_email FROM chk)
-    AND lower(u.email) = (SELECT email_norm FROM v)
-    AND u."businessId" = (SELECT bid FROM v)
-    AND ( (SELECT exclude_uid FROM v) IS NULL OR u.id <> (SELECT exclude_uid FROM v) )
-  LIMIT 1
+	SELECT
+	email_norm IS NOT NULL
+	AND email_norm ~ '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$' AS ok_email,
+	email_norm,
+	bid,
+	exclude_uid
+	FROM v
 )
 SELECT
-  (SELECT ok_email FROM chk)                 AS ok_email,
-  EXISTS(SELECT 1 FROM dup)                  AS exists_in_business,
-  (SELECT to_jsonb(dup.*) FROM dup)          AS row;
+  u.id,
+  u.email,
+  u.role,
+  u."businessId"
+FROM "User" u
+JOIN chk c ON c.ok_email
+WHERE lower(u.email) = c.email_norm
+  AND u."businessId" = c.bid
+  AND (c.exclude_uid IS NULL OR u.id <> c.exclude_uid)
+LIMIT 1;

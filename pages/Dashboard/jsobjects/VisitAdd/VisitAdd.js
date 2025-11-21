@@ -179,8 +179,6 @@ export default {
 			return;
 		}
 
-		const isAdminLike = Roles.isAdminLike();
-
 		// 🔒 Bloqueo VIP (si aplica a STAFF/BARBER)
 		const canVisit = await VIP.mustBeActiveBeforeVisit(cid);
 		if (!canVisit) {
@@ -189,38 +187,16 @@ export default {
 		}
 
 		try {
-			const res = await q_visit_code_qr.run({
-				customerId: cid,
-				notes: "Visita por QR",
-				isAdminLike,
-				// 👇 trazabilidad (nuevo)
-				createdBy: appsmith.user?.email || "",
-				createdByRole: appsmith.store?.session?.role || appsmith.store?.role || "",
-				createdById: appsmith.store?.session?.userId || null,
-			});
+			// 👉 NUEVO FLUJO:
+			// en vez de registrar aquí la visita, abrimos el modal
+			// para que el staff elija el servicio.
+			await JS_ServiceVisitFlow.openForCustomer(cid);
 
-			const ok =
-						(Array.isArray(res) && (res[0]?.inserted === true || res[0]?.ok === true)) ||
-						(res?.inserted === true || res?.ok === true);
-
-			if (!ok) {
-				showAlert("No se pudo registrar: regla de 48 h activa.", "warning");
-				await storeValue("_lastScanOk", false);
-				return;
-			}
-
-			// refresco opcional de "visitas de hoy"
-			if (typeof q_visitas_hoy?.run === "function") {
-				try { await q_visitas_hoy.run(); } catch (_) {}
-			}
-
-			await this._refreshIfSelected(cid);
-			closeModal?.(Modal_add_visit?.name);
-			showAlert("Visita registrada mediante QR.", "success");
+			// guardamos que el escaneo fue correcto
 			await storeValue("_lastScanOk", true);
 		} catch (e) {
 			console.error("VisitAdd.fromQr error:", e);
-			showAlert(e?.message || "No se pudo registrar la visita por QR.", "error");
+			showAlert(e?.message || "No se pudo preparar el registro de la visita por QR.", "error");
 			await storeValue("_lastScanOk", false);
 		}
 	},

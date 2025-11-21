@@ -169,7 +169,7 @@ export default {
 
 		// Importe > 0
 		const importe = Number(InputImporte.text || 0);
-		if (!(importe > 0)) errs.push("El valor debe ser mayor que 0.");
+		if (importe <= 0) errs.push("El valor debe ser mayor que 0.");
 
 		return { ok: errs.length === 0, phoneE164, errs };
 	},

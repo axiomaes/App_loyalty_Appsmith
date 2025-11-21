@@ -29,7 +29,7 @@
     ],
     "name": "q_visitas_hoy",
     "pageId": "Dashboard",
-    "runBehaviour": "AUTOMATIC",
+    "runBehaviour": "MANUAL",
     "userSetOnLoad": false
   }
 }
