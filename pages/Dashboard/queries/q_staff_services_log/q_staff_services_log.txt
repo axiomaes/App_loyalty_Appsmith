@@ -1,0 +1,94 @@
+WITH tz AS (
+  -- hora actual en Madrid
+  SELECT now() AT TIME ZONE 'Europe/Madrid' AS now_es
+),
+
+-- Parámetros de fecha desde / hasta (opcionales)
+params AS (
+  SELECT
+    NULLIF({{ DateFrom_services.selectedDate || '' }}, '')::timestamptz AS d_from_raw,
+    NULLIF({{ DateTo_services.selectedDate   || '' }}, '')::timestamptz AS d_to_raw
+),
+
+-- Normalizamos rango [start_es, end_es) en horario Madrid
+bounds AS (
+  SELECT
+    COALESCE(
+      date_trunc('day', d_from_raw AT TIME ZONE 'Europe/Madrid'),
+      date_trunc('day', (SELECT now_es FROM tz))
+    ) AS start_es,
+    COALESCE(
+      date_trunc('day', d_to_raw AT TIME ZONE 'Europe/Madrid') + interval '1 day',
+      date_trunc('day', (SELECT now_es FROM tz)) + interval '1 day'
+    ) AS end_es
+  FROM params
+),
+
+-- Contexto de rol + email del usuario conectado
+ctx AS (
+  SELECT
+    UPPER(
+      COALESCE(
+        NULLIF({{ typeof Auth?.role === 'function' ? Auth.role() : '' }}, ''),
+        NULLIF({{ appsmith.store?.role || '' }}, ''),
+        'BARBER'
+      )
+    ) AS role,
+    COALESCE(
+      NULLIF({{ appsmith.store?.userEmail || '' }}, ''),
+      NULLIF({{ typeof Auth?.email === 'function' ? Auth.email() : '' }}, ''),
+      NULLIF({{ appsmith.user?.email || '' }}, ''),
+      ''
+    ) AS email
+),
+
+biz AS (
+  SELECT
+    COALESCE(
+      NULLIF({{ appsmith.store?.businessId || '' }}, ''),
+      NULLIF({{ typeof Auth?.businessId === 'function' ? Auth.businessId() : '' }}, '')
+    )::uuid AS business_id
+),
+
+-- Resolvemos el userId del staff a partir del email
+staff AS (
+  SELECT u.id AS staff_id
+  FROM "User" u, biz, ctx
+  WHERE u."businessId" = biz.business_id
+    AND lower(u.email) = lower(ctx.email)
+  LIMIT 1
+)
+
+SELECT
+  l.id,
+  l."visitedAt" AT TIME ZONE 'Europe/Madrid' AS fecha_hora,
+  c.name        AS cliente,
+  c.phone       AS telefono,
+  COALESCE(l."serviceName", s.name) AS servicio,
+  COALESCE(l."priceCents", s."priceCents") AS price_cents,
+  l.quantity,
+  u.email       AS staff_email,
+  u."role"      AS staff_role
+FROM "StaffServiceLog" l
+JOIN biz
+  ON l."businessId" = biz.business_id
+JOIN "Customer" c
+  ON c.id = l."customerId"
+LEFT JOIN "Service" s
+  ON s.id = l."serviceId"
+LEFT JOIN "User" u
+  ON u.id = l."staffUserId"
+JOIN bounds b
+  ON l."visitedAt" >= b.start_es AT TIME ZONE 'UTC'
+ AND l."visitedAt" <  b.end_es   AT TIME ZONE 'UTC'
+WHERE
+  (
+    -- ADMIN / OWNER / SUPERADMIN ven todo
+    (SELECT role FROM ctx) IN ('ADMIN','OWNER','SUPERADMIN')
+    -- BARBER y resto → solo sus propios servicios
+    OR (
+      (SELECT role FROM ctx) NOT IN ('ADMIN','OWNER','SUPERADMIN')
+      AND l."staffUserId" = (SELECT staff_id FROM staff)
+    )
+  )
+ORDER BY l."visitedAt" DESC;

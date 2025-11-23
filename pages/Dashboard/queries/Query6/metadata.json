@@ -5,7 +5,7 @@
   "pluginType": "DB",
   "unpublishedAction": {
     "actionConfiguration": {
-      "body": "WITH tz AS (\n  SELECT now() AT TIME ZONE 'Europe/Madrid' AS now_es\n),\nbounds AS (\n  SELECT \n    -- límites del día de hoy en Madrid, convertidos a UTC\n    (date_trunc('day', now_es) AT TIME ZONE 'Europe/Madrid')       AS start_utc,\n    (date_trunc('day', now_es) + interval '1 day') AT TIME ZONE 'Europe/Madrid' AS end_utc\n  FROM tz\n),\n\n-- Contexto robusto (sin concatenaciones)\nctx AS (\n  SELECT\n    UPPER(\n      COALESCE(\n        NULLIF({{ typeof Auth?.role === 'function' ? Auth.role() : '' }}, ''),\n        NULLIF({{ appsmith.store?.role || '' }}, ''),\n        'BARBER'\n      )\n    ) AS role,\n    COALESCE(\n      NULLIF({{ appsmith.store?.userEmail || '' }}, ''),\n      NULLIF({{ typeof Auth?.email === 'function' ? Auth.email() : '' }}, ''),\n      NULLIF({{ appsmith.user?.email || '' }}, ''),\n      ''\n    ) AS email\n),\n\nbiz AS (\n  SELECT\n    COALESCE(\n      NULLIF({{ appsmith.store?.businessId || '' }}, ''),\n      NULLIF({{ typeof Auth?.businessId === 'function' ? Auth.businessId() : '' }}, '')\n    )::uuid AS business_id\n)\n\nSELECT\n  v.id,\n  v.\"visitedAt\" AT TIME ZONE 'Europe/Madrid' AS hora,\n  c.name        AS cliente,\n  c.phone       AS telefono,\n  COALESCE(v.notes,'') AS notas,\n  v.\"createdBy\"       AS creado_por,\n  COALESCE(\n    bono.plan_name,\n    CASE\n      WHEN c.tag IS NULL OR c.tag = '' THEN 'Sin bono'\n      ELSE initcap(replace(replace(lower(c.tag), '_', ' '), 'vip', 'VIP'))\n    END\n  ) AS tipo_bono\nFROM \"Visit\" v\nJOIN \"Customer\" c\n  ON c.id = v.\"customerId\"\nLEFT JOIN LATERAL (\n  SELECT bp.name AS plan_name\n  FROM \"Bond\" b\n  JOIN \"BondPlan\" bp\n    ON bp.id = b.\"planId\"\n   AND bp.\"businessId\" = c.\"businessId\"\n   AND bp.\"isActive\" = TRUE\n  WHERE b.\"customerId\" = c.id\n  ORDER BY b.\"startedAt\" DESC\n  LIMIT 1\n) bono ON TRUE\nJOIN bounds b\n  -- interpretamos visitedAt como UTC y comparamos en UTC\n  ON (v.\"visitedAt\" AT TIME ZONE 'UTC') >= b.start_utc\n AND (v.\"visitedAt\" AT TIME ZONE 'UTC') <  b.end_utc\nWHERE c.\"businessId\" = (SELECT business_id FROM biz)\n  AND (\n        (SELECT role FROM ctx) IN ('ADMIN','OWNER','SUPERADMIN')\n        OR COALESCE(v.\"createdBy\",'') = (SELECT email FROM ctx)\n      )\nORDER BY v.\"visitedAt\" DESC;\n",
+      "body": "SELECT *\nFROM \"StaffServiceLog\"\nWHERE \"visitedAt\"::date = CURRENT_DATE\nORDER BY \"visitedAt\" DESC;\n",
       "encodeParamsToggle": true,
       "paginationType": "NONE",
       "pluginSpecifiedTemplates": [
@@ -22,11 +22,7 @@
       "name": "AxiomaDB",
       "pluginId": "postgres-plugin"
     },
-    "dynamicBindingPathList": [
-      {
-        "key": "body"
-      }
-    ],
+    "dynamicBindingPathList": [],
     "name": "Query6",
     "pageId": "Dashboard",
     "runBehaviour": "MANUAL",

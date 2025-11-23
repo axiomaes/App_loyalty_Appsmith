@@ -5,7 +5,7 @@
   "pluginType": "DB",
   "unpublishedAction": {
     "actionConfiguration": {
-      "body": "SELECT\n  tc.constraint_name,\n  tc.table_name      AS referencing_table,\n  kcu.column_name    AS referencing_column\nFROM information_schema.table_constraints tc\nJOIN information_schema.key_column_usage kcu\n  ON tc.constraint_name = kcu.constraint_name\n  AND tc.constraint_schema = kcu.constraint_schema\nJOIN information_schema.constraint_column_usage ccu\n  ON ccu.constraint_name = tc.constraint_name\n  AND ccu.constraint_schema = tc.constraint_schema\nWHERE tc.constraint_type = 'FOREIGN KEY'\n  AND ccu.table_name = 'Customer'\nORDER BY referencing_table, referencing_column;\n",
+      "body": "SELECT *\nFROM \"StaffServiceLog\"\nORDER BY \"visitedAt\" DESC\nLIMIT 20;\n",
       "encodeParamsToggle": true,
       "paginationType": "NONE",
       "pluginSpecifiedTemplates": [

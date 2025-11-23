@@ -1,14 +1,14 @@
 {
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 364,
+  "bottomRow": 384,
   "boxShadow": "none",
   "canEscapeKeyClose": true,
   "canOutsideClickClose": true,
   "children": [
     {
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      "bottomRow": 310,
+      "bottomRow": 330,
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "canExtend": true,
       "detachFromLayout": true,
@@ -29,7 +29,7 @@
       "leftColumn": 0,
       "maxDynamicHeight": 9000,
       "minDynamicHeight": 4,
-      "minHeight": 330,
+      "minHeight": 310,
       "minWidth": 450,
       "mobileBottomRow": 240,
       "mobileLeftColumn": 0,
@@ -57,14 +57,14 @@
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
-  "height": 310,
+  "height": 330,
   "isCanvas": true,
   "isLoading": false,
   "key": "mrv27dpr34",
   "leftColumn": 17,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 24,
-  "minHeight": 310,
+  "minHeight": 330,
   "mobileBottomRow": 78,
   "mobileLeftColumn": 17,
   "mobileRightColumn": 41,
@@ -81,5 +81,5 @@
   "version": 2,
   "widgetId": "79hwv3mow3",
   "widgetName": "Modal_ConfirmService",
-  "width": 411.5
+  "width": 399.5
 }

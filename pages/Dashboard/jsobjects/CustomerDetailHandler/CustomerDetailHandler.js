@@ -1,7 +1,11 @@
 export default {
 	_isUuid(s) {
-		return typeof s === "string" &&
-			/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(s);
+		return (
+			typeof s === "string" &&
+			/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+				s,
+			)
+		);
 	},
 
 	_buildMonthKey(dateIso) {
@@ -11,7 +15,9 @@ export default {
 			const y = d.getUTCFullYear();
 			const m = String(d.getUTCMonth() + 1).padStart(2, "0");
 			return `${y}-${m}`;
-		} catch { return null; }
+		} catch {
+			return null;
+		}
 	},
 
 	_buildMonthLabel(dateIso) {
@@ -19,10 +25,25 @@ export default {
 		try {
 			const d = new Date(dateIso);
 			const y = d.getUTCFullYear();
-			const monthNames = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
+			const monthNames = [
+				"ENE",
+				"FEB",
+				"MAR",
+				"ABR",
+				"MAY",
+				"JUN",
+				"JUL",
+				"AGO",
+				"SEP",
+				"OCT",
+				"NOV",
+				"DIC",
+			];
 			const lbl = `${monthNames[d.getUTCMonth()]} / ${y}`;
 			return lbl.toUpperCase();
-		} catch { return null; }
+		} catch {
+			return null;
+		}
 	},
 
 	_computeMonthOptions(rows = []) {
@@ -36,7 +57,10 @@ export default {
 		// Uniq por value (mes más reciente primero)
 		const map = new Map();
 		for (const it of items) map.set(it.value, it.label);
-		const dedup = Array.from(map.entries()).map(([value, label]) => ({ value, label }));
+		const dedup = Array.from(map.entries()).map(([value, label]) => ({
+			value,
+			label,
+		}));
 		// Orden DESC por value (YYYY-MM)
 		dedup.sort((a, b) => (a.value < b.value ? 1 : a.value > b.value ? -1 : 0));
 		return dedup;
@@ -46,26 +70,28 @@ export default {
    * Abre el detalle del cliente seleccionado desde una fila de la tabla
    * y prepara meses únicos para el filtro SelMes.
    */
-	async openDetail(row) {
+	async openDetail(row = null) {
 		try {
-			// 1) ID del cliente
+			// 1) ID del cliente (prioridad: argumento -> tabla)
 			const id =
 						row?.id ||
 						row?.customerId ||
 						row?.ID ||
-						Listado_clientes?.triggeredRow?.id;
+						Listado_clientes?.triggeredRow?.id ||
+						Listado_clientes?.selectedRow?.id;
 
 			if (!id) {
 				showAlert("No se pudo determinar el ID del cliente.", "error");
 				return;
 			}
 
-			// 🔸 NUEVO: intentar sacar nombre y teléfono de la fila
+			// Nombre y teléfono (del row o de la tabla si llega vacío)
 			const nombre =
 						row?.name ||
 						row?.cliente ||
 						row?.fullName ||
 						row?.nombre ||
+						Listado_clientes?.selectedRow?.name ||
 						null;
 
 			const telefono =
@@ -73,16 +99,16 @@ export default {
 						row?.telefono ||
 						row?.mobile ||
 						row?.telefono_movil ||
+						Listado_clientes?.selectedRow?.phone ||
 						null;
 
 			// 2) Guardar selección global
 			await storeValue("selCustomerId", id);
 			await storeValue("selectedCustomerId", id);
-			await storeValue("qrImg", JS_QR.pngUrl(id));                 // ahora ya trae /api/...
+			await storeValue("qrImg", JS_QR.pngUrl(id));
 			await storeValue("qrFallbackUrl", JS_QR.downloadUrl(id));
-			await storeValue("qrImgBase64", "");                          // que no tape con base64 vacío
+			await storeValue("qrImgBase64", "");
 
-			// 🔸 NUEVO: guardar en store para WhatsApp
 			await storeValue("clienteNombre", nombre);
 			await storeValue("clienteTelefono", telefono);
 
@@ -90,22 +116,26 @@ export default {
 			const pageSize = Table_visitas?.pageSize || 50;
 			const [det, hist] = await Promise.all([
 				q_cliente_detalle.run({ id }),
-				q_visitas_historial.run({ customerId: id, limit: pageSize, offset: 0 })
+				q_visitas_historial.run({ customerId: id, limit: pageSize, offset: 0 }),
 			]);
 
 			// 4) Guardar resultados crudos
-			const detalle = Array.isArray(det) ? (det[0] || {}) : (det || {});
+			const detalle = Array.isArray(det) ? det[0] || {} : det || {};
 			const historial = Array.isArray(hist) ? hist : [];
+
 			await storeValue("clienteDetalle", detalle);
 			await storeValue("clienteHistorial", historial);
 
-			// 5) Preparar opciones de meses para SelMes
+			// también lo usamos para el modal de confirmación de servicio
+			await storeValue("scannedCustomer", detalle);
+
+			// 5) Meses para filtro
 			const monthOpts = this._computeMonthOptions(historial);
 			const monthDefault = monthOpts?.[0]?.value || null;
 			await storeValue("visitsMonthsOptions", monthOpts);
 			await storeValue("visitsMonthDefault", monthDefault);
 
-			// 6) Refrescar la tarjeta de visitas (Custom Widget) sin bloquear el flujo
+			// 6) Refrescar tarjeta de visitas
 			try {
 				await Promise.all([
 					getClientVisitsQuery?.run?.(),
@@ -121,10 +151,14 @@ export default {
 			await showModal(Modal_datos_clientes.name);
 
 			console.log("✅ Cliente cargado:", id, "Meses:", monthOpts);
-
 		} catch (err) {
 			console.error("❌ Error en CustomerDetailHandler.openDetail:", err);
 			showAlert("No se pudo abrir el detalle del cliente.", "error");
 		}
+	},
+
+	// helper opcional por si quieres llamarlo siempre sin argumentos
+	async openFromTable() {
+		return this.openDetail(Listado_clientes?.triggeredRow || null);
 	},
 };

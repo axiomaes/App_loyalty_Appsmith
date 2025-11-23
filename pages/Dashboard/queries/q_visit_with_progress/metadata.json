@@ -11,7 +11,7 @@
           "value": "application/json"
         }
       ],
-      "body": "{\n  \"count\": 1,\n  \"notes\": {{ VisitAdd.motive() }},\n  \"serviceId\": {{ this.params.serviceId }},\n  \"serviceName\": {{ this.params.serviceName }},\n  \"priceCents\": {{ this.params.priceCents || 0 }}\n}\n",
+      "body": "{\n  \"count\": 1,\n  \"notes\": \"{{ VisitAdd.motive() }}\",\n  \"serviceId\": \"{{ this.params.serviceId }}\",\n  \"serviceName\": \"{{ this.params.serviceName }}\",\n  \"priceCents\": {{ this.params.priceCents || 0 }}\n}\n",
       "bodyFormData": [],
       "encodeParamsToggle": true,
       "formData": {
@@ -20,13 +20,13 @@
       "headers": [
         {
           "key": "Authorization",
-          "value": "Bearer {{ appsmith.store.session?.token }}"
+          "value": "Bearer {{ Auth.jwt() }}"
         }
       ],
       "httpMethod": "POST",
       "httpVersion": "HTTP11",
       "paginationType": "NONE",
-      "path": "/api/customers/{{ this.params.customerId }}/visits/with-progress",
+      "path": "/api/customers/{{ \n  this.params.customerId \n    || appsmith.store.selCustomerId \n    || appsmith.store.selectedCustomerId \n}}/visits/with-progress\n",
       "pluginSpecifiedTemplates": [
         {
           "value": true
@@ -46,10 +46,10 @@
     },
     "dynamicBindingPathList": [
       {
-        "key": "path"
+        "key": "headers[0].value"
       },
       {
-        "key": "headers[0].value"
+        "key": "path"
       },
       {
         "key": "body"

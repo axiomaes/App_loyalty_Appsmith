@@ -1,5 +1,5 @@
 export default {
-	// ================== Abrir flujo para un cliente (después de escanear QR) ==================
+	// ================== Abrir flujo para un cliente (después de escanear QR o desde ficha) ==================
 	async openForCustomer(customerId) {
 		try {
 			if (!customerId) {
@@ -10,9 +10,12 @@ export default {
 			// guardamos el cliente seleccionado en el store
 			await storeValue("selCustomerId", customerId);
 
-			// cargamos detalle del cliente (ya lo usas en otras pantallas)
-			const detalle = await q_cliente_detalle.run({ id: customerId });
-			await storeValue("scannedCustomer", detalle?.[0] || detalle);
+			// cargamos detalle del cliente
+			const det = await q_cliente_detalle.run({ id: customerId });
+			const detalle = Array.isArray(det) ? det[0] || {} : det || {};
+
+			await storeValue("scannedCustomer", detalle);
+			await storeValue("clienteDetalle", detalle);
 
 			// abrimos el modal con la lista de servicios
 			showModal(Modal_ServiceConfirm.name);
@@ -23,9 +26,34 @@ export default {
 	},
 
 	// ================== Paso 1: elegir servicio ==================
-	async pickService(service) {
+	async pickService(row) {
 		try {
-			const customer = appsmith.store.scannedCustomer;
+			// servicio desde el parámetro o desde la tabla (por si acaso)
+			const svc =
+						row ||
+						Table_Services?.triggeredRow ||
+						Table_Services?.selectedRow ||
+						null;
+
+			if (!svc) {
+				showAlert("Selecciona un servicio válido.", "error");
+				return;
+			}
+
+			const id = svc.id || svc.serviceId || svc.service_id || null;
+			const name = svc.name || svc.serviceName || svc.nombre || "";
+
+			if (!id || !name) {
+				showAlert("Servicio inválido o incompleto.", "error");
+				return;
+			}
+
+			// cliente que se cargó en openForCustomer
+			const customer =
+						appsmith.store.scannedCustomer ||
+						appsmith.store.clienteDetalle ||
+						null;
+
 			if (!customer) {
 				showAlert("Cliente no cargado.", "error");
 				return;
@@ -34,22 +62,39 @@ export default {
 			const phone = (customer.phone || "").toString();
 			const last3 = phone.slice(-3) || "";
 
+			// precio en céntimos → robusto
 			const priceCents =
-						service?.priceCents != null ? Number(service.priceCents) : 0;
+						svc.priceCents != null
+			? Number(svc.priceCents)
+			: svc.price_cents != null
+			? Number(svc.price_cents)
+			: 0;
+
 			const priceEuros = (priceCents / 100).toFixed(2);
 
 			// guardamos el servicio pendiente de confirmar
 			await storeValue("pendingService", {
-				id: service.id,
-				name: service.name,
+				id,
+				name,
 				priceCents,
 			});
 
-			// datos ya formateados para mostrar en el modal de confirmación
+			// teléfono enmascarado para roles no privilegiados
+			const role = (appsmith.store.role || "").toUpperCase();
+			const isPrivileged = ["ADMIN", "OWNER", "SUPERADMIN"].includes(role);
+			const maskedPhone =
+						!phone
+			? ""
+			: isPrivileged
+			? phone
+			: "******" + last3;
+
+			// datos formateados para el modal de confirmación
 			await storeValue("pendingServicePreview", {
 				customerName: customer.name || "",
 				last3,
-				serviceName: service.name || "",
+				maskedPhone,
+				serviceName: name,
 				priceLabel: priceEuros,
 			});
 
@@ -75,27 +120,29 @@ export default {
 			const priceCents =
 						service.priceCents != null ? Number(service.priceCents) : 0;
 
+			// regla VIP / bloqueo como antes
+			const canVisit = await VIP.mustBeActiveBeforeVisit(customerId);
+			if (!canVisit) return;
+
 			// llamamos a tu API POST /customers/:id/visits/with-progress
 			const res = await q_visit_with_progress.run({
-				customerId,          // usado en la URL: {{ this.params.customerId }}
+				customerId,          // se usa en la URL: {{ this.params.customerId }}
 				serviceId: service.id,
 				serviceName: service.name,
 				priceCents,
 			});
 
-			// si quieres, puedes validar un poco la respuesta
 			const data = Array.isArray(res) ? res[0] : res;
 			if (!data?.customer) {
 				showAlert("No se pudo registrar la visita.", "error");
 				return;
 			}
 
-			// refresco de datos relacionados (si existen esos queries)
+			// refrescos que ya existían (ajusta nombres si hace falta)
 			try {
 				if (typeof q_clientes_por_dia?.run === "function") {
 					await q_clientes_por_dia.run();
 				}
-
 				if (typeof q_visitas_historial?.run === "function") {
 					await q_visitas_historial.run({
 						customerId,
@@ -107,15 +154,12 @@ export default {
 				console.warn("refresh after confirmService error:", e);
 			}
 
-			// limpiamos estado temporal
 			await storeValue("pendingService", null);
 			await storeValue("pendingServicePreview", null);
 
-			// cerramos modales
 			closeModal(Modal_ConfirmService.name);
 			closeModal(Modal_ServiceConfirm.name);
 
-			// toast final
 			showAlert("Visita registrada.", "success");
 		} catch (e) {
 			console.error("confirmService error:", e);

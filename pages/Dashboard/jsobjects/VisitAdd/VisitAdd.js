@@ -34,7 +34,9 @@ export default {
 		if (!s) return null;
 
 		// a) UUID en cualquier parte
-		const mUuid = s.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+		const mUuid = s.match(
+			/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i,
+		);
 		if (mUuid) return mUuid[0];
 
 		// b) Payload AXIOMA
@@ -87,7 +89,8 @@ export default {
 		if (!token) return null;
 
 		try {
-			const businessId = appsmith.store?.session?.businessId || appsmith.store?.businessId;
+			const businessId =
+						appsmith.store?.session?.businessId || appsmith.store?.businessId;
 			const r = await q_qr_token_resolve.run({ token, businessId });
 			const cid = r?.[0]?.customerid || r?.[0]?.customerId || null;
 			return Utils.isUuid(cid) ? cid : null;
@@ -97,7 +100,7 @@ export default {
 		}
 	},
 
-	// ----- Añadir visita manual (mantienes tu flujo actual) -----
+	// ----- Añadir visita manual (desde ficha de cliente) -----
 	async manual() {
 		const customerId =
 					appsmith.store.selCustomerId || appsmith.store.editingCustomer?.id;
@@ -107,44 +110,16 @@ export default {
 			return;
 		}
 
-		const isAdminLike = Roles.isAdminLike();
-		const notes = this.motive();
-
-		// 🔒 Bloqueo VIP (solo para STAFF/BARBER)
-		const canVisit = await VIP.mustBeActiveBeforeVisit(customerId);
-		if (!canVisit) return;
-
+		// Pasamos por el mismo flujo de servicios
 		try {
-			const res = await q_visit_code_qr.run({
-				customerId,
-				notes,
-				isAdminLike,
-				// 👇 trazabilidad (nuevo)
-				createdBy: appsmith.user?.email || "",
-				createdByRole: appsmith.store?.session?.role || appsmith.store?.role || "",
-				createdById: appsmith.store?.session?.userId || null,
-			});
-
-			const ok =
-						(Array.isArray(res) && (res[0]?.inserted === true || res[0]?.ok === true)) ||
-						(res?.inserted === true || res?.ok === true);
-
-			if (!ok) {
-				showAlert("No se pudo registrar: regla de 48 h activa.", "warning");
-				return;
-			}
-
-			// refresco opcional de "visitas de hoy"
-			if (typeof q_visitas_hoy?.run === "function") {
-				try { await q_visitas_hoy.run(); } catch (_) {}
-			}
-
-			await this._refreshIfSelected(customerId);
-			closeModal?.(Modal_add_visit?.name);
-			showAlert("Visita registrada correctamente.", "success");
+			await JS_ServiceVisitFlow.openForCustomer(customerId);
 		} catch (e) {
 			console.error("VisitAdd.manual error:", e);
-			showAlert(e?.message || "No se pudo registrar la visita.", "error");
+			showAlert(
+				e?.message ||
+				"No se pudo preparar el registro de la visita para este cliente.",
+				"error",
+			);
 		}
 	},
 
@@ -161,7 +136,7 @@ export default {
 		const now = Date.now();
 		const lastTs = appsmith.store._lastScanTs || 0;
 		const lastText = appsmith.store._lastScanText || "";
-		if (scan === String(lastText) && (now - lastTs) < 1500) return;
+		if (scan === String(lastText) && now - lastTs < 1500) return;
 		await storeValue("_lastScanTs", now);
 		await storeValue("_lastScanText", scan);
 
@@ -187,16 +162,16 @@ export default {
 		}
 
 		try {
-			// 👉 NUEVO FLUJO:
-			// en vez de registrar aquí la visita, abrimos el modal
-			// para que el staff elija el servicio.
+			// 👉 NUEVO: abrimos el flujo de selección de servicio
 			await JS_ServiceVisitFlow.openForCustomer(cid);
-
-			// guardamos que el escaneo fue correcto
 			await storeValue("_lastScanOk", true);
 		} catch (e) {
 			console.error("VisitAdd.fromQr error:", e);
-			showAlert(e?.message || "No se pudo preparar el registro de la visita por QR.", "error");
+			showAlert(
+				e?.message ||
+				"No se pudo preparar el registro de la visita por QR.",
+				"error",
+			);
 			await storeValue("_lastScanOk", false);
 		}
 	},

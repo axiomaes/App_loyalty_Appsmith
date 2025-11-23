@@ -118,7 +118,7 @@
       "itemType": "BUTTON",
       "label": "Visita",
       "menuItems": {},
-      "onClick": "{{\n  (async () => {\n    resetWidget('SelReason', true);\n    // si tienes pestañas, asegúrate que abra en \"Manual\" por defecto\n    showModal(Modal_add_visit.name);\n  })()\n}}\n",
+      "onClick": "{{  JS_ServiceVisitFlow.openForCustomer(appsmith.store.selCustomerId)\n}}\n",
       "placement": "CENTER",
       "variant": "filled",
       "widgetId": "e2hrifp4w5"

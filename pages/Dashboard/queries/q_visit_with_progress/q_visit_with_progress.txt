@@ -1,7 +1,7 @@
 {
   "count": 1,
-  "notes": {{ VisitAdd.motive() }},
-  "serviceId": {{ this.params.serviceId }},
-  "serviceName": {{ this.params.serviceName }},
+  "notes": "{{ VisitAdd.motive() }}",
+  "serviceId": "{{ this.params.serviceId }}",
+  "serviceName": "{{ this.params.serviceName }}",
   "priceCents": {{ this.params.priceCents || 0 }}
 }

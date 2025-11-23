@@ -4,32 +4,60 @@ WITH p AS (
     {{ moment(DateDia.selectedDate || new Date()).format('YYYY-MM-DD') }}::date AS d
 ),
 
+-- 🔹 Staff logs del día
+sl AS (
+  SELECT
+    l."visitId",
+    l."customerId",
+    l."serviceName",
+    COALESCE(l."priceCents", 0)::int AS priceCents,
+    l."visitedAt"
+  FROM "StaffServiceLog" l
+  JOIN p ON TRUE
+  WHERE l."businessId" = p.bid
+    AND l."visitedAt"::date = p.d
+),
+
 -- 🔹 Visitas del día
 vis AS (
   SELECT
-    v."visitedAt"                   AS at,
-    'VISITA'                        AS kind,
-    c.id                            AS "customerId",
-    c.name                          AS "customerName",
-    NULL::text                      AS details,
-    NULL::int                       AS amount_cents
+    v."visitedAt"                                      AS at,
+    to_char(v."visitedAt", 'YYYY-MM-DD')               AS fecha,
+    to_char(v."visitedAt", 'HH24:MI')                  AS hora,
+    'VISITA'                                           AS kind,
+    c.id                                               AS "customerId",
+    c.name                                             AS "customerName",
+    COALESCE(sl."serviceName", NULL)                   AS details,
+    COALESCE(sl.priceCents, 0)                         AS amount_cents
   FROM "Visit" v
   JOIN "Customer" c ON c.id = v."customerId"
+  LEFT JOIN sl
+    ON (
+         sl."visitId" IS NOT NULL AND sl."visitId" = v.id
+       )
+       OR (
+         sl."visitId" IS NULL
+         AND sl."customerId" = c.id
+         AND sl."visitedAt" BETWEEN v."visitedAt" - interval '5 seconds'
+                                AND v."visitedAt" + interval '5 seconds'
+       )
   JOIN p ON TRUE
   WHERE c."businessId" = p.bid
     AND c."deletedAt" IS NULL
     AND v."visitedAt"::date = p.d
 ),
 
--- 🔹 Nuevos clientes del día
+-- 🔹 Nuevos clientes
 nc AS (
   SELECT
-    c."createdAt"                   AS at,
-    'NUEVO CLIENTE'                 AS kind,
-    c.id                            AS "customerId",
-    c.name                          AS "customerName",
-    NULL::text                      AS details,
-    NULL::int                       AS amount_cents
+    c."createdAt"                                     AS at,
+    to_char(c."createdAt", 'YYYY-MM-DD')              AS fecha,
+    to_char(c."createdAt", 'HH24:MI')                 AS hora,
+    'NUEVO CLIENTE'                                   AS kind,
+    c.id                                              AS "customerId",
+    c.name                                            AS "customerName",
+    NULL::text                                        AS details,
+    NULL::int                                         AS amount_cents
   FROM "Customer" c
   JOIN p ON TRUE
   WHERE c."businessId" = p.bid
@@ -37,29 +65,31 @@ nc AS (
     AND c."createdAt"::date = p.d
 ),
 
--- 🔹 Pagos de bonos del día
+-- 🔹 Pagos de bono
 bp AS (
   SELECT
-    bp."paidAt"                     AS at,
-    'PAGO BONO'                     AS kind,
-    c.id                            AS "customerId",
-    c.name                          AS "customerName",
-    ('Pago de bono ' || b.id)::text AS details,
-    COALESCE(bp."amountCents", 0)::int AS amount_cents
+    bp."paidAt"                                       AS at,
+    to_char(bp."paidAt", 'YYYY-MM-DD')                AS fecha,
+    to_char(bp."paidAt", 'HH24:MI')                   AS hora,
+    'PAGO BONO'                                       AS kind,
+    c.id                                              AS "customerId",
+    c.name                                            AS "customerName",
+    ('Pago de bono ' || b.id)::text                  AS details,
+    COALESCE(bp."amountCents", 0)::int               AS amount_cents
   FROM "BondPayment" bp
-  JOIN "Bond" b     ON b."id" = bp."bondId"
-  JOIN "Customer" c ON c.id   = b."customerId"
+  JOIN "Bond" b     ON b.id = bp."bondId"
+  JOIN "Customer" c ON c.id = b."customerId"
   JOIN p ON TRUE
   WHERE c."businessId" = p.bid
     AND c."deletedAt" IS NULL
     AND bp."paidAt"::date = p.d
 )
 
--- 🔹 Consolidado
+-- 🔹 Consolida (todas tienen 8 columnas)
 SELECT
   at,
-  to_char(at, 'YYYY-MM-DD')                 AS fecha,   -- opcional
-  to_char(at, 'HH24:MI')                    AS hora,    -- ⏰ hora visible
+  fecha,
+  hora,
   kind,
   "customerId",
   "customerName",
@@ -74,9 +104,8 @@ FROM (
   SELECT * FROM bp
 ) t
 ORDER BY
-  -- si la UI dice ASC, activa esta rama
-  CASE WHEN {{ (appsmith.store.mov_sort_dir || 'DESC') === 'ASC' }} THEN at END ASC,
-  -- si la UI dice DESC (por defecto), activa esta rama
-  CASE WHEN {{ (appsmith.store.mov_sort_dir || 'DESC') !== 'ASC' }} THEN at END DESC,
+  CASE WHEN {{ (appsmith.store.mov_sort_dir || 'DESC') === 'ASC' }}
+       THEN at END ASC,
+  CASE WHEN {{ (appsmith.store.mov_sort_dir || 'DESC') !== 'ASC' }}
+       THEN at END DESC,
   "customerName";
-
