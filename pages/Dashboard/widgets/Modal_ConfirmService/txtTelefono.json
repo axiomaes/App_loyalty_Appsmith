@@ -41,7 +41,7 @@
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 57,
+  "rightColumn": 61,
   "shouldTruncate": false,
   "text": "{{ appsmith.store.pendingServicePreview?.maskedPhone || \"\" }}",
   "textAlign": "RIGHT",
