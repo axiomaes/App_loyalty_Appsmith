@@ -3,16 +3,16 @@
   "allowScroll": false,
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 63,
+  "bottomRow": 147,
   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
   "chartData": {
-    "fd0o6x224c": {
-      "data": "{{\n(() => {\n  const r = q_movimientos_dia_agg.data || [];\n  const byKind = k => r.find(x => x.kind === k) || { count: 0, cents: 0 };\n\n  const visits  = byKind(\"VISITAS\");\n  const nuevos  = byKind(\"NUEVO CLIENTE\");\n  const bonos   = byKind(\"PAGO BONO\");\n\n  const totalEuros =\n    Math.round(((visits.cents + bonos.cents) / 100) * 100) / 100;\n\n  return [\n    { x: \"Servicios\",       y: visits.count },\n    { x: \"Nuevos clientes\", y: nuevos.count },\n    { x: \"Pagos de bonos\",  y: bonos.count },\n    { x: \"Importe (€)\",     y: totalEuros }\n  ];\n})()\n}}\n",
-      "seriesName": ""
+    "ba9dygfpc3": {
+      "data": "{{  (q_servicios_por_staff.data || []).map(s => ({\n    x: s.serviceName,\n    y: (s.amount_cents || 0) / 100\n  }))\n}}\n",
+      "seriesName": "DATOS"
     }
   },
-  "chartName": "Reporte del dia",
-  "chartType": "BAR_CHART",
+  "chartName": "Servicios",
+  "chartType": "COLUMN_CHART",
   "customEChartConfig": "{{\n{\n  \"dataset\": {\n    \"source\": [\n      [\n        \"Day\",\n        \"Baidu\",\n        \"Google\",\n        \"Bing\"\n      ],\n      [\n        \"Mon\",\n        620,\n        120,\n        60\n      ],\n      [\n        \"Tue\",\n        732,\n        132,\n        72\n      ],\n      [\n        \"Wed\",\n        701,\n        101,\n        71\n      ],\n      [\n        \"Thu\",\n        734,\n        134,\n        74\n      ],\n      [\n        \"Fri\",\n        1090,\n        290,\n        190\n      ],\n      [\n        \"Sat\",\n        1130,\n        230,\n        130\n      ],\n      [\n        \"Sun\",\n        1120,\n        220,\n        110\n      ]\n    ]\n  },\n  \"tooltip\": {\n    \"trigger\": \"axis\",\n    \"axisPointer\": {\n      \"type\": \"shadow\"\n    }\n  },\n  \"title\": {\n    \"text\": \"Search Engine Usage\",\n    \"left\": \"center\",\n    \"textStyle\": {\n      \"width\": 200,\n      \"overflow\": \"truncate\"\n    }\n  },\n  \"legend\": {\n    \"top\": 40,\n    \"type\": \"scroll\"\n  },\n  \"grid\": {\n    \"left\": 15,\n    \"right\": 15,\n    \"bottom\": 30,\n    \"top\": 100,\n    \"containLabel\": true\n  },\n  \"xAxis\": [\n    {\n      \"type\": \"category\"\n    }\n  ],\n  \"yAxis\": [\n    {\n      \"type\": \"value\"\n    }\n  ],\n  \"series\": [\n    {\n      \"type\": \"bar\",\n      \"stack\": \"Search Engine\"\n    },\n    {\n      \"type\": \"bar\",\n      \"stack\": \"Search Engine\"\n    },\n    {\n      \"type\": \"bar\",\n      \"stack\": \"Search Engine\"\n    }\n  ]\n}\n}}",
   "customFusionChartConfig": {
     "dataSource": {
@@ -78,7 +78,7 @@
       "key": "fontFamily"
     },
     {
-      "key": "chartData.fd0o6x224c.data"
+      "key": "chartData.ba9dygfpc3.data"
     }
   ],
   "dynamicTriggerPathList": [],
@@ -86,29 +86,27 @@
   "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
   "isLoading": false,
   "isVisible": true,
-  "key": "xcbffceqrg",
+  "key": "tri5823apr",
   "labelOrientation": "auto",
-  "leftColumn": 1,
+  "leftColumn": 0,
   "minWidth": 450,
-  "mobileBottomRow": 42,
-  "mobileLeftColumn": 38,
-  "mobileRightColumn": 62,
-  "mobileTopRow": 10,
+  "mobileBottomRow": 147,
+  "mobileLeftColumn": 17,
+  "mobileRightColumn": 41,
+  "mobileTopRow": 115,
   "needsErrorInfo": true,
-  "originalBottomRow": 63,
-  "originalTopRow": 46,
-  "parentColumnSpace": 18.388916015625,
-  "parentId": "4ieeo8zclb",
+  "parentColumnSpace": 6.21875,
+  "parentId": "7krvft3u8n",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 63,
+  "rightColumn": 62,
   "showDataPointLabel": false,
-  "topRow": 46,
+  "topRow": 115,
   "type": "CHART_WIDGET",
   "version": 1,
-  "widgetId": "j6jg34xrrr",
-  "widgetName": "Chart2",
-  "xAxisName": "VALORES",
-  "yAxisName": "DATOS"
+  "widgetId": "qvmzknvfef",
+  "widgetName": "Chart4",
+  "xAxisName": "Tipos de Servicios",
+  "yAxisName": "VALOR (€)"
 }

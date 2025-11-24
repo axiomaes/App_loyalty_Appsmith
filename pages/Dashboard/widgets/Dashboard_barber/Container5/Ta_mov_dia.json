@@ -32,6 +32,7 @@
     }
   },
   "columnOrder": [
+    "details",
     "kind",
     "customerName",
     "amount_eur",
@@ -39,15 +40,14 @@
     "fecha",
     "at",
     "customerId",
-    "details",
     "amount_cents"
   ],
-  "columnUpdatedAt": 1762885296905,
+  "columnUpdatedAt": 1763963709188,
   "columnWidthMap": {
     "at": 157,
     "customerName": 122,
-    "details": 135,
-    "kind": 134
+    "details": 149,
+    "kind": 123
   },
   "customIsLoading": false,
   "customIsLoadingValue": "",
@@ -309,8 +309,8 @@
       "isDiscardVisible": true,
       "isEditable": false,
       "isSaveVisible": true,
-      "isVisible": false,
-      "label": "details",
+      "isVisible": true,
+      "label": "DETALLE",
       "notation": "standard",
       "originalId": "details",
       "sticky": "",
@@ -410,7 +410,7 @@
       "isDiscardVisible": true,
       "isEditable": false,
       "isSaveVisible": true,
-      "isVisible": true,
+      "isVisible": false,
       "label": "SERVICIO",
       "notation": "standard",
       "originalId": "kind",

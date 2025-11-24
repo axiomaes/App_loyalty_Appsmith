@@ -1,0 +1,17 @@
+WITH p AS (
+  SELECT
+    {{ appsmith.store.businessId }}::uuid AS bid,
+    {{ Auth.userId() }}::uuid AS uid,
+    {{ moment(DateDia.selectedDate || new Date()).format('YYYY-MM-DD') }}::date AS d
+)
+SELECT
+  l."serviceName",
+  COUNT(*)::int AS total,
+  SUM(COALESCE(l."priceCents",0))::int AS amount_cents
+FROM "StaffServiceLog" l
+JOIN p ON TRUE
+WHERE l."businessId" = p.bid
+  AND l."staffUserId" = p.uid
+  AND l."visitedAt"::date = p.d
+GROUP BY l."serviceName"
+ORDER BY total DESC;

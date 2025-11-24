@@ -4,21 +4,7 @@ WITH p AS (
     {{ moment(DateDia.selectedDate || new Date()).format('YYYY-MM-DD') }}::date AS d
 ),
 
--- 🔹 Staff logs del día
-sl AS (
-  SELECT
-    l."visitId",
-    l."customerId",
-    l."serviceName",
-    COALESCE(l."priceCents", 0)::int AS priceCents,
-    l."visitedAt"
-  FROM "StaffServiceLog" l
-  JOIN p ON TRUE
-  WHERE l."businessId" = p.bid
-    AND l."visitedAt"::date = p.d
-),
-
--- 🔹 Visitas del día
+-- 🔹 Visitas del día (con servicio y precio desde StaffServiceLog vía visitId)
 vis AS (
   SELECT
     v."visitedAt"                                      AS at,
@@ -27,21 +13,15 @@ vis AS (
     'VISITA'                                           AS kind,
     c.id                                               AS "customerId",
     c.name                                             AS "customerName",
-    COALESCE(sl."serviceName", NULL)                   AS details,
-    COALESCE(sl.priceCents, 0)                         AS amount_cents
+    sl."serviceName"                                   AS details,
+    COALESCE(sl."priceCents", 0)::int                  AS amount_cents
   FROM "Visit" v
-  JOIN "Customer" c ON c.id = v."customerId"
-  LEFT JOIN sl
-    ON (
-         sl."visitId" IS NOT NULL AND sl."visitId" = v.id
-       )
-       OR (
-         sl."visitId" IS NULL
-         AND sl."customerId" = c.id
-         AND sl."visitedAt" BETWEEN v."visitedAt" - interval '5 seconds'
-                                AND v."visitedAt" + interval '5 seconds'
-       )
+  JOIN "Customer" c
+    ON c.id = v."customerId"
   JOIN p ON TRUE
+  LEFT JOIN "StaffServiceLog" sl
+    ON sl."businessId" = p.bid
+   AND sl."visitId"    = v.id          -- 👈 emparejamos por visitId, robusto
   WHERE c."businessId" = p.bid
     AND c."deletedAt" IS NULL
     AND v."visitedAt"::date = p.d
