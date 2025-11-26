@@ -72,11 +72,15 @@ export default {
 
 			const priceEuros = (priceCents / 100).toFixed(2);
 
+			// 📦 NUEVO: Capturar productId si existe
+			const productId = svc.productId || svc.product_id || null; 
+
 			// guardamos el servicio pendiente de confirmar
 			await storeValue("pendingService", {
 				id,
 				name,
 				priceCents,
+				productId, // ⬅️ GUARDAMOS PRODUCT ID
 			});
 
 			// teléfono enmascarado para roles no privilegiados
@@ -125,11 +129,14 @@ export default {
 			if (!canVisit) return;
 
 			// llamamos a tu API POST /customers/:id/visits/with-progress
+			// 💥 IMPORTANTE: Aquí se usa el endpoint atómico blindado
 			const res = await q_visit_with_progress.run({
-				customerId,          // se usa en la URL: {{ this.params.customerId }}
+				customerId,          
 				serviceId: service.id,
 				serviceName: service.name,
 				priceCents,
+				notes: VisitAdd.motive(), // ⬅️ CORRECCIÓN: Se envían las notas
+				productId: service.productId || null, // ⬅️ NUEVO: Se envía el productId
 			});
 
 			const data = Array.isArray(res) ? res[0] : res;
@@ -163,7 +170,9 @@ export default {
 			showAlert("Visita registrada.", "success");
 		} catch (e) {
 			console.error("confirmService error:", e);
-			showAlert(e?.message || "No se pudo registrar la visita.", "error");
+			// Muestra el mensaje de error específico del backend (ej. STOCK_INSUFFICIENTE)
+			const errorMessage = e?.message || "No se pudo registrar la visita.";
+			showAlert(errorMessage, "error");
 		}
 	},
 

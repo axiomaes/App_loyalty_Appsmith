@@ -36,7 +36,7 @@
   "mobileTopRow": 16,
   "needsErrorInfo": false,
   "onChange": "{{ storeValue('wa_useVipOnly', SwVipOnly.isSwitchedOn) }}\n",
-  "originalBottomRow": 20,
+  "originalBottomRow": 24,
   "originalTopRow": 16,
   "parentColumnSpace": 11.375,
   "parentId": "rl7mwev0rk",

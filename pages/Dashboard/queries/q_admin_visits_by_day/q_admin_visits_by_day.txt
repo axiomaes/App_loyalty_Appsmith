@@ -1,75 +1,79 @@
 WITH p AS (
-  SELECT
-    {{ appsmith.store.businessId }}::uuid AS bid,
+	SELECT
+	{{ appsmith.store.businessId }}::uuid AS bid,
 
-    -- ¿el usuario seleccionó fechas?
-    {{ !!DateIni.selectedDate }}::boolean AS has_ini,
-    {{ !!DateFin.selectedDate }}::boolean AS has_fin,
+	-- ¿el usuario seleccionó fechas?
+	{{ !!DateIni.selectedDate }}::boolean AS has_ini,
+	{{ !!DateFin.selectedDate }}::boolean AS has_fin,
 
-    -- valores (si no hay selección, caen en hoy; no importa porque controlamos abajo)
-    to_date({{ DateIni.selectedDate
-               ? moment(DateIni.selectedDate).format('YYYY-MM-DD')
-               : moment().format('YYYY-MM-DD') }}, 'YYYY-MM-DD') AS d1,
-    to_date({{ DateFin.selectedDate
-               ? moment(DateFin.selectedDate).format('YYYY-MM-DD')
-               : moment().format('YYYY-MM-DD') }}, 'YYYY-MM-DD') AS d2,
+	-- valores (si no hay selección, caen en hoy; no importa porque controlamos abajo)
+	to_date({{ DateIni.selectedDate
+		? moment(DateIni.selectedDate).format('YYYY-MM-DD')
+		: moment().format('YYYY-MM-DD') }}, 'YYYY-MM-DD') AS d1,
+	to_date({{ DateFin.selectedDate
+		? moment(DateFin.selectedDate).format('YYYY-MM-DD')
+		: moment().format('YYYY-MM-DD') }}, 'YYYY-MM-DD') AS d2,
 
-    -- "hoy" en horario de España
-    (now() AT TIME ZONE 'Europe/Madrid')::date AS today
+	-- "hoy" en horario de España
+	(now() AT TIME ZONE 'Europe/Madrid')::date AS today
 ),
 p2 AS (
-  SELECT
-    bid, d1, d2, today,
-    -- si falta una o ambas fechas -> usar solo hoy
-    ((NOT has_ini) OR (NOT has_fin)) AS today_only
-  FROM p
+	SELECT
+	bid, d1, d2, today,
+	-- si falta una o ambas fechas -> usar solo hoy
+	((NOT has_ini) OR (NOT has_fin)) AS today_only
+	FROM p
 ),
 
-vis AS (
-  SELECT COUNT(*)::int AS visits
-  FROM compat.visits v
-  JOIN "Customer" c ON c.id = v."customerId"
-  JOIN p2 ON TRUE
-  WHERE c."businessId" = p2.bid
-    AND (
-      CASE
-        WHEN p2.today_only
-          THEN (v."visitedAt" AT TIME ZONE 'Europe/Madrid')::date = p2.today
-        ELSE (v."visitedAt" AT TIME ZONE 'Europe/Madrid')::date
-             BETWEEN LEAST(p2.d1, p2.d2) AND GREATEST(p2.d1, p2.d2)
-      END
-    )
+-- 🔹 TOTAL SERVICIOS (StaffServiceLog)
+svc AS (
+	SELECT COUNT(*)::int AS services
+	FROM "StaffServiceLog" l
+	JOIN "Customer" c ON c.id = l."customerId"
+	JOIN p2 ON TRUE
+	WHERE c."businessId" = p2.bid
+	AND c."deletedAt" IS NULL
+	AND (
+		CASE
+		WHEN p2.today_only
+		THEN (l."visitedAt" AT TIME ZONE 'Europe/Madrid')::date = p2.today
+		ELSE (l."visitedAt" AT TIME ZONE 'Europe/Madrid')::date
+		BETWEEN LEAST(p2.d1, p2.d2) AND GREATEST(p2.d1, p2.d2)
+		END
+	)
 ),
 
+-- 🔹 NUEVOS CLIENTES (solo hoy España, igual que antes)
 nc AS (
-  -- SIEMPRE solo hoy (España)
-  SELECT COUNT(*)::int AS new_customers
-  FROM compat.customers c
-  JOIN p2 ON TRUE
-  WHERE c."businessId" = p2.bid
-    AND c."deletedAt" IS NULL
-    AND (c."createdAt" AT TIME ZONE 'Europe/Madrid')::date = p2.today
+	SELECT COUNT(*)::int AS new_customers
+	FROM compat.customers c
+	JOIN p2 ON TRUE
+	WHERE c."businessId" = p2.bid
+	AND c."deletedAt" IS NULL
+	AND (c."createdAt" AT TIME ZONE 'Europe/Madrid')::date = p2.today
 ),
 
+-- 🔹 PAGOS DE BONO (igual que antes)
 bp AS (
-  SELECT
-    COUNT(*)::int AS bond_payments,
-    COALESCE(SUM(bp."amountCents"), 0)::bigint AS cents
-  FROM compat.bond_payment bp
-  JOIN p2 ON TRUE
-  WHERE bp."businessId" = p2.bid
-    AND (
-      CASE
-        WHEN p2.today_only
-          THEN (bp."paidAt" AT TIME ZONE 'Europe/Madrid')::date = p2.today
-        ELSE (bp."paidAt" AT TIME ZONE 'Europe/Madrid')::date
-             BETWEEN LEAST(p2.d1, p2.d2) AND GREATEST(p2.d1, p2.d2)
-      END
-    )
+	SELECT
+	COUNT(*)::int AS bond_payments,
+	COALESCE(SUM(bp."amountCents"), 0)::bigint AS cents
+	FROM compat.bond_payment bp
+	JOIN p2 ON TRUE
+	WHERE bp."businessId" = p2.bid
+	AND (
+		CASE
+		WHEN p2.today_only
+		THEN (bp."paidAt" AT TIME ZONE 'Europe/Madrid')::date = p2.today
+		ELSE (bp."paidAt" AT TIME ZONE 'Europe/Madrid')::date
+		BETWEEN LEAST(p2.d1, p2.d2) AND GREATEST(p2.d1, p2.d2)
+		END
+	)
 )
 
 SELECT
-  (SELECT visits        FROM vis) AS visits,
+  -- OJO: 'visits' ahora = total de servicios
+  (SELECT services      FROM svc) AS visits,
   (SELECT new_customers FROM nc ) AS new_customers,
   (SELECT bond_payments FROM bp ) AS bond_payments,
   (SELECT cents         FROM bp ) AS amount_cents;

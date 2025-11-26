@@ -5,12 +5,12 @@
   "borderColor": "#E0DEDE",
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
   "borderWidth": 1,
-  "bottomRow": 169,
+  "bottomRow": 117,
   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
   "children": [
     {
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      "bottomRow": 1520,
+      "bottomRow": 1000,
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "canExtend": true,
       "detachFromLayout": true,
@@ -102,7 +102,7 @@
     },
     {
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      "bottomRow": 1520,
+      "bottomRow": 1500,
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "canExtend": false,
       "containerStyle": "none",
@@ -144,6 +144,51 @@
       "version": 1,
       "widgetId": "d3vxx11tgs",
       "widgetName": "Canvas45"
+    },
+    {
+      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      "bottomRow": 1000,
+      "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+      "canExtend": false,
+      "containerStyle": "none",
+      "detachFromLayout": true,
+      "dynamicBindingPathList": [
+        {
+          "key": "borderRadius"
+        },
+        {
+          "key": "boxShadow"
+        }
+      ],
+      "dynamicHeight": "AUTO_HEIGHT",
+      "dynamicTriggerPathList": [],
+      "flexLayers": [],
+      "isLoading": false,
+      "isVisible": true,
+      "key": "344c3a608g",
+      "leftColumn": 0,
+      "maxDynamicHeight": 9000,
+      "minDynamicHeight": 4,
+      "minHeight": 1560,
+      "minWidth": 450,
+      "mobileBottomRow": 1561,
+      "mobileLeftColumn": 0,
+      "mobileRightColumn": 1296,
+      "mobileTopRow": 1,
+      "needsErrorInfo": false,
+      "parentColumnSpace": 1,
+      "parentId": "w95opqsnm1",
+      "parentRowSpace": 1,
+      "renderMode": "CANVAS",
+      "responsiveBehavior": "fill",
+      "rightColumn": 1296,
+      "tabId": "tablfg77ev06t",
+      "tabName": "Visitas",
+      "topRow": 1,
+      "type": "CANVAS_WIDGET",
+      "version": 1,
+      "widgetId": "nh49oh77zh",
+      "widgetName": "Canvas56"
     }
   ],
   "defaultTab": "Clientes",
@@ -188,7 +233,7 @@
   "mobileRightColumn": 41,
   "mobileTopRow": 113,
   "needsErrorInfo": false,
-  "originalBottomRow": 169,
+  "originalBottomRow": 117,
   "originalTopRow": 13,
   "parentColumnSpace": 20.25,
   "parentId": "0",
@@ -221,6 +266,13 @@
       "isVisible": true,
       "label": "QR",
       "widgetId": "d3vxx11tgs"
+    },
+    "tablfg77ev06t": {
+      "id": "tablfg77ev06t",
+      "index": 3,
+      "isVisible": true,
+      "label": "Visitas",
+      "widgetId": "nh49oh77zh"
     }
   },
   "topRow": 13,
