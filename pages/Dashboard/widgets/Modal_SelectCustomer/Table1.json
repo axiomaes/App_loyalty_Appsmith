@@ -455,7 +455,7 @@
       "allowCellWrapping": false,
       "allowSameOptionsInNewRow": true,
       "columnType": "text",
-      "computedValue": "{{(() => { const tableData = Table1.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"phone\"])) : phone })()}}",
+      "computedValue": "{{(() => { const tableData = Table1.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (\n(Roles.isAdminLike?.() || ['ADMIN','OWNER','SUPERADMIN'].includes(String(Auth.role?.()).toUpperCase()))\n? (currentRow.phone || '—')\n: (\n\tcurrentRow.phone\n\t? ((String(currentRow.phone).startsWith('+') ? '+' : '') +\n\t\t '******' +\n\t\t String(currentRow.phone).replace(/\\D/g,'').slice(-3))\n\t: '—'\n)\n)) : \n(Roles.isAdminLike?.() || ['ADMIN','OWNER','SUPERADMIN'].includes(String(Auth.role?.()).toUpperCase()))\n? (currentRow.phone || '—')\n: (\n\tcurrentRow.phone\n\t? ((String(currentRow.phone).startsWith('+') ? '+' : '') +\n\t\t '******' +\n\t\t String(currentRow.phone).replace(/\\D/g,'').slice(-3))\n\t: '—'\n)\n })()}}",
       "currencyCode": "USD",
       "decimals": 0,
       "enableFilter": true,
