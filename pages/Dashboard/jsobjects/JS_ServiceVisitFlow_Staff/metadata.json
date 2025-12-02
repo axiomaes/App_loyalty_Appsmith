@@ -10,6 +10,10 @@
       {
         "name": "WALKIN_CUSTOMER_ID",
         "value": "\"8ba48fd7-e956-4163-b4e8-91f09b0bf01a\""
+      },
+      {
+        "name": "PRINT_AGENT_URL",
+        "value": "\"http://192.168.1.54:9101/print\""
       }
     ]
   }

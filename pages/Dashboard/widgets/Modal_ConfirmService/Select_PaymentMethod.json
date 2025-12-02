@@ -1,0 +1,61 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "animateLoading": true,
+  "borderRadius": "0px",
+  "bottomRow": 31,
+  "defaultSelectedValues": "[\n  \"CASH\"\n]",
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    }
+  ],
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicTriggerPathList": [],
+  "flexVerticalAlignment": "start",
+  "isDisabled": false,
+  "isInline": true,
+  "isLoading": false,
+  "isRequired": true,
+  "isVisible": true,
+  "key": "dd3bfay08s",
+  "labelAlignment": "left",
+  "labelPosition": "Top",
+  "labelStyle": "",
+  "labelText": "FORMA DE PAGO",
+  "labelTextSize": "0.875rem",
+  "labelWidth": 5,
+  "leftColumn": 2,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 31,
+  "mobileLeftColumn": 18,
+  "mobileRightColumn": 41,
+  "mobileTopRow": 25,
+  "needsErrorInfo": false,
+  "options": [
+    {
+      "label": "EFECTIVO",
+      "value": "CASH"
+    },
+    {
+      "label": "TARJETA",
+      "value": "CARD"
+    },
+    {
+      "label": "OTRO",
+      "value": "OTHER"
+    }
+  ],
+  "originalBottomRow": 31,
+  "originalTopRow": 24,
+  "parentColumnSpace": 6.0546875,
+  "parentId": "pji2a4ea0t",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "rightColumn": 60,
+  "topRow": 24,
+  "type": "CHECKBOX_GROUP_WIDGET",
+  "version": 2,
+  "widgetId": "sgdrd9gnz7",
+  "widgetName": "Select_PaymentMethod"
+}

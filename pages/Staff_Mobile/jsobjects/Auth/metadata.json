@@ -1,0 +1,20 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_f3bd5f34-8013-4a37-bd14-cb06d1bf9634",
+  "id": "Staff_Mobile_Auth",
+  "unpublishedCollection": {
+    "name": "Auth",
+    "pageId": "Staff_Mobile",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "ROLES",
+        "value": "[\"SUPERADMIN\", \"ADMIN\", \"OWNER\", \"STAFF\", \"BARBER\"]"
+      },
+      {
+        "name": "DEFAULT_ROLE",
+        "value": "\"STAFF\""
+      }
+    ]
+  }
+}

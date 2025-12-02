@@ -9,12 +9,12 @@
   "animateLoading": true,
   "backgroundColor": "transparent",
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 93,
+  "bottomRow": 109,
   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
   "children": [
     {
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      "bottomRow": 890,
+      "bottomRow": 1050,
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "canExtend": false,
       "containerStyle": "none",
@@ -118,7 +118,7 @@
   "onItemClick": "{{ JS_ServiceVisitFlow_Staff.startFromServiceStaff(currentItem) }}\n",
   "originalBottomRow": 53,
   "originalTopRow": 8,
-  "pageSize": 7,
+  "pageSize": 8,
   "parentColumnSpace": 5.7421875,
   "parentId": "21wohorge4",
   "parentRowSpace": 10,

@@ -1,0 +1,4 @@
+{
+  "customerId": "{{ appsmith.store.selCustomerId }}",
+  "paymentMethod": "{{ this.params.paymentMethod || 'CASH' }}"
+}

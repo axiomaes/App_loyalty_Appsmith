@@ -1,7 +1,7 @@
 {
   "appIsExample": false,
   "appLayout": {
-    "type": "MOBILE"
+    "type": "DESKTOP"
   },
   "applicationDetail": {
     "navigationSetting": {
@@ -36,10 +36,14 @@
     {
       "id": "Landing",
       "isDefault": false
+    },
+    {
+      "id": "Staff_Mobile",
+      "isDefault": false
     }
   ],
   "unpublishedAppLayout": {
-    "type": "MOBILE"
+    "type": "DESKTOP"
   },
   "unpublishedApplicationDetail": {
     "navigationSetting": {

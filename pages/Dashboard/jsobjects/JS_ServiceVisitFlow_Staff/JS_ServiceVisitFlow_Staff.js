@@ -1,6 +1,9 @@
 export default {
-
 	WALKIN_CUSTOMER_ID: "8ba48fd7-e956-4163-b4e8-91f09b0bf01a",
+
+	// ⬇️ (Opcional) URL del print-agent directo, ahora no se usa en el flujo normal
+	PRINT_AGENT_URL: "http://192.168.1.54:9101/print",
+
 	// ================== Flujo antiguo (QR / ficha) ==================
 	async openForCustomer(customerId) {
 		try {
@@ -107,10 +110,9 @@ export default {
 	// 1) Staff hace click en un servicio en la pestaña del personal
 	async startFromServiceStaff(row) {
 		try {
-			// Ajusta el nombre del widget si no es List_visits_1
 			const svc =
 						row ||
-						List_visits_1?.triggeredItem || // cards de la lista
+						List_visits_1?.triggeredItem ||
 						null;
 
 			if (!svc) {
@@ -135,7 +137,6 @@ export default {
 
 			const productId = svc.productId || svc.product_id || null;
 
-			// Guardamos SOLO el servicio, sin cliente aún
 			await storeValue("pendingService", {
 				id,
 				name,
@@ -143,10 +144,8 @@ export default {
 				productId,
 			});
 
-			// limpiamos preview anterior por si acaso
 			await storeValue("pendingServicePreview", null);
 
-			// abrimos modal para buscar/seleccionar cliente
 			showModal(Modal_SelectCustomer.name);
 		} catch (e) {
 			console.error("startFromServiceStaff error:", e);
@@ -163,7 +162,6 @@ export default {
 				return;
 			}
 
-			// Ajusta el nombre del widget si usas otro (Table/Lista de clientes)
 			const cli =
 						row ||
 						Table1?.triggeredRow ||
@@ -181,7 +179,6 @@ export default {
 				return;
 			}
 
-			// Guardamos ID y cargamos detalle para tener el teléfono, etc.
 			await storeValue("selCustomerId", customerId);
 
 			const det = await q_cliente_detalle.run({ id: customerId });
@@ -213,7 +210,6 @@ export default {
 				priceLabel: priceEuros,
 			});
 
-			// Cerramos modal de selección y abrimos el de confirmación
 			closeModal(Modal_SelectCustomer.name);
 			showModal(Modal_ConfirmService.name);
 		} catch (e) {
@@ -223,20 +219,18 @@ export default {
 	},
 
 	// 2.b) Botón "CLIENTE FINAL" en el modal (cliente no quiere registrarse)
-
 	async useWalkinCustomer() {
 		try {
-			const id = this.WALKIN_CUSTOMER_ID; // <-- usamos el UUID tal cual (string)
+			const id = this.WALKIN_CUSTOMER_ID;
 
 			if (!id) {
 				showAlert(
 					"Configura el ID de CLIENTE FINAL en JS_ServiceVisitFlow_Staff.",
-					"error"
+					"error",
 				);
 				return;
 			}
 
-			// Reutilizamos la lógica de selección de cliente
 			await this.pickCustomerForPending({ id });
 		} catch (e) {
 			console.error("useWalkinCustomer error:", e);
@@ -244,10 +238,12 @@ export default {
 		}
 	},
 
-
 	// ================== Paso 3: confirmar servicio ==================
 	async confirmService() {
 		try {
+			console.log("DEBUG FRONT: confirmService INICIADO");
+			showAlert("Iniciando registro de visita...", "info");
+
 			const customerId = appsmith.store.selCustomerId;
 			const service = appsmith.store.pendingService;
 
@@ -259,7 +255,7 @@ export default {
 			const priceCents =
 						service.priceCents != null ? Number(service.priceCents) : 0;
 
-			// 👇 NO aplicar la regla VIP al cliente genérico "CLIENTE FINAL"
+			// No aplicar la regla VIP al cliente genérico "CLIENTE FINAL"
 			const isWalkin =
 						String(customerId) === String(this.WALKIN_CUSTOMER_ID);
 
@@ -268,6 +264,7 @@ export default {
 				if (!canVisit) return;
 			}
 
+			// 1) Registrar la visita
 			const res = await q_visit_with_progress.run({
 				customerId,
 				serviceId: service.id,
@@ -283,6 +280,49 @@ export default {
 				return;
 			}
 
+			console.log("DEBUG q_visit_with_progress data:", data);
+
+			// ===============================
+			//   IMPRIMIR TICKET vía BACKEND
+			// ===============================
+			try {
+				// Obtener forma de pago desde Select_PaymentMethod (usa selectedValues)
+				let paymentMethod = "CASH";
+				try {
+					const vals = Select_PaymentMethod?.selectedValues;
+					if (Array.isArray(vals) && vals.length > 0 && vals[0]) {
+						paymentMethod = vals[0];
+					}
+				} catch (e) {
+					console.log(
+						"DEBUG FRONT: error leyendo Select_PaymentMethod, uso CASH por defecto",
+						e
+					);
+				}
+
+				console.log(
+					"DEBUG FRONT: llamando api_printVisitTicket desde confirmService",
+					{ paymentMethod }
+				);
+
+				showAlert("Enviando ticket a la impresora...", "info");
+
+				await api_printVisitTicket.run({
+					paymentMethod,
+				});
+
+				console.log("DEBUG FRONT: api_printVisitTicket terminó OK");
+			} catch (err) {
+				console.error("Error imprimiendo ticket:", err);
+				showAlert(
+					"Visita registrada, pero NO se pudo imprimir el ticket.",
+					"warning"
+				);
+			}
+
+			// ===============================
+			//   REFRESCAR DATOS / LIMPIEZA
+			// ===============================
 			try {
 				if (typeof q_clientes_por_dia?.run === "function") {
 					await q_clientes_por_dia.run();
@@ -313,6 +353,8 @@ export default {
 			showAlert(errorMessage, "error");
 		}
 	},
+
+
 
 	// ================== Cancelar confirmación ==================
 	async cancelConfirm() {

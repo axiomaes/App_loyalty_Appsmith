@@ -3,7 +3,7 @@
   "borderColor": "#E0DEDE",
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
   "borderWidth": "1",
-  "bottomRow": 30,
+  "bottomRow": 28,
   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
   "defaultModel": "{{ appsmith.store.visitsUI || JS_VisitsFilter.processData() }}\n",
   "dynamicBindingPathList": [
@@ -48,7 +48,7 @@
   "mobileTopRow": 1,
   "needsErrorInfo": false,
   "onAddVisit": "{{ \n  (async () => {\n    await VisitAdd.manual();                       // tu lógica actual\n    await getClientVisitsQuery.run();              // refresca progreso\n    await getFallbackVisitsCount.run();            // por si aplica\n    await visitsLogic.processData();               // vuelve a llenar appsmith.store.visitsUI\n    await q_visitas_historial.run({\n      customerId: appsmith.store.selCustomerId,\n      limit: 500, offset: 0\n    });\n  })()\n}}\n",
-  "originalBottomRow": 30,
+  "originalBottomRow": 28,
   "originalTopRow": 5,
   "parentColumnSpace": 10.678878784179688,
   "parentId": "g2mlnelos6",

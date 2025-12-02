@@ -1,0 +1,16 @@
+{
+  "gitSyncId": "68f1ea66301c3b6f3e13c5f4_937554da-b0d0-4fa2-8bf6-996fdd6a8d19",
+  "id": "Staff_Mobile_JS_ServiceVisitFlow_Staff",
+  "unpublishedCollection": {
+    "name": "JS_ServiceVisitFlow_Staff",
+    "pageId": "Staff_Mobile",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "WALKIN_CUSTOMER_ID",
+        "value": "\"8ba48fd7-e956-4163-b4e8-91f09b0bf01a\""
+      }
+    ]
+  }
+}
