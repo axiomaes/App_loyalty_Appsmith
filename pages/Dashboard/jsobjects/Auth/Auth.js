@@ -1,7 +1,7 @@
 export default {
 	// 🎭 Roles permitidos
 	ROLES: ["SUPERADMIN", "ADMIN", "OWNER", "STAFF", "BARBER"],
-	DEFAULT_ROLE: "BARBER",
+	DEFAULT_ROLE: "STAFF",
 
 	// 🔍 Valida formato UUID (v4 o v5)
 	isUuid(s) {

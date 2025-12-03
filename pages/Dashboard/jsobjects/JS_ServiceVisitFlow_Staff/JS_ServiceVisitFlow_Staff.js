@@ -259,7 +259,26 @@ export default {
 			const isWalkin =
 						String(customerId) === String(this.WALKIN_CUSTOMER_ID);
 
-			if (!isWalkin) {
+			// Datos de cliente y rol para decidir si aplicar regla VIP
+			const customer =
+						appsmith.store.clienteDetalle ||
+						appsmith.store.scannedCustomer ||
+						{};
+
+			const role = (appsmith.store.role || "").toUpperCase();
+			const isPrivileged = ["ADMIN", "OWNER", "SUPERADMIN"].includes(role);
+
+			// Un cliente es VIP si el tag contiene la palabra "VIP"
+			// o si el query ya trajo is_vip = true
+			const tagUpper = (customer.tag || "").toString().toUpperCase();
+			const isVip =
+						customer.is_vip === true || tagUpper.includes("VIP");
+
+			// Aplicar la regla VIP solo si:
+			// - no es cliente genérico
+			// - no es usuario privilegiado
+			// - el cliente es VIP
+			if (!isWalkin && !isPrivileged && isVip) {
 				const canVisit = await VIP.mustBeActiveBeforeVisit(customerId);
 				if (!canVisit) return;
 			}

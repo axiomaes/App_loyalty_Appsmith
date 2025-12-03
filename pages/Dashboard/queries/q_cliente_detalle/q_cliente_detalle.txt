@@ -1,7 +1,7 @@
 WITH p AS (
-  SELECT
-    {{ this.params.id || appsmith.URL.queryParams.customerId || appsmith.store.selCustomerId }}::uuid AS cid,
-    {{ (Auth.businessId && Auth.businessId()) || appsmith.store.businessId }}::uuid AS bid
+	SELECT
+	{{ this.params.id || appsmith.URL.queryParams.customerId || appsmith.store.selCustomerId }}::uuid AS cid,
+	{{ (Auth.businessId && Auth.businessId()) || appsmith.store.businessId }}::uuid AS bid
 )
 SELECT
   c.id,
@@ -15,26 +15,30 @@ SELECT
   c."updatedAt",
   vagg.ultima_visita,
   vagg.total_visitas,
-  (vrecent.hay_visita_90d OR rpend.hay_reward_pendiente) AS activo_raw
+  (vrecent.hay_visita_90d OR rpend.hay_reward_pendiente) AS activo_raw,
+
+  -- 🔽 NUEVO: es VIP si el tag contiene la palabra "VIP"
+  (UPPER(COALESCE(c.tag, '')) LIKE '%VIP%') AS is_vip
+
 FROM "Customer" c
 JOIN p ON TRUE
 LEFT JOIN LATERAL (
-  SELECT MAX(v."visitedAt") AS ultima_visita,
-         COUNT(*)::int      AS total_visitas
-  FROM "Visit" v WHERE v."customerId" = c.id
+	SELECT MAX(v."visitedAt") AS ultima_visita,
+	COUNT(*)::int      AS total_visitas
+	FROM "Visit" v WHERE v."customerId" = c.id
 ) vagg ON TRUE
 LEFT JOIN LATERAL (
-  SELECT EXISTS (
-    SELECT 1 FROM "Visit" v
-    WHERE v."customerId" = c.id
-      AND v."visitedAt" >= now() - interval '90 days'
-  ) AS hay_visita_90d
+	SELECT EXISTS (
+		SELECT 1 FROM "Visit" v
+		WHERE v."customerId" = c.id
+		AND v."visitedAt" >= now() - interval '90 days'
+	) AS hay_visita_90d
 ) vrecent ON TRUE
 LEFT JOIN LATERAL (
-  SELECT EXISTS (
-    SELECT 1 FROM "Reward" r
-    WHERE r."customerId" = c.id AND r.status = 'PENDING'
-  ) AS hay_reward_pendiente
+	SELECT EXISTS (
+		SELECT 1 FROM "Reward" r
+		WHERE r."customerId" = c.id AND r.status = 'PENDING'
+	) AS hay_reward_pendiente
 ) rpend ON TRUE
 WHERE c.id = p.cid
   AND c."businessId" = p.bid
