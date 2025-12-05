@@ -5,7 +5,7 @@
   "pluginType": "DB",
   "unpublishedAction": {
     "actionConfiguration": {
-      "body": "SELECT *\nFROM \"StaffServiceLog\"\nORDER BY \"visitedAt\" DESC\nLIMIT 20;\n",
+      "body": "SELECT * \nFROM \"Service\"",
       "encodeParamsToggle": true,
       "paginationType": "NONE",
       "pluginSpecifiedTemplates": [

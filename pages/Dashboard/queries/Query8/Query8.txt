@@ -1,4 +1,2 @@
-SELECT *
-FROM "StaffServiceLog"
-ORDER BY "visitedAt" DESC
-LIMIT 20;
+SELECT * 
+FROM "Service"
