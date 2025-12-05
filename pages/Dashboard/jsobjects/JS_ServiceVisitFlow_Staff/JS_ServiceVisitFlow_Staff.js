@@ -305,12 +305,12 @@ export default {
 			//   IMPRIMIR TICKET vía BACKEND
 			// ===============================
 			try {
-				// Obtener forma de pago desde Select_PaymentMethod (usa selectedValues)
 				let paymentMethod = "CASH";
+
 				try {
-					const vals = Select_PaymentMethod?.selectedValues;
-					if (Array.isArray(vals) && vals.length > 0 && vals[0]) {
-						paymentMethod = vals[0];
+					const val = Select_PaymentMethod?.selectedOptionValue;
+					if (val) {
+						paymentMethod = val;
 					}
 				} catch (e) {
 					console.log(
@@ -338,6 +338,7 @@ export default {
 					"warning"
 				);
 			}
+
 
 			// ===============================
 			//   REFRESCAR DATOS / LIMPIEZA

@@ -56,10 +56,10 @@
   "columnUpdatedAt": 1763291034185,
   "columnWidthMap": {
     "customColumn1": 108,
-    "customColumn2": 67,
+    "customColumn2": 100,
     "email": 140,
     "name": 115,
-    "phone": 101,
+    "phone": 208,
     "tag": 217,
     "tiene_bono_activo": 122,
     "ultima_visita": 129

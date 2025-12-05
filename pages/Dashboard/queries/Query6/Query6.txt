@@ -1,4 +1,3 @@
-SELECT *
-FROM "StaffServiceLog"
-WHERE "visitedAt"::date = CURRENT_DATE
-ORDER BY "visitedAt" DESC;
+UPDATE "User"
+SET "firstName" = 'Israel'
+WHERE id = 'fef08754-3a3e-47aa-af45-246a4f9d8e25';

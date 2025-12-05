@@ -40,6 +40,10 @@
     {
       "id": "Staff_Mobile",
       "isDefault": false
+    },
+    {
+      "id": "Administrador",
+      "isDefault": false
     }
   ],
   "unpublishedAppLayout": {

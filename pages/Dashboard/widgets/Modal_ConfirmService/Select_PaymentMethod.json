@@ -1,61 +1,61 @@
 {
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "animateLoading": true,
-  "borderRadius": "0px",
-  "bottomRow": 31,
-  "defaultSelectedValues": "[\n  \"CASH\"\n]",
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 33,
+  "boxShadow": "none",
+  "defaultOptionValue": "CASH",
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
+    },
+    {
+      "key": "borderRadius"
     }
   ],
-  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicHeight": "FIXED",
+  "dynamicPropertyPathList": [
+    {
+      "key": "sourceData"
+    }
+  ],
   "dynamicTriggerPathList": [],
-  "flexVerticalAlignment": "start",
   "isDisabled": false,
-  "isInline": true,
+  "isFilterable": false,
   "isLoading": false,
-  "isRequired": true,
+  "isRequired": false,
   "isVisible": true,
-  "key": "dd3bfay08s",
+  "key": "7enli2iuy9",
   "labelAlignment": "left",
   "labelPosition": "Top",
-  "labelStyle": "",
-  "labelText": "FORMA DE PAGO",
+  "labelText": "Metodo de pago",
   "labelTextSize": "0.875rem",
   "labelWidth": 5,
-  "leftColumn": 2,
+  "leftColumn": 4,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
-  "mobileBottomRow": 31,
-  "mobileLeftColumn": 18,
+  "minWidth": 450,
+  "mobileBottomRow": 39,
+  "mobileLeftColumn": 21,
   "mobileRightColumn": 41,
-  "mobileTopRow": 25,
+  "mobileTopRow": 32,
   "needsErrorInfo": false,
-  "options": [
-    {
-      "label": "EFECTIVO",
-      "value": "CASH"
-    },
-    {
-      "label": "TARJETA",
-      "value": "CARD"
-    },
-    {
-      "label": "OTRO",
-      "value": "OTHER"
-    }
-  ],
-  "originalBottomRow": 31,
-  "originalTopRow": 24,
+  "optionLabel": "label",
+  "optionValue": "value",
+  "originalBottomRow": 39,
+  "originalTopRow": 32,
   "parentColumnSpace": 6.0546875,
   "parentId": "pji2a4ea0t",
   "parentRowSpace": 10,
+  "placeholderText": "Metodo de pago",
   "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
   "rightColumn": 60,
-  "topRow": 24,
-  "type": "CHECKBOX_GROUP_WIDGET",
-  "version": 2,
-  "widgetId": "sgdrd9gnz7",
+  "serverSideFiltering": false,
+  "sourceData": "[\n  { \"label\": \"Efectivo\", \"value\": \"CASH\" },\n  { \"label\": \"Tarjeta\", \"value\": \"CARD\" },\n  { \"label\": \"Otro\", \"value\": \"OTHER\" }\n]\n",
+  "topRow": 26,
+  "type": "SELECT_WIDGET",
+  "version": 1,
+  "widgetId": "toqlxfhw23",
   "widgetName": "Select_PaymentMethod"
 }

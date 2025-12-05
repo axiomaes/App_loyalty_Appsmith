@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 151,
+  "bottomRow": 149,
   "dynamicBindingPathList": [
     {
       "key": "truncateButtonColor"
@@ -30,8 +30,8 @@
   "mobileRightColumn": 38,
   "mobileTopRow": 147,
   "needsErrorInfo": false,
-  "originalBottomRow": 151,
-  "originalTopRow": 147,
+  "originalBottomRow": 149,
+  "originalTopRow": 145,
   "overflow": "NONE",
   "parentColumnSpace": 6.21875,
   "parentId": "p6232t2jln",
@@ -43,7 +43,7 @@
   "text": "SERVICIOS Y PRECIOS",
   "textAlign": "CENTER",
   "textColor": "#231F20",
-  "topRow": 147,
+  "topRow": 145,
   "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
   "type": "TEXT_WIDGET",
   "version": 1,

@@ -1,0 +1,100 @@
+SELECT
+  c.id,
+  c.name,
+  c.email,
+  c.phone,
+  COALESCE(c.tag, 'NONE')                     AS tag,
+  c."createdAt",
+  c."updatedAt",
+  c.birthday,
+  c.notes,
+
+  vagg.ultima_visita,
+  COALESCE(vagg.total_visitas, 0)             AS total_visitas,
+  COALESCE(vrecent.hay_visita_90d, FALSE)     AS hay_visita_90d,
+  COALESCE(rpend.hay_reward_pendiente, FALSE) AS hay_reward_pendiente,
+
+  COALESCE(bstat.tiene_bono_activo, FALSE)    AS tiene_bono_activo,
+
+  (c."deletedAt" IS NULL)                     AS cliente_activo,
+
+  vip.vip_status,
+  vip.vip_days_left,
+  vip.vip_expires_at
+
+FROM "Customer" c
+
+LEFT JOIN LATERAL (
+  SELECT
+    MAX(v."visitedAt")         AS ultima_visita,
+    COUNT(*)::int              AS total_visitas
+  FROM "Visit" v
+  WHERE v."customerId" = c.id
+) vagg ON TRUE
+
+LEFT JOIN LATERAL (
+  SELECT EXISTS (
+    SELECT 1
+    FROM "Visit" v
+    WHERE v."customerId" = c.id
+      AND v."visitedAt" >= now() - interval '90 days'
+  )::bool AS hay_visita_90d
+) vrecent ON TRUE
+
+LEFT JOIN LATERAL (
+  SELECT EXISTS (
+    SELECT 1
+    FROM "Reward" r
+    WHERE r."customerId" = c.id
+      AND r.status = 'PENDING'
+  )::bool AS hay_reward_pendiente
+) rpend ON TRUE
+
+LEFT JOIN LATERAL (
+  SELECT EXISTS (
+    SELECT 1
+    FROM "Bond" b
+    JOIN "BondPlan" bp
+      ON bp.id = b."planId"
+     AND bp."businessId" = c."businessId"
+    WHERE b."customerId" = c.id
+      AND bp."isActive" = TRUE
+  )::bool AS tiene_bono_activo
+) bstat ON TRUE
+
+LEFT JOIN LATERAL (
+  SELECT
+    b.id AS vip_bond_id,
+    (b."startedAt"
+      + (COALESCE(NULLIF(bp."durationDays", 0), 30) || ' days')::interval
+    ) AS vip_expires_at,
+    GREATEST(
+      0,
+      CEIL(EXTRACT(EPOCH FROM (
+        (b."startedAt" + (COALESCE(NULLIF(bp."durationDays", 0), 30) || ' days')::interval) - now()
+      )) / 86400)
+    )::int AS vip_days_left,
+    CASE
+      WHEN b.status NOT IN ('ACTIVE','OPEN')
+        THEN 'EXPIRED'
+      WHEN (b."startedAt" + (COALESCE(NULLIF(bp."durationDays", 0), 30) || ' days')::interval) < now()
+        THEN 'EXPIRED'
+      WHEN (b."startedAt" + (COALESCE(NULLIF(bp."durationDays", 0), 30) || ' days')::interval) < now() + interval '3 days'
+        THEN 'EXPIRING'
+      ELSE 'ACTIVE'
+    END AS vip_status
+  FROM "Bond" b
+  JOIN "BondPlan" bp
+    ON bp.id = b."planId"
+   AND bp."businessId" = c."businessId"
+  WHERE
+    c.tag ILIKE '%VIP%'
+    AND b."customerId" = c.id
+    AND bp."isActive" = TRUE
+  ORDER BY b."startedAt" DESC
+  LIMIT 1
+) vip ON TRUE
+
+WHERE c."businessId" = {{ this.params.bid || appsmith.store.businessId }}::uuid
+  AND c."deletedAt" IS NULL
+ORDER BY c."createdAt" DESC;

@@ -1,0 +1,7 @@
+{
+  "firstName": {{ Table_users.triggeredRow.firstName ? JSON.stringify(Table_users.triggeredRow.firstName) : "null" }},
+  "lastName": {{ Table_users.triggeredRow.lastName ? JSON.stringify(Table_users.triggeredRow.lastName) : "null" }},
+  "phone": {{ Table_users.triggeredRow.phone ? JSON.stringify(Table_users.triggeredRow.phone) : "null" }},
+  "isActive": {{ Table_users.triggeredRow.isActive }},
+  "role": {{ Table_users.triggeredRow.role ? JSON.stringify(Table_users.triggeredRow.role) : "null" }}
+}
